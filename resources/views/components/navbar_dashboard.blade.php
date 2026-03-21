@@ -9,6 +9,9 @@
                     <a href="{{ route('dashboard.categories.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">
                         Categorias
                     </a>
+                    <a href="{{ route('dashboard.products.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">
+                        Produtos
+                    </a>
                 </div>
             </div>
             <div class="hidden sm:flex sm:items-center sm:ml-6">
@@ -42,7 +45,8 @@
         </div>
     </div>
     <div x-show="openMobile" class="sm:hidden border-t border-slate-100 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 pt-2 pb-4 space-y-1">
-        <a href="" class="block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-900">Categorias</a>
+        <a href="{{ route('dashboard.categories.index') }}" class="block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-900">Categorias</a>
+        <a href="{{ route('dashboard.products.index') }}" class="block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-900">Produtos</a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="w-full text-left block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">Sair</button>
