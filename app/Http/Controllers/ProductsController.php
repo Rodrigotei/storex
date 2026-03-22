@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductVariation;
+use App\Models\Variation;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -22,7 +25,8 @@ class ProductsController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('dashboard.products.create', compact('categories'));
+        $variations = Variation::orderBy('name')->get();
+        return view('dashboard.products.create', compact('categories', 'variations'));
     }
     public function store(Request $request)
     {
@@ -34,7 +38,7 @@ class ProductsController extends Controller
                     'price' => 'required',
                     'img' => 'nullable|array',
                     'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-                    'status' => 'required|in:0,1'
+                    'status' => 'required|in:0,1',
                 ],
                 [
                     'name.required' => 'O nome é obrigatório.',
@@ -45,9 +49,10 @@ class ProductsController extends Controller
                     'img.*.mimes' => 'A imagem deve ser JPG, PNG ou WEBP.',
                     'img.*.max' => 'Cada imagem deve ter no máximo 2MB.',
                     'status.required' => 'O status é obrigatório.',
-                    'status.in' => 'Selecione um status válido.'
+                    'status.in' => 'Selecione um status válido.',
                 ]
             );
+            DB::beginTransaction();
             $product = Product::create([
                 'name' => $request->name,
                 'category_id' => $request->category_id,
@@ -57,20 +62,40 @@ class ProductsController extends Controller
             ]);
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
+                    if(!$file->isValid()) {
+                        throw new \Exception('Erro ao fazer upload da imagem.');
+                    }
                     $fileName = $file->hashName();
                     $filePath = $file->storeAs('products',$fileName ,'public');
+                    if (!$filePath) {
+                        throw new \Exception('Falha ao salvar imagem.');
+                    }
                     ProductImage::create([
                         'product_id' => $product->id,
                         'img' => $filePath
                     ]);
                 }
             }
+            $variation_values = array_filter($request->variation_values ?? []);
+            if(!empty($variation_values) && $request->variation_id) {
+                foreach ($variation_values as $value) {
+                    ProductVariation::create([
+                        'product_id' => $product->id,
+                        'variation_id' => $request->variation_id,
+                        'value' => $value
+                    ]);
+                }
+            }
+            DB::commit();
             return redirect()->route('dashboard.products.index')->with('success', 'Produto criado com sucesso!');
         } catch (ValidationException $e){
+            DB::rollBack();
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
@@ -78,8 +103,9 @@ class ProductsController extends Controller
     {
          try {
             $categories = Category::all();
-            $product = Product::with('productImages')->findOrFail($id);
-            return view('dashboard.products.edit',compact('product', 'categories'));
+            $variations = Variation::orderBy('name')->get();
+            $product = Product::with(['productImages', 'productVariations', 'productVariations.variation'])->findOrFail($id);
+            return view('dashboard.products.edit',compact('product', 'categories', 'variations'));
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Produto não encontrado.']);
         } catch (\Throwable $th) {
@@ -111,6 +137,7 @@ class ProductsController extends Controller
                     'status.in' => 'Selecione um status válido.'
                 ]
             );
+            DB::beginTransaction();
             $product = Product::findOrFail($id);
             $product->name = $request->name;
             $product->category_id = $request->category_id;
@@ -119,8 +146,14 @@ class ProductsController extends Controller
             $product->status = $request->status;
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
+                     if(!$file->isValid()) {
+                        throw new \Exception('Erro ao fazer upload da imagem.');
+                    }
                     $fileName = $file->hashName();
                     $filePath = $file->storeAs('products',$fileName ,'public');
+                    if (!$filePath) {
+                        throw new \Exception('Falha ao salvar imagem.');
+                    }
                     ProductImage::create([
                         'product_id' => $product->id,
                         'img' => $filePath
@@ -128,12 +161,33 @@ class ProductsController extends Controller
                 }
             }
             $product->save();
+            ProductVariation::where('product_id', $product->id)->delete();
+            $variation_values = array_filter($request->variation_values ?? []);
+            if($request->has_variation) {
+                 if (!$request->variation_id) {
+                    throw new \Exception('Selecione o tipo de variação.');
+                }
+                if (empty($variation_values)) {
+                    throw new \Exception('Adicione pelo menos um valor de variação.');
+                }
+                foreach ($variation_values as $value) {
+                    ProductVariation::create([
+                        'product_id' => $product->id,
+                        'variation_id' => $request->variation_id,
+                        'value' => $value
+                    ]);
+                }
+            }
+            DB::commit();
             return back()->with('success', 'Produto atualizado com sucesso!');
         } catch (ValidationException $e){
+            DB::rollBack();
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
-            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }

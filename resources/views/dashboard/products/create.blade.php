@@ -8,7 +8,7 @@
         </div>
     </x-slot>
     <div class="mt-8 max-w-4xl mx-auto">
-        <form action="{{ route('dashboard.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form action="{{ route('dashboard.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" novalidate>
             @csrf
             <div class="bg-white dark:bg-gray-900 shadow-sm border border-slate-200 dark:border-gray-800 rounded-[30px] p-8 transition-all">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -38,7 +38,7 @@
                         @enderror
                     </div>
                     <div class="col-span-1">
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Preço (R$)</label>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1 ">Preço (R$)</label>
                         <input type="number" step="0.01" name="price" value="{{ old('price') }}" required placeholder="0,00" class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] focus:border-transparent outline-none transition-all">
                         @error('price') 
                             <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
@@ -76,6 +76,30 @@
                         @enderror
                     </div>
                 </div>
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="has-variation" class="w-5 h-5 text-[#004aad] rounded">
+                        <span class="text-sm font-semibold text-slate-700 dark:text-gray-300">Este produto possui variações?</span>
+                    </label>
+                </div>
+                <div id="variation-container" class="hidden col-span-1 md:col-span-2 space-y-4 mt-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Tipo de Variação</label>
+                        <select name="variation_id" class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none appearance-none">
+                            <option value="">Selecione</option>
+                            @foreach($variations as $variation)
+                                <option value="{{ $variation->id }}">{{ $variation->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div id="variation-values" class="space-y-3">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Valores da Variação</label>
+                        <div class="flex gap-2">
+                            <input type="text" name="variation_values[]" placeholder="Ex: P, M, G ou Azul, Vermelho" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none">
+                            <button type="button" id="add-variation-value"class="px-5 py-2 bg-[#004aad] text-white rounded-full text-sm">+</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="flex items-center justify-end gap-4">
                 <a href="{{ route('dashboard.products.index') }}" class="px-8 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white transition-all uppercase tracking-wider">Cancelar</a>
@@ -97,7 +121,6 @@
         const imgInput = document.getElementById('img-input');
         const previewContainer = document.getElementById('preview-container');
         const placeholder = document.getElementById('upload-placeholder');
-
         imgInput.onchange = evt => {
             const files = imgInput.files;
             let currentImages = previewContainer.querySelectorAll('.product-img');
@@ -130,6 +153,31 @@
             previewContainer.classList.remove('hidden');
             placeholder.classList.add('hidden');
         }
+        const hasVariation = document.getElementById('has-variation');
+        const variationContainer = document.getElementById('variation-container');
+        const addBtn = document.getElementById('add-variation-value');
+        const valuesContainer = document.getElementById('variation-values');
+        hasVariation.addEventListener('change', () => {
+            if (hasVariation.checked) {
+                variationContainer.classList.remove('hidden');
+            } else {
+                variationContainer.classList.add('hidden');
+            }
+        });
+        addBtn.addEventListener('click', () => {
+            const div = document.createElement('div');
+            div.className = "flex gap-2";
+            div.innerHTML = `
+            <input type="text" name="variation_values[]" placeholder="Outro valor" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none">
+            <button type="button" class="remove-variation px-5 py-2 bg-red-500 text-white rounded-full text-sm">x</button>
+            `;
+            valuesContainer.appendChild(div);
+        });
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-variation')) {
+                e.target.parentElement.remove();
+            }
+        });
         setTimeout(() => {
             document.querySelectorAll('.message').forEach(el => {
                 el.style.opacity = '0';
