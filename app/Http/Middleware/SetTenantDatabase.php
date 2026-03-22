@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Store;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,8 @@ class SetTenantDatabase
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $dbName = str_replace('-', '_', auth()->user()->slug);
+        $user = auth()->user()->load('store.address');
+        $dbName = str_replace('-', '_', $user->store->slug);
         config(['database.connections.store.database' => $dbName]);
         DB::purge('store');
         DB::reconnect('store');
