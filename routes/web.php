@@ -10,7 +10,7 @@ use App\Http\Middleware\SetTenantDataBaseClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/loja');
+Route::redirect('/', '/loja'); 
 
 Route::middleware('auth')->prefix('dashboard')->group(function(){
     Route::get('/', [HomeController::class, 'index'])->middleware(SetTenantDatabase::class)->name('dashboard.home');
@@ -26,4 +26,7 @@ Route::middleware(SetTenantDataBaseClient::class)->prefix('loja')->group(functio
     Route::get('/categories', [ClientController::class, 'categories'])->name('client.categories');
     Route::get('/category/{id}', [ClientController::class, 'category'])->name('client.category');
     Route::get('/product/{id}', [ClientController::class, 'product'])->name('client.product');
+    Route::get('/cart', [ClientController::class, 'cart'])->name('client.cart');
+    Route::post('/cart', [ClientController::class, 'add'])->name('client.cart.add');
+    Route::delete('/cart', [ClientController::class, 'delete'])->name('client.cart.delete');
 });

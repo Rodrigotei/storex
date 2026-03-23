@@ -11,11 +11,13 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <a href="/cart" class="relative p-3 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-[#004aad] hover:text-white transition-all group">
+                <a href="{{ route('client.cart') }}" class="relative p-3 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-[#004aad] hover:text-white transition-all group">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white dark:border-gray-950">
-                        3
-                    </span>
+                    @if(session('cart_count'))
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white dark:border-gray-950">
+                            {{ session('cart_count') }}
+                        </span>
+                    @endif
                 </a>
             </div>
         </div>

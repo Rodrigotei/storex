@@ -37,24 +37,63 @@ class ClientController extends Controller
         $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->find($id);
         return view('client.product', compact('product'));
     }
-
-    public function show(string $id)
+    public function cart()
     {
-        //
+        $store  = Store::where('slug', app('slug'))->get('delivery_fee')->first();
+        $delivery_fee = $store->delivery_fee;
+        return view('client.cart', compact('delivery_fee'));
+    }
+   public function add(Request $request)
+    {
+        try {
+            $cart = session()->get('cart', []);
+            $product = Product::with(['productImages'])->findOrFail($request->product_id);
+            $found = false;
+            foreach ($cart as &$item) {
+                if ($item['product_id'] == $product->id && $item['variation_id'] == $request->variation_id){
+                    $item['qty'] += $request->quantity;
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $cart[] = [
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'qty' => $request->quantity,
+                    'variation_id' => $request->variation_id,
+                    'variation' => $request->variation_name,
+                    'image' => $product->productImages->first()->img ?? null
+                ];
+            }
+            session()->put('cart', $cart);
+            $totalQty = collect($cart)->sum('qty');
+            session()->put('cart_count', $totalQty);
+            return back()->with('success', 'Produto adicionado!');
+        } catch (\Throwable $th) {
+            return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
+        }
     }
 
-    public function edit(string $id)
+    public function delete(Request $request)
     {
-        //
-    }
-
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    public function destroy(string $id)
-    {
-        //
+        try {
+            $cart = session()->get('cart', []);
+            if (empty($cart)) {
+                return back()->withErrors(['error' => 'O carrinho está vazio.']);
+            }
+            if (!isset($cart[$request->index])) {
+                return back()->withErrors(['error' => 'Item inválido.']);
+            }
+            unset($cart[$request->index]);
+            $cart = array_values($cart);
+            session()->put('cart', $cart);
+            $totalQty = collect($cart)->sum('qty');
+            session()->put('cart_count', $totalQty);
+            return back()->with('success', 'Produto removido com sucesso.');
+        } catch (\Throwable $th) {
+            return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
+        }
     }
 }
