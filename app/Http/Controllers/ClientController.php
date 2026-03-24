@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -18,23 +19,29 @@ class ClientController extends Controller
         $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->get();
         return view('client.index', compact('store', 'categories', 'lastProducts'));
     }
-
     public function categories()
     {
         $categories = Category::where('status', true)->get();
+        if($categories->isEmpty()){
+            return redirect()->route('client.home')->withErrors(['error' => 'Nenhuma categoria foi encontrada.']);
+        }
         return view('client.categories', compact('categories'));
     }
-
     public function category(string $id)
     {
+        $categoryName = Category::where('status', true)->find($id,'name');
+        if(!$categoryName){
+            return redirect()->route('client.home')->withErrors(['error' => 'Categoria não encontrada.']);
+        }
         $products = Product::with('category')->where('category_id', $id)->where('status', true)->get();
-        $categoryName = Category::find($id,'name');
         return view('client.category', compact('categoryName', 'products'));
     }
-
     public function product(string $id)
     {
-        $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->find($id);
+        $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->where('status', true)->find($id);
+        if(!$product){
+            return redirect()->route('client.home')->withErrors(['error' => 'Produto não encontrado.']);
+        }
         return view('client.product', compact('product'));
     }
     public function cart()
@@ -43,11 +50,11 @@ class ClientController extends Controller
         $delivery_fee = $store->delivery_fee;
         return view('client.cart', compact('delivery_fee'));
     }
-   public function add(Request $request)
+    public function add(Request $request)
     {
         try {
             $cart = session()->get('cart', []);
-            $product = Product::with(['productImages'])->findOrFail($request->product_id);
+            $product = Product::with(['productImages'])->where('status', true)->findOrFail($request->product_id);
             $found = false;
             foreach ($cart as &$item) {
                 if ($item['product_id'] == $product->id && $item['variation_id'] == $request->variation_id && $item['observation'] == $request->observation){
@@ -72,11 +79,13 @@ class ClientController extends Controller
             $totalQty = collect($cart)->sum('qty');
             session()->put('cart_count', $totalQty);
             return back()->with('success', 'Produto adicionado!');
-        } catch (\Throwable $th) {
-            return back()->withErrors(['error' => $th->getMessage()]);
+        } catch( ModelNotFoundException $e){
+            return back()->withErrors(['error' => 'Produto não encontrado.']);
+        } 
+        catch (\Throwable $th) {
+            return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
-
     public function delete(Request $request)
     {
         try {

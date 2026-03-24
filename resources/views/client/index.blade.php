@@ -57,14 +57,18 @@
             <a href="{{ route('client.categories') }}" class="text-sm font-bold text-[#004aad] dark:text-blue-400 hover:underline">Ver todas</a>
         </div>
         <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-            @foreach($categories as $category)
-            <a href="{{ route('client.category', $category->id) }}" class="flex-none w-32 md:w-40 group text-center">
-                <div class="w-full aspect-square bg-white dark:bg-gray-900 rounded-[30px] border border-slate-200 dark:border-gray-800 flex items-center justify-center mb-3 group-hover:border-[#0158cd] group-hover:shadow-lg transition-all overflow-hidden">
-                    <img src="{{ asset($category->img ? 'storage/'.$category->img : 'storage/images/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+           @forelse($categories as $category)
+                <a href="{{ route('client.category', $category->id) }}" class="flex-none w-32 md:w-40 group text-center">
+                    <div class="w-full aspect-square bg-white dark:bg-gray-900 rounded-[30px] border border-slate-200 dark:border-gray-800 flex items-center justify-center mb-3 group-hover:border-[#0158cd] group-hover:shadow-lg transition-all overflow-hidden">
+                        <img src="{{ asset($category->img ? 'storage/'.$category->img : 'storage/images/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <span class="text-sm font-bold text-slate-700 dark:text-gray-300 group-hover:text-[#004aad] transition-colors">{{ $category->name }}</span>
+                </a>
+            @empty
+                <div class="w-full text-center py-10">
+                    <p class="text-slate-500 dark:text-gray-400">Nenhuma categoria disponível.</p>
                 </div>
-                <span class="text-sm font-bold text-slate-700 dark:text-gray-300 group-hover:text-[#004aad] transition-colors">{{ $category->name }}</span>
-            </a>
-            @endforeach
+            @endforelse
         </div>
     </section>
     <section id="produtos">
@@ -72,30 +76,61 @@
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Novidades</h2>
         </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            @foreach($lastProducts as $product)
-            <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
-                <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
-                    <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'storage/images/product-default.png') }}" class="w-full h-full object-cover">
-                </div>
-                <div class="px-2">
-                    <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $product->category->name }}</p>
-                    <h3 class="text-sm md:text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">{{ $product->name }}</h3>
-                    <div class="flex items-center justify-between mt-4">
-                        <span class="text-lg font-black text-slate-900 dark:text-white">
-                            R$ {{ number_format($product->price, 2, ',', '.') }}
-                        </span>
-                        <button onclick="showProduct({{ $product->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg>
-                        </button>
+            @forelse ($lastProducts as $product)
+                <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
+                    <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
+                        <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'storage/images/product-default.png') }}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="px-2">
+                        <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $product->category->name }}</p>
+                        <h3 class="text-sm md:text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">{{ $product->name }}</h3>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="text-lg font-black text-slate-900 dark:text-white">
+                                R$ {{ number_format($product->price, 2, ',', '.') }}
+                            </span>
+                            <button onclick="showProduct({{ $product->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                @empty
             </div>
-            @endforeach
-        </div>
+                <div class="w-full text-center py-10">
+                    <p class="text-slate-500 dark:text-gray-400">Nenhum produto disponível.</p>
+                </div>
+            @endforelse
     </section>
+     <div class="fixed bottom-5 right-5 z-[60] flex flex-col gap-3">
+        @if (session('success'))
+            <div class="message bg-white dark:bg-gray-900 border-l-4 border-green-500 shadow-2xl rounded-xl p-4 flex items-center min-w-[300px] animate-bounce-subtle">
+                <div class="p-2 bg-green-100 dark:bg-green-500/20 rounded-full mr-3 text-green-600">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                </div>
+                <p class="text-sm font-bold text-slate-700 dark:text-gray-200">{{ session('success') }}</p>
+            </div>
+        @endif
+         @error('error')
+            <div class="message bg-white dark:bg-gray-900 border-l-4 border-red-500 shadow-2xl rounded-xl p-4 flex items-center min-w-[300px]">
+                <div class="p-2 bg-red-100 dark:bg-red-500/20 rounded-full mr-3 text-red-600">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </div>
+                <p class="text-sm font-bold text-slate-700 dark:text-gray-200">{{ $message }}</p>
+            </div>
+        @enderror
+    </div>
     <script>
-        function showProduct(id){
+         function showProduct(id){
             window.location.href = `/loja/product/${id}`;
         }
+        function editCategory(id) { window.location.href = `/dashboard/categories/${id}/edit`; }
+        setTimeout(() => {
+            document.querySelectorAll('.message').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(20px)';
+                el.style.transition = 'all 0.5s ease';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
     </script>
 </x-client_layout>
