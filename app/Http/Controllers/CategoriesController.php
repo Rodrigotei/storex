@@ -90,6 +90,13 @@ class CategoriesController extends Controller
             }
             $category = Category::findOrFail($id);
             $category->name = $request->name;
+
+            $oldStatus = $category->status;
+
+            if ($oldStatus == 1 && $request->status == 0) {
+                Product::where('category_id', $category->id)->update(['status' => 0]);
+            }
+
             if($filePath){
                 if($category->img){
                     Storage::disk('public')->delete($category->img);
