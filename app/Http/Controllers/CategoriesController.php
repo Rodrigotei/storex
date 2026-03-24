@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -111,6 +112,10 @@ class CategoriesController extends Controller
     public function destroy(string $id): RedirectResponse
     {
         try {
+            $products = Product::where('category_id', $id)->exists();
+            if($products){
+                return back()->withErrors(['error' => 'Erro: Existe produtos na categoria.']);
+            }
             $category = Category::findOrFail($id);
             if($category->img){
                 Storage::disk('public')->delete($category->img);
