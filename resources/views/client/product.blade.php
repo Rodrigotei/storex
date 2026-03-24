@@ -52,6 +52,10 @@
                             </div>
                         </div>
                     @endif
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Observação</label>
+                        <textarea name="observation" rows="3" placeholder="Observação sobre o produto..." class="w-full px-5 py-4 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] focus:border-transparent outline-none transition-all resize-none">{{ old('description') }}</textarea>
+                    </div>
                     <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-100 dark:border-gray-800">
                         <div class="flex items-center justify-between bg-slate-100 dark:bg-gray-950 rounded-full p-1.5 w-full sm:w-40 border border-slate-200 dark:border-gray-800">
                             <button type="button" @click="if(qty > 1) qty--" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-[#004aad] bg-white dark:bg-gray-900 rounded-full shadow-sm transition-all focus:outline-none">-</button>

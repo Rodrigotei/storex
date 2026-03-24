@@ -50,7 +50,7 @@ class ClientController extends Controller
             $product = Product::with(['productImages'])->findOrFail($request->product_id);
             $found = false;
             foreach ($cart as &$item) {
-                if ($item['product_id'] == $product->id && $item['variation_id'] == $request->variation_id){
+                if ($item['product_id'] == $product->id && $item['variation_id'] == $request->variation_id && $item['observation'] == $request->observation){
                     $item['qty'] += $request->quantity;
                     $found = true;
                     break;
@@ -64,7 +64,8 @@ class ClientController extends Controller
                     'qty' => $request->quantity,
                     'variation_id' => $request->variation_id,
                     'variation' => $request->variation_name,
-                    'image' => $product->productImages->first()->img ?? null
+                    'image' => $product->productImages->first()->img ?? null,
+                    'observation' => $request->observation
                 ];
             }
             session()->put('cart', $cart);
@@ -72,7 +73,7 @@ class ClientController extends Controller
             session()->put('cart_count', $totalQty);
             return back()->with('success', 'Produto adicionado!');
         } catch (\Throwable $th) {
-            return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
+            return back()->withErrors(['error' => $th->getMessage()]);
         }
     }
 

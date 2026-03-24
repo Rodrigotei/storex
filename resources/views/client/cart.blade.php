@@ -22,6 +22,7 @@
                                 <p class="text-xs text-slate-400 font-medium uppercase mt-1">Opção: <span class="text-[#004aad] dark:text-blue-400">{{ $item['variation'] }}</span></p>
                             @endif
                             <p class="text-sm font-black text-slate-900 dark:text-white mt-2">R$ {{ number_format($item['price'], 2, ',', '.') }}</p>
+                            <div><span class="text-gray-500 text-sm">Observação:</span> {{ $item['observation'] }}</div>
                         </div>
                         <div class="flex flex-col items-end gap-3">
                             <form action="{{ route('client.cart.delete') }}" method="POST">
