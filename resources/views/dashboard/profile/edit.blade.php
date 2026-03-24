@@ -66,6 +66,13 @@
                     <label class="block text-sm font-semibold mb-2">Descrição</label>
                     <textarea name="store[description]" cols="30" rows="5" class="w-full resize-none outline-none p-3 rounded bg-slate-100 dark:bg-gray-950">{{ $user->store->description }}</textarea>
                 </div>
+                <div class="col-span-1">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1 ">Taxa de entrega (R$)</label>
+                    <input type="number" step="0.01" name="store[delivery_fee]" value="{{ old('store.delivery_fee', $user->store->delivery_fee) }}" placeholder="0.00" class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] focus:border-transparent outline-none transition-all">
+                    @error('store.delivery_fee') 
+                        <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
+                    @enderror
+                </div>
             </div>
             {{-- ================= ADDRESS ================= --}}
             <div class="bg-white dark:bg-gray-900 shadow-sm border border-slate-200 dark:border-gray-800 rounded-[30px] p-8">

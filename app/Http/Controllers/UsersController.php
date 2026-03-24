@@ -111,12 +111,13 @@ class UsersController extends Controller
             $user->save();
             $storeData = $request->store;
             $store = $user->store ?? $user->store()->create([]);
-            
+
             $store->update([
                 'name' => $storeData['name'],
                 'slug' => str_replace(' ', '-', strtolower($storeData['name'])),
                 'phone' => $storeData['phone'],
                 'description' => $storeData['description'],
+                'delivery_fee' => $storeData['delivery_fee']
             ]);
 
             $addressData = $request->address;
