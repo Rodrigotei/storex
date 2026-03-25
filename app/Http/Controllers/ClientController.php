@@ -106,4 +106,88 @@ class ClientController extends Controller
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
+    public function orderFinish(Request $request)
+    {
+       try {
+        $validated = $request->validate([
+            'name'            => ['required', 'string', 'max:100'],
+            'type'            => ['required', 'in:delivery,pickup'],
+            'payment_method'  => ['required', 'in:pix,cash,card'],
+            'address'         => ['required_if:type,delivery', 'nullable', 'string', 'max:255'],
+            'number'          => ['required_if:type,delivery', 'nullable', 'string', 'max:20'],
+            'neighborhood'    => ['required_if:type,delivery', 'nullable', 'string', 'max:100'],
+            'complement'      => ['nullable', 'string', 'max:255'],
+            'change_for'      => ['nullable', 'string', 'max:50'],
+        ], [
+            'name.required' => 'Informe seu nome',
+            'phone.required' => 'Informe seu WhatsApp',
+            'type.required' => 'Selecione entrega ou retirada',
+            'payment_method.required' => 'Selecione a forma de pagamento',
+            'address.required_if' => 'Informe o endereço para entrega',
+            'number.required_if' => 'Informe o número',
+            'neighborhood.required_if' => 'Informe o bairro',
+        ]);
+        $cart = session('cart', []);
+        if (empty($cart)) {
+            return back()->withErrors(['error' => 'Seu carrinho está vazio']);
+        }
+        $total = 0;
+        foreach ($cart as $item) {
+            $total += $item['price'] * $item['qty'];
+        }
+        $delivery_fee = $request->type === 'delivery' ? (float) ($request->delivery_fee ?? 0) : 0;
+        $total += $delivery_fee;
+        $paymentMap = [
+            'pix'  => 'PIX',
+            'cash' => 'Dinheiro',
+            'card' => 'Cartão',
+        ];
+        $typeMap = [
+            'delivery' => 'Entrega',
+            'pickup'   => 'Retirada',
+        ];
+        $message  = "*NOVO PEDIDO*\n";
+        $message .= "━━━━━━━━━━━━━━━\n\n";
+        foreach ($cart as $item) {
+            $subtotal = $item['price'] * $item['qty'];
+            $message .= " *{$item['name']}*\n";
+            $message .= "   {$item['qty']}x R$ " . number_format($item['price'], 2, ',', '.') . "\n";
+            if (!empty($item['variation'])) {
+                $message .= "   Opção: {$item['variation']}\n";
+            }
+            if (!empty($item['observation'])) {
+                $message .= "   Obs: {$item['observation']}\n";
+            }
+            $message .= "   Subtotal: R$ " . number_format($subtotal, 2, ',', '.') . "\n\n";
+        }
+        $message .= "━━━━━━━━━━━━━━━\n";
+        $message .= "*RESUMO*\n";
+        $message .= "Subtotal: R$ " . number_format($total - $delivery_fee, 2, ',', '.') . "\n";
+        if ($request->type === 'delivery') {
+            $message .= "Entrega: " . ($delivery_fee > 0  ? "R$ " . number_format($delivery_fee, 2, ',', '.')  : "Grátis") . "\n";
+        }
+        $message .= "*Total: R$ " . number_format($total, 2, ',', '.') . "*\n\n";
+        $message .= "*CLIENTE*\n";
+        $message .= "Nome: {$request->name}\n";
+        $message .= "*{$typeMap[$request->type]}*\n";
+        if ($request->type === 'delivery') {
+            $message .= "{$request->address}, {$request->number}\n";
+            $message .= "{$request->neighborhood}\n";
+            if (!empty($request->complement)) {
+                $message .= "Complemento: {$request->complement}\n";
+            }
+            $message .= "\n";
+        }
+        $message .= "*PAGAMENTO*\n";
+        $message .= $paymentMap[$request->payment_method] . "\n";
+        if ($request->payment_method === 'cash' && !empty($request->change_for)) {
+            $message .= "Troco para: R$ {$request->change_for}\n";
+        }
+        $store = Store::where('slug', app('slug'))->get('phone')->first();
+        $url = "https://wa.me/55{$store->phone}?text=".urlencode($message);
+        return redirect()->away($url);
+       } catch (\Throwable $th) {
+        return back()->withErrors(['error' => $th->getMessage()]);
+       }
+    }
 }

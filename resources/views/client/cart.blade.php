@@ -57,11 +57,60 @@
                             <span class="text-base font-bold text-slate-800 dark:text-white">Total</span>
                             <span class="text-2xl font-black text-[#004aad] dark:text-blue-400 leading-none">R$ {{ number_format($total, 2, ',', '.') }}</span>
                         </div>
+                        
                     </div>
-                    <a href="" class="w-full bg-[#004aad] hover:bg-[#0158cd] text-white font-bold py-4 rounded-full flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
-                        Fazer Pedido
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
+                    <div x-data="{open : false}" >
+                        <button type="button" @click="open = !open" :class="{ 'hidden': open }" class="w-full bg-[#004aad] hover:bg-[#0158cd] text-white font-bold py-4 rounded-full flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
+                            Finalizar
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                        <form action="{{ route('client.order.finish') }}" method="POST" :class="{ 'hidden': !open }" class="space-y-5 mt-5">
+                            @csrf
+                            <input type="hidden" name="delivery_fee" value="{{ $delivery_fee ?? 0 }}">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-600 dark:text-gray-300 mb-2">Dados do cliente</h3>
+                                <input type="text" name="name" required placeholder="Seu nome" class="w-full mb-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                            </div>
+                            <div x-data="{ type: '' }">
+                                <h3 class="text-sm font-bold text-slate-600 dark:text-gray-300 mb-2">Recebimento</h3>
+                                <div class="flex gap-2 mb-3">
+                                    <button type="button" @click="type = 'pickup'" :class="type === 'pickup' ? 'bg-[#004aad] text-white' : 'bg-gray-100 dark:bg-gray-800'" class="flex-1 py-2 rounded-xl text-sm font-bold">
+                                        Retirada
+                                    </button>
+                                    <button type="button" @click="type = 'delivery'" :class="type === 'delivery' ? 'bg-[#004aad] text-white' : 'bg-gray-100 dark:bg-gray-800'" class="flex-1 py-2 rounded-xl text-sm font-bold">
+                                        Entrega
+                                    </button>
+                                </div>
+                                <input type="hidden" name="type" :value="type">
+                                <div x-show="type === 'delivery'" x-transition>
+                                    <div id="container-zip-code">
+                                        <div class="flex justify-start gap-4">
+                                            <input type="text" id="zip-code" oninput="formatZipCode(this)" name="address[zip_code]" class="w-full mb-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm" placeholder="CEP">
+                                            <button type="button" onclick="searchZipCode()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"  width="24" height="24"><circle cx="11" cy="11" r="7"></circle><line x1="16.65" y1="16.65" x2="21" y2="21"></line></svg></button>
+                                        </div>
+                                    </div>
+                                    <input type="text" id="street" name="address" placeholder="Endereço" class="w-full mb-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                                    <input type="text" id="number" name="number" placeholder="Número" class="w-full mb-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                                    <input type="text" id="neighborhood" name="neighborhood" placeholder="Bairro" class="w-full mb-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                                    <input type="text" name="complement" placeholder="Complemento (opcional)" class="w-full mb-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <div x-data="{ payment_method: '' }">
+                                <select x-model="payment_method" name="payment_method" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
+                                    <option value="">Selecione</option>
+                                    <option value="pix">PIX</option>
+                                    <option value="cash">Dinheiro</option>
+                                    <option value="card">Cartão</option>
+                                </select>
+                                <input x-show="payment_method === 'cash'"x-transition type="number" name="change_for"  step="0.01" min="0" placeholder="Troco para" class="w-full mt-2 px-4 py-3 rounded-xl border text-sm">
+                            </div>
+                            <button type="submit" class="w-full bg-[#004aad] hover:bg-[#0158cd] text-white font-bold py-4 rounded-full flex items-center justify-center gap-3 mt-5 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
+                                Fazer Pedido
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </form>
+                   </div>
                     <p class="text-[10px] text-center text-slate-400 mt-6 uppercase tracking-widest font-bold">🔒 Pagamento 100% Seguro</p>
                 </div>
             </div>
@@ -93,6 +142,40 @@
     </div>
 
     <script>
+         function formatZipCode(input){
+            let value = input.value.replace(/\D/g, '');
+            if(value.length > 8) value = value.slice(0,8);
+            input.value = value
+        }
+        async function searchZipCode(){
+            const zipCode = document.querySelector('#zip-code').value;
+            const street = document.querySelector('#street');
+            const neighborhood = document.querySelector('#neighborhood');
+            const containerZipCode = document.querySelector('#container-zip-code');
+
+            if(!zipCode || zipCode.length != 8){
+                return;
+            }
+            const response = await fetch(`https://viacep.com.br/ws/${zipCode}/json/`)
+            const result = await response.json();
+            
+            if(!result.erro){
+                street.value = result.logradouro;
+                neighborhood.value = result.bairro;
+            }else{
+                street.value = '';
+                neighborhood.value = '';
+
+                const p = document.createElement('p');
+                p.className = 'text-red-500 text-xs mb-2 ml-4';
+                p.textContent = 'Cep inválido.'
+                containerZipCode.appendChild(p); 
+                setTimeout(() => {
+                    p.remove();
+                }, 2000);   
+            }
+
+        }
         function editCategory(id) { window.location.href = `/dashboard/categories/${id}/edit`; }
         setTimeout(() => {
             document.querySelectorAll('.message').forEach(el => {

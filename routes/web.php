@@ -29,4 +29,5 @@ Route::middleware(SetTenantDataBaseClient::class)->prefix('loja')->group(functio
     Route::get('/cart', [ClientController::class, 'cart'])->name('client.cart');
     Route::post('/cart', [ClientController::class, 'add'])->name('client.cart.add');
     Route::delete('/cart', [ClientController::class, 'delete'])->name('client.cart.delete');
+    Route::post('/order/finish', [ClientController::class, 'orderFinish'])->name('client.order.finish');
 });
