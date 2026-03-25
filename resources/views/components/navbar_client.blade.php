@@ -3,11 +3,12 @@
         <div class="flex justify-between h-20 items-center">
             <a href="/" class="text-2xl font-black text-[#004aad] dark:text-white uppercase tracking-tighter">StoreX</a>
             <div class="hidden md:flex flex-1 max-w-md mx-8">
-                <div class="relative w-full">
-                    <input type="text" placeholder="O que você procura hoje?" 
-                        class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-gray-900 border-transparent rounded-full focus:ring-2 focus:ring-[#0158cd] focus:bg-white dark:focus:bg-gray-800 transition-all outline-none text-sm">
-                    <svg class="w-5 h-5 absolute left-4 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round"/></svg>
-                </div>
+                <form action="{{ route("client.search") }}" method="post" class="relative w-full">
+                    <input type="text" name="search" placeholder="O que você procura hoje?" class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-gray-900 border-transparent rounded-full focus:ring-2 focus:ring-[#0158cd] focus:bg-white dark:focus:bg-gray-800 transition-all outline-none text-sm">
+                    <button type="submit">
+                        <svg class="w-5 h-5 absolute right-4 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
+                </form>
             </div>
 
             <div class="flex items-center gap-4">

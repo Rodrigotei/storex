@@ -121,7 +121,7 @@ class CategoriesController extends Controller
         try {
             $products = Product::where('category_id', $id)->exists();
             if($products){
-                return back()->withErrors(['error' => 'Existe produtos vinculados à essa categoria.']);
+                return back()->withErrors(['error' => 'Existem produtos vinculados à essa categoria.']);
             }
             $category = Category::findOrFail($id);
             if($category->img){

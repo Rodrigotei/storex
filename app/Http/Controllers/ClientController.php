@@ -190,4 +190,22 @@ class ClientController extends Controller
         return back()->withErrors(['error' => $th->getMessage()]);
        }
     }
+    public function search(Request $request)
+    {
+       try {
+            $request->validate(
+                [
+                    'search' => 'required'
+                ],
+            );
+            $search = $request->search;
+            $products = Product::whereLike('name', '%'.$search.'%')->where('status', true)->get();
+            if($products->isEmpty() ){
+                return redirect()->route('client.home')->withErrors(['error' => 'Nada foi encontrado.']);
+            }
+            return view('client.search', compact('search', 'products'));
+       } catch (\Throwable $th) {
+            return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
+       }
+    }
 }
