@@ -10,7 +10,7 @@ use App\Http\Middleware\SetTenantDataBaseClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/loja'); 
+Route::view('/', 'website.home'); 
 
 Route::middleware('auth')->prefix('dashboard')->group(function(){
     Route::get('/', [HomeController::class, 'index'])->middleware(SetTenantDatabase::class)->name('dashboard.home');
