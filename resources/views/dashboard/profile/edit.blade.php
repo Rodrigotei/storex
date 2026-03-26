@@ -9,7 +9,7 @@
     </x-slot>
 
     <div class="mt-8 max-w-4xl mx-auto">
-        <form action="{{ route('dashboard.profile.update', $user->id) }}" method="POST" class="space-y-6" novalidate>
+        <form action="{{ route('dashboard.profile.update', $user->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6" novalidate>
             @csrf
             @method('PATCH')
             {{-- ================= USER ================= --}}
@@ -72,6 +72,35 @@
                     @error('store.delivery_fee') 
                         <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
                     @enderror
+                </div>
+                
+                <div class="col-span-1 md:col-span-2 mt-3">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Adicionar Imagem</label>
+                    <div class="flex flex-col md:flex-row md:items-center gap-2">
+                        @if ($user->store->img)
+                                <img src="{{ asset('storage/'.$user->store->img) }}" class="w-20 h-20 object-cover rounded" alt="logo {{ $user->store->name }}" srcset="">
+                        @else
+                            <div class="w-20 h-20 md:w-25 md:h-25 rounded-2xl bg-slate-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-gray-700">
+                                <span class="text-xl font-bold text-[#004aad]">{{ strtoupper(substr($user->store->name, 0, 2)) }}</span>
+                            </div>
+                        @endif
+                        <div class="flex-1 w-full relative group">
+                            <input type="file" name="img" accept="image/*" id="img-input"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="w-full px-5 py-6 bg-slate-100 dark:bg-gray-950 border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-[20px] text-center group-hover:border-[#0158cd] transition-all">
+                                <div id="preview-container" class="hidden mb-2 flex justify-center">
+                                    <img id="img-preview" src="#" alt="Preview" class="w-16 h-16 object-cover rounded-lg shadow-md border-2 border-white">
+                                </div>
+                                <div id="upload-placeholder">
+                                    <svg class="w-6 h-6 mx-auto text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <p class="text-xs text-slate-500 dark:text-gray-400">Clique para substituir</p>
+                                </div>
+                            </div>
+                        </div>
+                        @error('img')
+                            <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </div>
             {{-- ================= ADDRESS ================= --}}
@@ -214,7 +243,19 @@
             }
 
         }
-        function editCategory(id) { window.location.href = `/dashboard/products/${id}/edit`; }
+        const imgInput = document.getElementById('img-input');
+        const imgPreview = document.getElementById('img-preview');
+        const previewContainer = document.getElementById('preview-container');
+        const placeholder = document.getElementById('upload-placeholder');
+
+        imgInput.onchange = evt => {
+            const [file] = imgInput.files;
+            if (file) {
+                imgPreview.src = URL.createObjectURL(file);
+                previewContainer.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+        }
         setTimeout(() => {
             document.querySelectorAll('.message').forEach(el => {
                 el.style.opacity = '0';

@@ -112,12 +112,20 @@ class UsersController extends Controller
             $storeData = $request->store;
             $store = $user->store ?? $user->store()->create([]);
 
+            $filePath = null;
+            if($request->hasFile('img')){
+                $fileName = $request->file('img')->hashName();
+                $filePath = $request->file('img')->storeAs('logo', $fileName, 'public');
+
+            }
+
             $store->update([
                 'name' => $storeData['name'],
                 'slug' => str_replace(' ', '-', strtolower($storeData['name'])),
                 'phone' => $storeData['phone'],
                 'description' => $storeData['description'],
-                'delivery_fee' => $storeData['delivery_fee']
+                'delivery_fee' => $storeData['delivery_fee'],
+                'img' => $filePath
             ]);
 
             $addressData = $request->address;

@@ -150,7 +150,6 @@
     </div>
  <script>
    function deleteImage(id) {
-    console.log(id)
         if (!confirm('Deseja excluir a imagem?')) return;
 
         fetch(`/dashboard/products/image/${id}`, {
