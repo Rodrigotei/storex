@@ -38,14 +38,22 @@
                     </div>
                     <div class="col-span-1">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Preço (R$)</label>
-                        <input type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" required 
+                        <input type="number" step="0.01" min="0.00" name="price" value="{{ old('price', $product->price) }}" required 
                             class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] focus:border-transparent outline-none transition-all">
                         @error('price') 
                             <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
                         @enderror
+                    </div> 
+                    <div class="col-span-1">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Preço Promocional (R$)</label>
+                        <input type="number" step="0.01" min="0.00" name="promotional_price" value="{{ old('promotional_price', $product->promotional_price) }}" 
+                            class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] focus:border-transparent outline-none transition-all">
+                        @error('promotional_price') 
+                            <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
+                        @enderror
                     </div>
                     @if ($product->productImages->isNotEmpty())
-                    <div>
+                    <div class="col-span-2">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Imagens salvas</label>
                         <div class="flex gap-4 items-start">
                             @for ($i = 0; $i < count($product->productImages); $i++)

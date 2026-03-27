@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ClientController extends Controller
 {
@@ -17,7 +18,8 @@ class ClientController extends Controller
         $store = Store::with('address')->where('slug', $slug)->first();
         $categories = Category::where('status', true)->get();
         $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->get();
-        return view('client.index', compact('store', 'categories', 'lastProducts'));
+        $promotionalProducts = Product::with('productImages')->whereNot('promotional_price', null)->where('status', true)->get();
+        return view('client.index', compact('store', 'categories', 'lastProducts', 'promotionalProducts'));
     }
     public function categories()
     {
@@ -67,7 +69,7 @@ class ClientController extends Controller
                 $cart[] = [
                     'product_id' => $product->id,
                     'name' => $product->name,
-                    'price' => $product->price,
+                    'price' => $product->promotional_price ?? $product->price,
                     'qty' => $request->quantity,
                     'variation_id' => $request->variation_id,
                     'variation' => $request->variation_name,
@@ -204,6 +206,8 @@ class ClientController extends Controller
                 return redirect()->route('client.home')->withErrors(['error' => 'Nada foi encontrado.']);
             }
             return view('client.search', compact('search', 'products'));
+       } catch (ValidationException $e) {
+            return back()->withErrors(['error' => 'Nada encontrado.']);
        } catch (\Throwable $th) {
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
        }

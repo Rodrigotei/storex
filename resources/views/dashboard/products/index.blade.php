@@ -38,7 +38,11 @@
                                 <span class="px-3 py-1 text-xs font-medium bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-400 rounded-lg">{{ $product->category->name ?? 'Sem categoria' }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm font-bold text-[#004aad] dark:text-blue-400">R$ {{ number_format($product->price, 2, ',', '.') }}</span>
+                                @if ($product->promotional_price != null && $product->promotional_price > 0)
+                                    <span class="text-sm font-bold text-red-500">R$ {{ number_format($product->promotional_price, 2, ',', '.') }}</span>
+                                @else
+                                    <span class="text-sm font-bold text-[#004aad] dark:text-blue-400">R$ {{ number_format($product->price, 2, ',', '.') }}</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($product->status ?? true)

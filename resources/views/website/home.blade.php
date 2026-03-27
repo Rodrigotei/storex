@@ -62,7 +62,7 @@
             <a href="/#planos" class="w-[250px] mx-auto md:mx-0 text-center mt-5 block px-10 py-3 rounded-2xl bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:bg-[#004aad] dark:text-white  dark:hover:bg-[#0158cd] dark:hover:text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Crie seu catálogo agora</a>            
             <a href="/" class="w-[250px] mx-auto md:mx-0 text-center mt-5 block px-10 py-3 rounded-2xl bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:bg-[#004aad] dark:text-white  dark:hover:bg-[#0158cd] dark:hover:text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Conheça o app</a>
         </div>
-        <div class="w-full max-w-[650px]"><img src="/img/bg1.png" alt="" class="w-full max-w-[650px] md:max-w-[600px]"></div>
+        <div class="w-full max-w-[650px]"><img src="/img/bg-2.png" alt="" class="w-full max-w-[650px] md:max-w-[600px]"></div>
     </div>
 {{-- ============================================================ --}}
     <section class="flex flex-col md:flex-row justify-center items-center gap-8 px-5 py-10">
@@ -128,8 +128,8 @@
             <h2 class="text-3xl md:text-4xl font-bold text-[#004aad] dark:text-white mb-5">Transforme sua empresa com um Catálogo Digital completo e fácil de usar</h2>
             <p class="text-lg md:text-xl mb-10">Confira os principais benefícios inclusos no plano:</p>
             <div class="max-w-[1200px] mx-auto flex flex-wrap justify-center items-center gap-8">
-                <div class="max-w-[500px]">
-                    <img src="/img/bg2.png" alt="background-app" class="w-full h-full object-contain">
+                <div class="max-w-[550px]">
+                    <img src="/img/bg-1.png" alt="background-app" class="w-full h-full object-contain">
                 </div>
                 <div class="w-full max-w-[400px] bg-[#fafafa] p-6 py-15 rounded-4xl border-2 border-[#004aad] shadow-[0_0_10px_#004aad] dark:shadow-[0_0_10px_#fff]  hover:-translate-y-1 transition">
                     <h3 class="text-2xl font-bold mb-4 text-gray-950">Assinatura Ilimitada</h3>

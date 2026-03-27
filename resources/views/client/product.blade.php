@@ -29,7 +29,20 @@
                     <h1 class="text-4xl font-black text-slate-800 dark:text-white mt-4 tracking-tight leading-tight">{{ $product->name }}</h1>
                 </div>
                 <div class="mb-8">
-                    <span class="text-4xl font-black text-[#004aad] dark:text-blue-400">R$ {{ number_format($product->price, 2, ',', '.') }}</span>
+                    @if ($product->promotional_price && $product->promotional_price < $product->price)
+                        <div class="flex flex-col">
+                            <span class="text-xs text-gray-400 line-through">
+                                R$ {{ number_format($product->price, 2, ',', '.') }}
+                            </span>
+                            <span class="text-4xl font-black text-red-500">
+                                R$ {{ number_format($product->promotional_price, 2, ',', '.') }}
+                            </span>
+                        </div>
+                    @else
+                        <span class="text-4xl font-black text-[#004aad] dark:text-blue-400">
+                            R$ {{ number_format($product->price, 2, ',', '.') }}
+                        </span>
+                    @endif
                 </div>
                 <div class="bg-slate-50 dark:bg-gray-800/30 rounded-[30px] p-6 mb-8 border border-slate-100 dark:border-gray-800">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-2 uppercase tracking-wider">Descrição</h3>

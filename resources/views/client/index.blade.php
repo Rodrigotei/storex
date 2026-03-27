@@ -54,7 +54,6 @@
     <section class="mb-12">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Categorias</h2>
-            <a href="{{ route('client.categories') }}" class="text-sm font-bold text-[#004aad] dark:text-blue-400 hover:underline">Ver todas</a>
         </div>
         <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
            @forelse($categories as $category)
@@ -71,6 +70,38 @@
             @endforelse
         </div>
     </section>
+        @if (!$promotionalProducts->isEmpty())
+            <section class="mb-12">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Promoções</h2>
+                </div>
+                <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                    @foreach ($promotionalProducts as $promotionalProduct)
+                        <div class="min-w-[200px] max-w-[200px] flex-shrink-0 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
+                            <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
+                                <img src="{{ asset($promotionalProduct->productImages->first() ? 'storage/'.$promotionalProduct->productImages->first()->img : 'storage/images/product-default.png') }}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="px-2">
+                                <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $promotionalProduct->category->name }}</p>
+                                <h3 class="text-sm md:text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">{{ $promotionalProduct->name }}</h3>
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-400 line-through">
+                                            R$ {{ number_format($promotionalProduct->price, 2, ',', '.') }}
+                                        </span>
+                                        <span class="text-lg font-black text-red-500">
+                                            R$ {{ number_format($promotionalProduct->promotional_price, 2, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <button onclick="showProduct({{ $promotionalProduct->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+    
     <section id="produtos">
         <div class="flex items-center justify-between mb-8">
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Novidades</h2>
