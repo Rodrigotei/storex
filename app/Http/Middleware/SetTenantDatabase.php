@@ -18,10 +18,10 @@ class SetTenantDatabase
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth()->user()->load('store.address');
-        $dbName = str_replace('-', '_', $user->store->slug);
+        $dbName = $user->store->db_name;
         config(['database.connections.store.database' => $dbName]);
         DB::purge('store');
-        DB::reconnect('store');
+        DB::reconnect('store');     
         return $next($request);
     }
 }
