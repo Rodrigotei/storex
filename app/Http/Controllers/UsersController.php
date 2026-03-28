@@ -8,6 +8,9 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Models\Store;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UsersController extends Controller
 {
@@ -23,7 +26,77 @@ class UsersController extends Controller
 
     public function store(Request $request)
     {
-        //
+        $request->validate(
+            [
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email',
+                'document' => 'required|string|max:20',
+                'password' => 'required|string|min:8|confirmed',
+                'store_name' => 'required|string|max:255',
+                'slug' => 'required|string|max:255|unique:stores,slug|alpha_dash',
+                'phone' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            ], 
+            [
+                'name.required' => 'O nome é obrigatório.',
+                'name.max' => 'O nome deve ter no máximo :max caracteres.',
+                'email.required' => 'O email é obrigatório.',
+                'email.email' => 'Informe um email válido.',
+                'email.max' => 'O email deve ter no máximo :max caracteres.',
+                'email.unique' => 'O email já está em uso.',
+                'document.max' => 'O documento deve ter no máximo :max caracteres.',
+                'document.required' => 'O documento é obrigatório.',
+                'password.required' => 'A senha é obrigatória.',
+                'password.confirmed' => 'A confirmação da senha não confere.',
+                'password.min' => 'A senha deve ter no mínimo :min caracteres.',
+                'store_name.required' => 'O nome da loja é obrigatório.',
+                'store_name.max' => 'O nome da loja deve ter no máximo :max caracteres.',
+                'slug.required' => 'O subdomínio é obrigatório.',
+                'slug.unique' => 'Este subdomínio já está em uso.',
+                'slug.alpha_dash' => 'O subdomínio deve conter apenas letras, números e hifens.',
+                'slug.max' => 'O subdomínio deve ter no máximo :max caracteres.',
+                'phone.required' => 'O telefone é obrigatório.',
+                'phone.max' => 'O telefone deve ter no máximo :max caracteres.',
+                'description.string' => 'A descrição deve ser um texto válido.',
+                'img.image' => 'O arquivo deve ser uma imagem.',
+                'img.mimes' => 'A imagem deve ser JPG, JPEG, PNG ou WEBP.',
+                'img.max' => 'A imagem deve ter no máximo 2MB.',
+            ]
+        );
+
+        try {
+            DB::beginTransaction();
+            $user = User::create([
+                'name'     => $request->name,
+                'document' => $request->document,
+                'email'    => $request->email,
+                'password' => bcrypt($request->password),
+                'status' => 'pendente'
+            ]);
+
+            $imgPath = null;
+            if ($request->hasFile('img')) {
+                $imgName = $request->file('img')->hashName();
+                $imgPath = $request->file('img')->storeAs('logo', $imgName, 'public');
+            }
+
+            $user->store()->create([
+                'name' => $request->store_name,
+                'slug' => $request->slug,
+                'phone' => $request->phone,
+                'description' => $request->description,
+                'img' => $imgPath,
+            ]);
+            DB::commit();
+            return redirect()->route('payment');
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->validator)->withInput();
+        } catch (QueryException $e) {
+            return back()->withErrors(['error' => 'Erro no banco de dados.'])->withInput();
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Erro ao processar cadastro'])->withInput();
+        }
     }
 
     public function edit(string $id)

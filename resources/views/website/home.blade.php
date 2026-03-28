@@ -164,7 +164,7 @@
         }
     </script>
 {{-- ============================================================ --}}
-    <footer class="bg-gradient-to-b from-[#003378] to-[#0158cd] dark:from-gray-900 dark:to-gray-900 text-white py-10 relative">
+    <footer class="bg-gradient-to-b from-[#003378] to-[#0158cd] dark:from-gray-900 dark:to-gray-900 text-white pt-10 relative">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[1200px] mx-auto px-4 text-center">
             <div>
                 <h3 class="text-2xl mb-5">Links Rápidos</h3>
@@ -180,7 +180,15 @@
                 <p class="text-lg mb-4">Telefone: (11) 99999-9999</p>
             </div>
         </div>
+        <div class="py-10 text-center text-slate-400 text-sm">
+            &copy; {{ date('Y') }} StoreX - Todos os direitos reservados.
+        </div>
     </footer>
 {{-- ============================================================ --}}
+<script>
+    function contratarPlano(){
+        window.location.href = '/register';
+    }
+</script>
 </body>
 </html>

@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'website.home'); 
+Route::view('/register', 'website.register'); 
+Route::view('/payment', 'website.payment')->name('payment'); 
+Route::post('/register', [UsersController::class, 'store'])->name('register'); 
 
 Route::middleware('auth')->prefix('dashboard')->group(function(){
     Route::get('/', [HomeController::class, 'index'])->middleware(SetTenantDatabase::class)->name('dashboard.home');
