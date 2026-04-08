@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['product_id', 'variation_id', 'value'])]
+#[Fillable(['product_id', 'variation_id', 'value', 'tenant_id'])]
 class ProductVariation extends Model
 {
-    protected $connection = 'store';
 
     public function variation(): BelongsTo
     {

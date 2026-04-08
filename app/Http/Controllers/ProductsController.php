@@ -19,12 +19,14 @@ class ProductsController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['category', 'productImages'])->paginate(10);
+        $tenant_id = auth()->user()->store->id;
+        $products = Product::with(['category', 'productImages'])->where('tenant_id', $tenant_id)->paginate(10);
         return view('dashboard.products.index', compact('products'));
     }
     public function create()
     {
-        $categories = Category::all();
+        $tenant_id = auth()->user()->store->id;
+        $categories = Category::where('tenant_id', $tenant_id)->get();
         $variations = Variation::orderBy('name')->get();
         return view('dashboard.products.create', compact('categories', 'variations'));
     }
@@ -34,7 +36,7 @@ class ProductsController extends Controller
             $request->validate(
                 [
                     'name' => 'required',
-                    'category_id' => 'required|exists:store.categories,id',
+                    'category_id' => 'required|exists:categories,id',
                     'price' => 'required|numeric|min:0',
                     'img' => 'nullable|array',
                     'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -59,7 +61,8 @@ class ProductsController extends Controller
                 'category_id' => $request->category_id,
                 'price' => $request->price,
                 'description' => $request->description,
-                'status' => $request->status
+                'status' => $request->status,
+                'tenant_id' => auth()->user()->store->id
             ]);
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
@@ -72,6 +75,7 @@ class ProductsController extends Controller
                         throw new \Exception('Falha ao salvar imagem.');
                     }
                     ProductImage::create([
+                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
                         'img' => $filePath
                     ]);
@@ -81,6 +85,7 @@ class ProductsController extends Controller
             if(!empty($variation_values) && $request->variation_id) {
                 foreach ($variation_values as $value) {
                     ProductVariation::create([
+                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
                         'variation_id' => $request->variation_id,
                         'value' => $value

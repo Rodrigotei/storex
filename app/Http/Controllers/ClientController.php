@@ -16,14 +16,16 @@ class ClientController extends Controller
         $slug = app('slug');
 
         $store = Store::with('address')->where('slug', $slug)->first();
-        $categories = Category::where('status', true)->get();
-        $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->get();
-        $promotionalProducts = Product::with('productImages')->whereNot('promotional_price', null)->where('status', true)->get();
+        $tenant_id = $store->id;
+        $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get();
+        $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->where('tenant_id', $tenant_id)->get();
+        $promotionalProducts = Product::with('productImages')->whereNot('promotional_price', null)->where('status', true)->where('tenant_id', $tenant_id)->get();
         return view('client.index', compact('store', 'categories', 'lastProducts', 'promotionalProducts'));
     }
     public function categories()
     {
-        $categories = Category::where('status', true)->get();
+        $tenant_id = $this->getTenantId();
+        $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get();
         if($categories->isEmpty()){
             return redirect()->route('client.home')->withErrors(['error' => 'Nenhuma categoria foi encontrada.']);
         }
@@ -31,16 +33,18 @@ class ClientController extends Controller
     }
     public function category(string $id)
     {
-        $categoryName = Category::where('status', true)->find($id,'name');
+        $tenant_id = $this->getTenantId();
+        $categoryName = Category::where('status', true)->where('tenant_id', $tenant_id)->find($id,'name');
         if(!$categoryName){
             return redirect()->route('client.home')->withErrors(['error' => 'Categoria não encontrada.']);
         }
-        $products = Product::with('category')->where('category_id', $id)->where('status', true)->get();
+        $products = Product::with('category')->where('category_id', $id)->where('status', true)->where('tenant_id', $tenant_id)->get();
         return view('client.category', compact('categoryName', 'products'));
     }
     public function product(string $id)
     {
-        $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->where('status', true)->find($id);
+        $tenant_id = $this->getTenantId();
+        $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
         if(!$product){
             return redirect()->route('client.home')->withErrors(['error' => 'Produto não encontrado.']);
         }
@@ -54,9 +58,10 @@ class ClientController extends Controller
     }
     public function add(Request $request)
     {
+        $tenant_id = $this->getTenantId();
         try {
             $cart = session()->get('cart', []);
-            $product = Product::with(['productImages'])->where('status', true)->findOrFail($request->product_id);
+            $product = Product::with(['productImages'])->where('status', true)->where('tenant_id', $tenant_id)->findOrFail($request->product_id);
             $found = false;
             foreach ($cart as &$item) {
                 if ($item['product_id'] == $product->id && $item['variation_id'] == $request->variation_id && $item['observation'] == $request->observation){
@@ -194,6 +199,7 @@ class ClientController extends Controller
     }
     public function search(Request $request)
     {
+       $tenant_id = $this->getTenantId();
        try {
             $request->validate(
                 [
@@ -201,7 +207,7 @@ class ClientController extends Controller
                 ],
             );
             $search = $request->search;
-            $products = Product::whereLike('name', '%'.$search.'%')->where('status', true)->get();
+            $products = Product::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
             if($products->isEmpty() ){
                 return redirect()->route('client.home')->withErrors(['error' => 'Nada foi encontrado.']);
             }
@@ -211,5 +217,10 @@ class ClientController extends Controller
        } catch (\Throwable $th) {
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
        }
+    }
+    private function getTenantId()
+    {
+        $store = Store::where('slug', app('slug'))->first();
+        return $store->id;
     }
 }

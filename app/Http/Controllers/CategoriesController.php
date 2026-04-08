@@ -16,7 +16,7 @@ class CategoriesController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::paginate(10);
+        $categories = Category::where('tenant_id', auth()->user()->store->id)->paginate(10);
         return view('dashboard.categories.index', compact('categories'));
     }
     public function create(): View
@@ -47,6 +47,7 @@ class CategoriesController extends Controller
                 $filePath = $request->file('img')->storeAs('categories', $fileName, 'public');
             }
             Category::create([
+                'tenant_id' => auth()->user()->store->id,
                 'name' => $request->name,
                 'img' => $filePath,
                 'status' => $request->status,

@@ -18,12 +18,8 @@ class SetTenantDataBaseClient
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            $slug = 'rt-lanchonete';
-            $store = Store::where('slug', $slug)->get('db_name')->first();
-            $dbName = $store->db_name;
-            config(['database.connections.store.database' => $dbName]);
-            DB::purge('store');
-            DB::reconnect('store');
+            $slug = explode('.', $request->getHost())[0];
+            $store = Store::where('slug', $slug)->firstOrFail();
             app()->instance('slug', $slug);
             return $next($request);
         } catch (\Throwable $th) {

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['user_id', 'name', 'slug', 'phone', 'description', 'delivery_fee', 'img'])]
+#[Fillable(['user_id', 'name', 'slug', 'phone', 'description', 'delivery_fee', 'img', 'tenant_id'])]
 class Store extends Model
 {
     public function user(): BelongsTo

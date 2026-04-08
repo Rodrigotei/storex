@@ -16,10 +16,10 @@ Route::view('/payment', 'website.payment')->name('payment');
 Route::post('/register', [UsersController::class, 'store'])->name('register'); 
 
 Route::middleware('auth')->prefix('dashboard')->group(function(){
-    Route::get('/', [HomeController::class, 'index'])->middleware(SetTenantDatabase::class)->name('dashboard.home');
-    Route::resource('/categories', CategoriesController::class)->except(['show'])->middleware(SetTenantDatabase::class)->names('dashboard.categories');
-    Route::resource('/products', ProductsController::class)->except(['show'])->middleware(SetTenantDatabase::class)->names('dashboard.products');
-    Route::delete('/products/image/{id}', [ProductsController::class, 'deleteImage'])->middleware(SetTenantDatabase::class)->name('dashboard.product.delete-image');
+    Route::get('/', [HomeController::class, 'index'])->name('dashboard.home');
+    Route::resource('/categories', CategoriesController::class)->except(['show'])->names('dashboard.categories');
+    Route::resource('/products', ProductsController::class)->except(['show'])->names('dashboard.products');
+    Route::delete('/products/image/{id}', [ProductsController::class, 'deleteImage'])->name('dashboard.product.delete-image');
 
     Route::resource('/profile', UsersController::class)->except(['show'])->names('dashboard.profile');
 });
