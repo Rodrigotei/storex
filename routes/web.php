@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\SetTenantDatabase;
 use App\Http\Middleware\SetTenantDataBaseClient;
@@ -20,7 +21,8 @@ Route::middleware('auth')->prefix('dashboard')->group(function(){
     Route::resource('/categories', CategoriesController::class)->except(['show'])->names('dashboard.categories');
     Route::resource('/products', ProductsController::class)->except(['show'])->names('dashboard.products');
     Route::delete('/products/image/{id}', [ProductsController::class, 'deleteImage'])->name('dashboard.product.delete-image');
-
+    Route::resource('/services', ServicesController::class)->except(['show'])->names('dashboard.services');
+    Route::delete('/services/image/{id}', [ServicesController::class, 'deleteImage'])->name('dashboard.service.delete-image');
     Route::resource('/profile', UsersController::class)->except(['show'])->names('dashboard.profile');
 });
 
