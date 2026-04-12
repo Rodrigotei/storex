@@ -16,12 +16,20 @@ class CategoriesController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::where('tenant_id', auth()->user()->store->id)->paginate(10);
-        return view('dashboard.categories.index', compact('categories'));
+        try {
+            $categories = Category::where('tenant_id', auth()->user()->store->id)->paginate(10);
+            return view('dashboard.categories.index', compact('categories'));
+        } catch (\Throwable $th) {
+            return view('dashboard.error');
+        }
     }
     public function create(): View
     {
-        return view('dashboard.categories.create');
+        try {
+            return view('dashboard.categories.create');
+        } catch (\Throwable $th) {
+            return view('dashboard.error');
+        }
     }
     public function store(Request $request): RedirectResponse
     {
@@ -61,10 +69,16 @@ class CategoriesController extends Controller
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
-    public function edit(string $id): View
+    public function edit(string $id): View|RedirectResponse
     {
-        $category = Category::findOrFail($id);
-        return view('dashboard.categories.edit' , compact('category'));
+        try {
+            $category = Category::findOrFail($id);
+            return view('dashboard.categories.edit' , compact('category'));
+        } catch (ModelNotFoundException $e){
+            return back()->withErrors(['error' => 'Categoria não encontrada.']);
+        } catch (\Throwable $th) {
+            return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
+        }
     }
     public function update(Request $request, string $id): RedirectResponse
     {

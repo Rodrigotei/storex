@@ -108,7 +108,7 @@ class UsersController extends Controller
             return back()->withErrors(['error' => 'Usuário não encontrado.']);
         } 
         catch (\Throwable $th) {
-            return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
+            return view('dashboard.error');
         }
     }
 

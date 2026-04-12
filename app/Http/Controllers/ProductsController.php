@@ -19,19 +19,28 @@ class ProductsController extends Controller
 {
     public function index()
     {
-        $tenant_id = auth()->user()->store->id;
-        $products = Product::with(['category', 'productImages'])->where('tenant_id', $tenant_id)->paginate(10);
-        return view('dashboard.products.index', compact('products'));
+        try {
+            $tenant_id = auth()->user()->store->id;
+            $products = Product::with(['category', 'productImages'])->where('tenant_id', $tenant_id)->paginate(10);
+            return view('dashboard.products.index', compact('products'));
+        } catch (\Throwable $th) {
+            return view('dashboard.error');
+        }
     }
     public function create()
     {
-        $tenant_id = auth()->user()->store->id;
-        $categories = Category::where('tenant_id', $tenant_id)->get();
-        $variations = Variation::orderBy('name')->get();
-        return view('dashboard.products.create', compact('categories', 'variations'));
+        try {
+            $tenant_id = auth()->user()->store->id;
+            $categories = Category::where('tenant_id', $tenant_id)->get();
+            $variations = Variation::orderBy('name')->get();
+            return view('dashboard.products.create', compact('categories', 'variations'));
+        } catch (\Throwable $th) {
+            return view('dashboard.error');
+        }
     }
     public function store(Request $request)
     {
+        $uploadedImages = [];
         try {
             $request->validate(
                 [
@@ -74,6 +83,7 @@ class ProductsController extends Controller
                     if (!$filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
+                    $uploadedImages[] = $filePath;
                     ProductImage::create([
                         'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
@@ -99,9 +109,15 @@ class ProductsController extends Controller
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
             DB::rollBack();
+            foreach ($uploadedImages as $path) {
+                Storage::disk('public')->delete($path);
+            }
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
+            foreach ($uploadedImages as $path) {
+                Storage::disk('public')->delete($path);
+            }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
@@ -121,11 +137,12 @@ class ProductsController extends Controller
     }
     public function update(Request $request, string $id)
     {
+        $uploadedImages = [];
         try {
             $request->validate(
                 [
                     'name' => 'required',
-                    'category_id' => 'required|exists:store.categories,id',
+                    'category_id' => 'required|exists:categories,id',
                     'price' => 'required',
                     'img' => 'nullable|array',
                     'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -166,7 +183,9 @@ class ProductsController extends Controller
                     if (!$filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
+                    $uploadedImages[] = $filePath;
                     ProductImage::create([
+                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
                         'img' => $filePath
                     ]);
@@ -197,9 +216,15 @@ class ProductsController extends Controller
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
             DB::rollBack();
+            foreach ($uploadedImages as $path) {
+                Storage::disk('public')->delete($path);
+            }
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
+            foreach ($uploadedImages as $path) {
+                Storage::disk('public')->delete($path);
+            }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }

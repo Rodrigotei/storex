@@ -15,13 +15,21 @@ class ServicesController extends Controller
 {
     public function index()
     {
-        $tenant_id = auth()->user()->store->id;
-        $services = Service::with(['serviceImages'])->where('tenant_id', $tenant_id)->paginate(10);
-        return view('dashboard.services.index', compact('services'));
+        try {
+            $tenant_id = auth()->user()->store->id;
+            $services = Service::with(['serviceImages'])->where('tenant_id', $tenant_id)->paginate(10);
+            return view('dashboard.services.index', compact('services'));
+        } catch (\Throwable $th) {
+            return view('dashboard.error');
+        }
     }
     public function create()
     {
-        return view('dashboard.services.create');
+        try {
+            return view('dashboard.services.create');
+        } catch (\Throwable $th) {
+            return view('dashboard.error');
+        }
     }
     public function store(Request $request)
     {

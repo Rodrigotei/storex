@@ -1,4 +1,13 @@
-    <x-dashboard_layout>
+<!DOCTYPE html>
+<html lang="pt-BR" x-data="{ openMobile: false }"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ env('APP_NAME', 'StoreX') }}</title>
+    @vite('resources/css/app.css')
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-gray-200 antialiased transition-colors duration-300 min-h-screen">
     <div class="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#003378] to-[#0158cd] dark:from-gray-950 dark:to-slate-900">
         <div class="w-full max-w-md">
             <div class="bg-white dark:bg-gray-900 border border-transparent dark:border-gray-800 shadow-2xl rounded-[30px] p-8 transition-all">
@@ -29,4 +38,5 @@
             </div>
         </div>
     </div>
-    </x-dashboard_layout>
+</body>
+</html>

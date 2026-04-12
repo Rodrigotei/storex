@@ -39,3 +39,7 @@ Route::middleware(SetTenantDataBaseClient::class)->prefix('loja')->group(functio
     Route::post('/service/finish', [ClientController::class, 'serviceFinish'])->name('client.service.finish');
     Route::post('/search', [ClientController::class, 'search'])->name('client.search');
 });
+
+Route::fallback(function () {
+    return response()->view('404', [], 404);
+});

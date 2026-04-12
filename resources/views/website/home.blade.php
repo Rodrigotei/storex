@@ -24,7 +24,7 @@
             <a href="/" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Home</a>
             <a href="/#funcionalidades" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Funcionalidades</a>
             <a href="/#planos" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Assinatura</a>
-            <a href="/" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Login</a>
+            <a href="{{ route('dashboard.home') }}" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Login</a>
         </nav>
         <div class="md:hidden">
             <button id="openMenu" class="text-[30px] text-[#004aad]">☰</button>
@@ -35,7 +35,7 @@
          <a href="/" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Home</a>
             <a href="/#funcionalidades" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Funcionalidades</a>
             <a href="/#planos" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Assinatura</a>
-        <a href="/" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Login</a>
+        <a href="{{ route('dashboard.home') }}" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Login</a>
     </div>
     <script>
         const openBtn = document.getElementById("openMenu");
