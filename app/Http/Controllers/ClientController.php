@@ -37,11 +37,11 @@ class ClientController extends Controller
     public function category(string $id)
     {
         $tenant_id = $this->getTenantId();
-        $categoryName = Category::where('status', true)->where('tenant_id', $tenant_id)->find($id,'name');
-        if(!$categoryName){
-            return redirect()->route('client.home')->withErrors(['error' => 'Categoria não encontrada.']);
-        }
         $products = Product::with('category')->where('category_id', $id)->where('status', true)->where('tenant_id', $tenant_id)->get();
+        if($products->isEmpty()){
+            return redirect()->route('client.home')->withErrors(['error' => 'Nenhum produto encontrado para esta categoria.']);
+        }
+        $categoryName = Category::where('status', true)->where('tenant_id', $tenant_id)->find($id,'name');
         return view('client.category', compact('categoryName', 'products'));
     }
     public function product(string $id)

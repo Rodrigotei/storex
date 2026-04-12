@@ -57,6 +57,7 @@
          <section class="mb-12">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Categorias</h2>
+                <a href="{{ route('client.categories') }}" class="text-sm text-gray-500 hover:text-gray-700 font-bold">Ver todas</a>
             </div>
             <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
                 @foreach($categories as $category)

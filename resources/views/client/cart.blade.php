@@ -44,15 +44,13 @@
                             <span>Subtotal</span>
                             <span>R$ {{ number_format($total, 2, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between text-slate-500 dark:text-gray-400">
-                            <span>Taxa de Entrega</span>
-                            @if ($delivery_fee == 0.00)
-                                <span class="text-green-500 font-bold">Grátis</span>
-                            @else
-                            @php $total += $delivery_fee; @endphp
+                        @if ($delivery_fee > 0.00)
+                            <div class="flex justify-between text-slate-500 dark:text-gray-400">
+                                <span>Taxa de Entrega</span>
+                                @php $total += $delivery_fee; @endphp
                                 <span class="text-green-500 font-bold">R$ {{ number_format($delivery_fee, 2, ',', '.') }}</span>
-                            @endif
-                        </div>
+                            </div>
+                        @endif
                         <div class="border-t border-slate-100 dark:border-gray-800 pt-4 flex justify-between items-end">
                             <span class="text-base font-bold text-slate-800 dark:text-white">Total</span>
                             <span class="text-2xl font-black text-[#004aad] dark:text-blue-400 leading-none">R$ {{ number_format($total, 2, ',', '.') }}</span>
