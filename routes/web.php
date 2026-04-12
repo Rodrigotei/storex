@@ -31,9 +31,11 @@ Route::middleware(SetTenantDataBaseClient::class)->prefix('loja')->group(functio
     Route::get('/categories', [ClientController::class, 'categories'])->name('client.categories');
     Route::get('/category/{id}', [ClientController::class, 'category'])->name('client.category');
     Route::get('/product/{id}', [ClientController::class, 'product'])->name('client.product');
+    Route::get('/service/{id}', [ClientController::class, 'service'])->name('client.service');
     Route::get('/cart', [ClientController::class, 'cart'])->name('client.cart');
     Route::post('/cart', [ClientController::class, 'add'])->name('client.cart.add');
     Route::delete('/cart', [ClientController::class, 'delete'])->name('client.cart.delete');
     Route::post('/order/finish', [ClientController::class, 'orderFinish'])->name('client.order.finish');
+    Route::post('/service/finish', [ClientController::class, 'serviceFinish'])->name('client.service.finish');
     Route::post('/search', [ClientController::class, 'search'])->name('client.search');
 });
