@@ -116,9 +116,18 @@
                             <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $product->category->name }}</p>
                             <h3 class="text-sm md:text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">{{ $product->name }}</h3>
                             <div class="flex items-center justify-between mt-4">
-                                <span class="text-lg font-black text-slate-900 dark:text-white">
-                                    R$ {{ number_format($product->price, 2, ',', '.') }}
-                                </span>
+                                @if ($product->promotional_price && $product->promotional_price < $product->price)
+                                    <span class="text-xs text-gray-400 line-through">
+                                        R$ {{ number_format($promotionalProduct->price, 2, ',', '.') }}
+                                    </span>
+                                    <span class="text-lg font-black text-red-500">
+                                        R$ {{ number_format($promotionalProduct->promotional_price, 2, ',', '.') }}
+                                    </span>
+                                @else
+                                    <span class="text-lg font-black text-slate-900 dark:text-white">
+                                        R$ {{ number_format($product->price, 2, ',', '.') }}
+                                    </span>
+                                @endif
                                 <button onclick="showProduct({{ $product->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg>
                                 </button>
@@ -143,9 +152,18 @@
                         <div class="px-2">
                             <h3 class="text-sm md:text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">{{ $service->name }}</h3>
                             <div class="flex items-center justify-between mt-4">
-                                <span class="text-lg font-black text-slate-900 dark:text-white">
-                                    R$ {{ number_format($service->price, 2, ',', '.') }}
-                                </span>
+                               @if ($service->promotional_price && $service->promotional_price < $service->price)
+                                    <span class="text-xs text-gray-400 line-through">
+                                        R$ {{ number_format($service->price, 2, ',', '.') }}
+                                    </span>
+                                    <span class="text-lg font-black text-red-500">
+                                        R$ {{ number_format($service->promotional_price, 2, ',', '.') }}
+                                    </span>
+                                @else
+                                    <span class="text-lg font-black text-slate-900 dark:text-white">
+                                        R$ {{ number_format($service->price, 2, ',', '.') }}
+                                    </span>
+                                @endif
                                 <button onclick="showService({{ $service->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg>
                                 </button>
@@ -165,7 +183,7 @@
                 <p class="text-sm font-bold text-slate-700 dark:text-gray-200">{{ session('success') }}</p>
             </div>
         @endif
-         @error('error')
+        @error('error')
             <div class="message bg-white dark:bg-gray-900 border-l-4 border-red-500 shadow-2xl rounded-xl p-4 flex items-center min-w-[300px]">
                 <div class="p-2 bg-red-100 dark:bg-red-500/20 rounded-full mr-3 text-red-600">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
