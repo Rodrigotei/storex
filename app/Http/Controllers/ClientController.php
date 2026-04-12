@@ -15,58 +15,80 @@ class ClientController extends Controller
 {
     public function index()
     {   
-        $slug = app('slug');
-
-        $store = Store::with('address')->where('slug', $slug)->first();
-        $tenant_id = $store->id;
-        $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get();
-        $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->where('tenant_id', $tenant_id)->get();
-        $promotionalProducts = Product::with('productImages')->whereNot('promotional_price', null)->where('status', true)->where('tenant_id', $tenant_id)->get();
-        $services = Service::with('serviceImages')->where('status', true)->where('tenant_id', $tenant_id)->get();
-        return view('client.index', compact('store', 'categories', 'lastProducts', 'promotionalProducts', 'services'));
+        try {
+            $store = app('store');
+            $store = Store::with('address')->where('slug', $store->slug)->first();
+            $tenant_id = $store->id;
+            $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get()->take(5);
+            $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->where('tenant_id', $tenant_id)->get();
+            $promotionalProducts = Product::with('productImages')->whereNot('promotional_price', null)->where('status', true)->where('tenant_id', $tenant_id)->get()->take(10);
+            $services = Service::with('serviceImages')->where('status', true)->where('tenant_id', $tenant_id)->get()->take(10);
+            return view('client.index', compact('store', 'categories', 'lastProducts', 'promotionalProducts', 'services'));
+        } catch (\Throwable $th) {
+            return view('client.error');
+        }
     }
     public function categories()
     {
-        $tenant_id = $this->getTenantId();
-        $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get();
-        if($categories->isEmpty()){
-            return redirect()->route('client.home')->withErrors(['error' => 'Nenhuma categoria foi encontrada.']);
+        try {
+            $tenant_id = $this->getTenantId();
+            $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get();
+            if($categories->isEmpty()){
+                return redirect()->route('client.home')->withErrors(['error' => 'Nenhuma categoria foi encontrada.']);
+            }
+            return view('client.categories', compact('categories'));
+        } catch (\Throwable $th) {
+            return view('client.error');
         }
-        return view('client.categories', compact('categories'));
     }
     public function category(string $id)
     {
-        $tenant_id = $this->getTenantId();
-        $products = Product::with('category')->where('category_id', $id)->where('status', true)->where('tenant_id', $tenant_id)->get();
-        if($products->isEmpty()){
-            return redirect()->route('client.home')->withErrors(['error' => 'Nenhum produto encontrado para esta categoria.']);
+        try {
+            $tenant_id = $this->getTenantId();
+            $products = Product::with('category')->where('category_id', $id)->where('status', true)->where('tenant_id', $tenant_id)->get();
+            if($products->isEmpty()){
+                return redirect()->route('client.home')->withErrors(['error' => 'Nenhum produto encontrado para esta categoria.']);
+            }
+            $categoryName = Category::where('status', true)->where('tenant_id', $tenant_id)->find($id,'name');
+            return view('client.category', compact('categoryName', 'products'));
+        } catch (\Throwable $th) {
+            return view('client.error');
         }
-        $categoryName = Category::where('status', true)->where('tenant_id', $tenant_id)->find($id,'name');
-        return view('client.category', compact('categoryName', 'products'));
     }
     public function product(string $id)
     {
-        $tenant_id = $this->getTenantId();
-        $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
-        if(!$product){
-            return redirect()->route('client.home')->withErrors(['error' => 'Produto não encontrado.']);
+        try {
+            $tenant_id = $this->getTenantId();
+            $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
+            if(!$product){
+                return redirect()->route('client.home')->withErrors(['error' => 'Produto não encontrado.']);
+            }
+            return view('client.product', compact('product'));
+        } catch (\Throwable $th) {
+            return view('client.error');
         }
-        return view('client.product', compact('product'));
     }
     public function service(string $id)
     {
-        $tenant_id = $this->getTenantId();
-        $service = Service::with(['serviceImages'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
-        if(!$service){
-            return redirect()->route('client.home')->withErrors(['error' => 'Serviço não encontrado.']);
+        try {
+            $tenant_id = $this->getTenantId();
+            $service = Service::with(['serviceImages'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
+            if(!$service){
+                return redirect()->route('client.home')->withErrors(['error' => 'Serviço não encontrado.']);
+            }
+            return view('client.service', compact('service'));
+        } catch (\Throwable $th) {
+            return view('client.error');
         }
-        return view('client.service', compact('service'));
     }
     public function cart()
     {
-        $store  = Store::where('slug', app('slug'))->get('delivery_fee')->first();
-        $delivery_fee = $store->delivery_fee;
-        return view('client.cart', compact('delivery_fee'));
+        try {
+            $delivery_fee = $this->getStore()->delivery_fee;
+            return view('client.cart', compact('delivery_fee'));
+        } catch (\Throwable $th) {
+            return view('client.error');
+        }
     }
     public function add(Request $request)
     {
@@ -128,97 +150,103 @@ class ClientController extends Controller
     public function orderFinish(Request $request)
     {
        try {
-        $validated = $request->validate([
-            'name'            => ['required', 'string', 'max:100'],
-            'type'            => ['required', 'in:delivery,pickup'],
-            'payment_method'  => ['required', 'in:pix,cash,card'],
-            'address'         => ['required_if:type,delivery', 'nullable', 'string', 'max:255'],
-            'number'          => ['required_if:type,delivery', 'nullable', 'string', 'max:20'],
-            'neighborhood'    => ['required_if:type,delivery', 'nullable', 'string', 'max:100'],
-            'complement'      => ['nullable', 'string', 'max:255'],
-            'change_for'      => ['nullable', 'string', 'max:50'],
-        ], [
-            'name.required' => 'Informe seu nome',
-            'phone.required' => 'Informe seu WhatsApp',
-            'type.required' => 'Selecione entrega ou retirada',
-            'payment_method.required' => 'Selecione a forma de pagamento',
-            'address.required_if' => 'Informe o endereço para entrega',
-            'number.required_if' => 'Informe o número',
-            'neighborhood.required_if' => 'Informe o bairro',
-        ]);
-        $cart = session('cart', []);
-        if (empty($cart)) {
-            return back()->withErrors(['error' => 'Seu carrinho está vazio']);
-        }
-        $total = 0;
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['qty'];
-        }
-        $delivery_fee = $request->type === 'delivery' ? (float) ($request->delivery_fee ?? 0) : 0;
-        $total += $delivery_fee;
-        $paymentMap = [
-            'pix'  => 'PIX',
-            'cash' => 'Dinheiro',
-            'card' => 'Cartão',
-        ];
-        $typeMap = [
-            'delivery' => 'Entrega',
-            'pickup'   => 'Retirada',
-        ];
-        $message  = "*NOVO PEDIDO*\n";
-        $message .= "━━━━━━━━━━━━━━━\n\n";
-        foreach ($cart as $item) {
-            $subtotal = $item['price'] * $item['qty'];
-            $message .= " *{$item['name']}*\n";
-            $message .= "   {$item['qty']}x R$ " . number_format($item['price'], 2, ',', '.') . "\n";
-            if (!empty($item['variation'])) {
-                $message .= "   Opção: {$item['variation']}\n";
+            $validated = $request->validate([
+                'name'            => ['required', 'string', 'max:100'],
+                'type'            => ['required', 'in:delivery,pickup'],
+                'payment_method'  => ['required', 'in:pix,cash,card'],
+                'address'         => ['required_if:type,delivery', 'nullable', 'string', 'max:255'],
+                'number'          => ['required_if:type,delivery', 'nullable', 'string', 'max:20'],
+                'neighborhood'    => ['required_if:type,delivery', 'nullable', 'string', 'max:100'],
+                'complement'      => ['nullable', 'string', 'max:255'],
+                'change_for'      => ['nullable', 'string', 'max:50'],
+            ], [
+                'name.required' => 'Informe seu nome',
+                'phone.required' => 'Informe seu WhatsApp',
+                'type.required' => 'Selecione entrega ou retirada',
+                'payment_method.required' => 'Selecione a forma de pagamento',
+                'address.required_if' => 'Informe o endereço para entrega',
+                'number.required_if' => 'Informe o número',
+                'neighborhood.required_if' => 'Informe o bairro',
+            ]);
+            $cart = session('cart', []);
+            if (empty($cart)) {
+                return back()->withErrors(['error' => 'Seu carrinho está vazio']);
             }
-            if (!empty($item['observation'])) {
-                $message .= "   Obs: {$item['observation']}\n";
+            $total = 0;
+            foreach ($cart as $item) {
+                $total += $item['price'] * $item['qty'];
             }
-            $message .= "   Subtotal: R$ " . number_format($subtotal, 2, ',', '.') . "\n\n";
-        }
-        $message .= "━━━━━━━━━━━━━━━\n";
-        $message .= "*RESUMO*\n";
-        $message .= "Subtotal: R$ " . number_format($total - $delivery_fee, 2, ',', '.') . "\n";
-        if ($request->type === 'delivery') {
-            $message .= "Entrega: " . ($delivery_fee > 0  ? "R$ " . number_format($delivery_fee, 2, ',', '.')  : "Grátis") . "\n";
-        }
-        $message .= "*Total: R$ " . number_format($total, 2, ',', '.') . "*\n\n";
-        $message .= "*CLIENTE*\n";
-        $message .= "Nome: {$request->name}\n";
-        $message .= "*{$typeMap[$request->type]}*\n";
-        if ($request->type === 'delivery') {
-            $message .= "{$request->address}, {$request->number}\n";
-            $message .= "{$request->neighborhood}\n";
-            if (!empty($request->complement)) {
-                $message .= "Complemento: {$request->complement}\n";
+            $delivery_fee = $request->type === 'delivery' ? (float) ($request->delivery_fee ?? 0) : 0;
+            $total += $delivery_fee;
+            $paymentMap = [
+                'pix'  => 'PIX',
+                'cash' => 'Dinheiro',
+                'card' => 'Cartão',
+            ];
+            $typeMap = [
+                'delivery' => 'Entrega',
+                'pickup'   => 'Retirada',
+            ];
+            $message  = "*NOVO PEDIDO*\n";
+            $message .= "━━━━━━━━━━━━━━━\n\n";
+            foreach ($cart as $item) {
+                $subtotal = $item['price'] * $item['qty'];
+                $message .= " *{$item['name']}*\n";
+                $message .= "   {$item['qty']}x R$ " . number_format($item['price'], 2, ',', '.') . "\n";
+                if (!empty($item['variation'])) {
+                    $message .= "   Opção: {$item['variation']}\n";
+                }
+                if (!empty($item['observation'])) {
+                    $message .= "   Obs: {$item['observation']}\n";
+                }
+                $message .= "   Subtotal: R$ " . number_format($subtotal, 2, ',', '.') . "\n\n";
             }
-            $message .= "\n";
-        }
-        $message .= "*PAGAMENTO*\n";
-        $message .= $paymentMap[$request->payment_method] . "\n";
-        if ($request->payment_method === 'cash' && !empty($request->change_for)) {
-            $message .= "Troco para: R$ {$request->change_for}\n";
-        }
-        $store = Store::where('slug', app('slug'))->get('phone')->first();
-        $url = "https://wa.me/55{$store->phone}?text=".urlencode($message);
-        return redirect()->away($url);
+            $message .= "━━━━━━━━━━━━━━━\n";
+            $message .= "*RESUMO*\n";
+            $message .= "Subtotal: R$ " . number_format($total - $delivery_fee, 2, ',', '.') . "\n";
+            if ($request->type === 'delivery') {
+                $message .= "Entrega: " . ($delivery_fee > 0  ? "R$ " . number_format($delivery_fee, 2, ',', '.')  : "Grátis") . "\n";
+            }
+            $message .= "*Total: R$ " . number_format($total, 2, ',', '.') . "*\n\n";
+            $message .= "*CLIENTE*\n";
+            $message .= "Nome: {$request->name}\n";
+            $message .= "*{$typeMap[$request->type]}*\n";
+            if ($request->type === 'delivery') {
+                $message .= "{$request->address}, {$request->number}\n";
+                $message .= "{$request->neighborhood}\n";
+                if (!empty($request->complement)) {
+                    $message .= "Complemento: {$request->complement}\n";
+                }
+                $message .= "\n";
+            }
+            $message .= "*PAGAMENTO*\n";
+            $message .= $paymentMap[$request->payment_method] . "\n";
+            if ($request->payment_method === 'cash' && !empty($request->change_for)) {
+                $message .= "Troco para: R$ {$request->change_for}\n";
+            }
+            $store = $this->getStore();
+            $url = "https://wa.me/55{$store->phone}?text=".urlencode($message);
+            return redirect()->away($url);
        } catch (\Throwable $th) {
-        return back()->withErrors(['error' => $th->getMessage()]);
+        return back()->withErrors(['error' => 'Ocorreu um erro ao finalizar seu pedido.'])->withInput();
        }
     }
     public function serviceFinish(Request $request)
     {
         try {
-            $data = $request->validate([
-                'service_id' => 'required|exists:services,id',
-                'date' => 'nullable|date',
-                'time' => 'nullable',
-                'message' => 'nullable|string|max:1000',
-                'name' => 'required|string|max:255',
-            ]);
+            $data = $request->validate(
+                [
+                    'service_id' => 'required|exists:services,id',
+                    'date' => 'nullable|date',
+                    'time' => 'nullable',
+                    'message' => 'nullable|string|max:1000',
+                    'name' => 'required|string|max:255',
+                ],
+                [
+                    'service_id.required' => 'Serviço não identificado',
+                    'name.required' => 'Informe seu nome'
+                ]
+            );
 
             $service = Service::findOrFail($data['service_id']);
             $formattedDate = '-';
@@ -250,12 +278,14 @@ class ClientController extends Controller
             $message .= "Pode me confirmar a disponibilidade?";
 
             $encodedMessage = urlencode($message);
-            $store = Store::where('slug', app('slug'))->get('phone')->first();
+            $store = $this->getStore();
 
             return redirect()->away("https://wa.me/55{$store->phone}?text={$encodedMessage}");
 
+        } catch(ValidationException $e){
+            return back()->withErrors($e->validator)->with('error_name', 'true')->withInput();
         } catch (\Throwable $th) {
-            //throw $th;
+            return back()->withErrors(['error' => 'Ocorreu um erro  ao finalizar sua solicitação.'])->with('error_name', 'true')->withInput();
         }
     }
     public function search(Request $request)
@@ -281,7 +311,15 @@ class ClientController extends Controller
     }
     private function getTenantId()
     {
-        $store = Store::where('slug', app('slug'))->first();
-        return $store->id;
+        return $this->getStore()->id;
+    }
+    private function getStore()
+    {
+        $store = app('store');
+
+        if (!$store) {
+            abort(403, 'Store não definida');
+        }
+        return $store;
     }
 }

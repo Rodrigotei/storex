@@ -49,7 +49,7 @@ class SetTenantDataBaseClient
             }else{
                 throw new \Exception('Ambiente não configurado para multi-tenant');
             }
-            app()->instance('slug', $slug);
+            app()->instance('store', $store);
             return $next($request);
         } catch (\Throwable $th) {
             return abort(403,$th->getMessage());

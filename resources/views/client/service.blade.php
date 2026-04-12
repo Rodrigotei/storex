@@ -69,6 +69,9 @@
                         <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3 ml-1">Nome</label>
                         <input class="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-800 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] outline-none transition-all" type="text" name="name" placeholder="Informe seu nome">
                     </div>
+                     @error('name')
+                        <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
+                    @enderror
                     <div class="pt-4">
                         <button type="submit" id="btn-submit" class="hidden w-full bg-[#004aad] hover:bg-[#0158cd] text-white font-bold py-6 px-10 rounded-full shadow-2xl shadow-blue-500/30 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-4 group text-lg"><i class="fab fa-whatsapp text-2xl transition-transform group-hover:rotate-12"></i>Solicitar Serviço</button>
                         <button type="button" id="btn-finish" onclick="openFieldName()" class="w-full bg-[#004aad] hover:bg-[#0158cd] text-white font-bold py-6 px-10 rounded-full shadow-2xl shadow-blue-500/30 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-4 group text-lg"><i class="fab fa-whatsapp text-2xl transition-transform group-hover:rotate-12"></i>Finalizar</button>
@@ -79,13 +82,22 @@
         </div>
     </main>
     <div class="fixed bottom-5 right-5 z-[60] flex flex-col gap-3">
-        @if (session('success'))
-            <div class="message bg-white dark:bg-gray-900 border-l-4 border-green-500 shadow-2xl rounded-2xl p-5 flex items-center min-w-[320px] animate-bounce-subtle">
-                <div class="p-2 bg-green-100 dark:bg-green-500/20 rounded-full mr-3 text-green-600 italic font-black">!</div>
-                <p class="text-sm font-bold text-slate-700 dark:text-gray-200">{{ session('success') }}</p>
+        @error('error')
+            <div class="message bg-white dark:bg-gray-900 border-l-4 border-red-500 shadow-2xl rounded-xl p-4 flex items-center min-w-[300px]">
+                <div class="p-2 bg-red-100 dark:bg-red-500/20 rounded-full mr-3 text-red-600">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </div>
+                <p class="text-sm font-bold text-slate-700 dark:text-gray-200">{{ $message }}</p>
             </div>
-        @endif
+        @enderror
     </div>
+    @if (session('error_name') == true)
+        <script>
+            document.querySelector('#fieldName').classList.remove('hidden');
+            const btnFinish = document.querySelector('#btn-finish').classList.add('hidden');
+            const btnSubmit = document.querySelector('#btn-submit').classList.remove('hidden');
+        </script>
+    @endif
     <script>
         function openFieldName(){
             const field = document.querySelector('#fieldName');

@@ -103,7 +103,7 @@
         </section>
     @endif
     @if ($lastProducts->isNotEmpty())
-        <section id="produtos">
+        <section id="produtos" class="mb-12">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Novidades</h2>
             </div>
