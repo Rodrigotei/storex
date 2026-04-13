@@ -2,13 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Store;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
-class SetTenantDatabase
+class BlockSubdomainAccess
 {
     /**
      * Handle an incoming request.
@@ -20,7 +18,7 @@ class SetTenantDatabase
         $host = $request->getHost();
         $parts = explode('.', $host);
         if (count($parts) > 2 || (app()->environment('local') && count($parts) > 1 && $parts[0] !== 'localhost')) {
-            return redirect(env('APP_URL').'dashboard');
+            return redirect(env('APP_URL'));
         }
         return $next($request);
     }

@@ -29,8 +29,7 @@
             </div>
         </div>
         <div class="space-y-4">
-            <a href="/" class="block w-full py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg hover:shadow-[#004aad]/30 active:scale-95">Voltar para o início <i class="fas fa-home ml-2 text-sm"></i></a>
-            <a href="javascript:history.back()" class="block w-full py-4 rounded-2xl bg-slate-100 dark:bg-gray-800 hover:bg-slate-200 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-300 font-bold text-lg transition-all active:scale-95">Voltar para página anterior</a>
+            <a href="javascript:history.back()" class="block w-full py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg hover:shadow-[#004aad]/30 active:scale-95">Voltar para página anterior</a>
             <p class="text-xs text-slate-400"><i class="fas fa-life-ring mr-1"></i> Se o problema persistir, entre em contato com o suporte.</p>
         </div>
     </div>
