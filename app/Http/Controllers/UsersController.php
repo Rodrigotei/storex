@@ -129,6 +129,7 @@ class UsersController extends Controller
                     'address.state' => 'required|string|max:50',
                     'address.zip_code' => 'required|string|size:8', // sem traço
                     'password' => 'nullable|string|min:6|confirmed',
+                    'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
                 ],
                 [
                     'name.required' => 'O nome é obrigatório.',
@@ -168,6 +169,9 @@ class UsersController extends Controller
                     'password.string' => 'A senha deve ser uma string válida.',
                     'password.min' => 'A senha deve ter pelo menos 6 caracteres.',
                     'password.confirmed' => 'As senhas não coincidem.',
+                    'img.image' => 'O arquivo deve ser uma imagem.',
+                    'img.mimes' => 'A imagem deve ser JPG, PNG ou WEBP.',
+                    'img.max' => 'A imagem deve ter no máximo 2MB.',
                 ]
             );
 
@@ -185,22 +189,19 @@ class UsersController extends Controller
             $storeData = $request->store;
             $store = $user->store ?? $user->store()->create([]);
 
-            $filePath = null;
-            if($request->hasFile('img')){
-                $fileName = $request->file('img')->hashName();
-                $filePath = $request->file('img')->storeAs('logo', $fileName, 'public');
-
-            }
-
-            $store->update([
+            $data = [
                 'name' => $storeData['name'],
-                'slug' => str_replace(' ', '-', strtolower($storeData['name'])),
                 'phone' => $storeData['phone'],
                 'description' => $storeData['description'],
                 'delivery_fee' => $storeData['delivery_fee'],
-                'img' => $filePath
-            ]);
+            ];
+            if($request->hasFile('img')){
+                $fileName = $request->file('img')->hashName();
+                $filePath = $request->file('img')->storeAs('logo', $fileName, 'public');
+                $data['img'] = $filePath;
 
+            }
+            $store->update($data);
             $addressData = $request->address;
             $address = $store->address ?? $store->address()->create([]);
             $address->update([
