@@ -20,7 +20,7 @@
             <div class="w-24 h-24 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-search text-4xl text-red-500"></i></div>
             <div class="absolute -top-2 -right-2 w-6 h-6 bg-[#004aad] rounded-full"></div>
         </div>
-        <h1 class="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Opa! Página não encontrada.</h1>
+        <h1 class="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">{{ $message ?? 'Opa! Página não encontrada.' }}</h1>
         <p class="text-slate-600 dark:text-gray-400 text-lg mb-6 leading-relaxed">Parece que você tentou acessar uma página que não existe ou foi removida. Mas relaxa, a gente te ajuda a voltar pro caminho certo 😉
         <div class="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 mb-8 text-left">
             <div class="flex items-center gap-3">

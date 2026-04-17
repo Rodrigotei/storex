@@ -52,7 +52,7 @@ class SetTenantDataBaseClient
             app()->instance('store', $store);
             return $next($request);
         } catch (\Throwable $th) {
-            return abort(403,$th->getMessage());
+            return response()->view('404', ['message' => $th->getMessage()]);
         }
     }
 }
