@@ -47,7 +47,13 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
-        Fortify::loginView(function(){
+        Fortify::loginView(function( Request $request) {
+            $host = $request->getHost();
+            $parts = explode('.', $host);
+
+            if (count($parts) > 2 || (app()->environment('local') && count($parts) > 1 && $parts[0] !== 'localhost')) {
+                return redirect(config('app.url') . 'dashboard/login');
+            }
             return view('dashboard.login');
         });
 

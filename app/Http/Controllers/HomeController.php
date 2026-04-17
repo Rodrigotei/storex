@@ -13,13 +13,17 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $tenant_id = auth()->user()->store->id;
-        return view('dashboard.home', [
-            'totalProducts' => Product::where('tenant_id', $tenant_id)->count(),
-            'totalCategories' => Category::where('tenant_id', $tenant_id)->count(),
-            'totalImagesProducts' => ProductImage::where('tenant_id', $tenant_id)->count(),
-            'totalServices' => Service::where('tenant_id', $tenant_id)->count(),
-            'recentProducts' => Product::with('productImages')->latest()->take(5)->where('tenant_id', $tenant_id)->get(),
-        ]);
+        try {
+            $tenant_id = auth()->user()->store->id;
+            return view('dashboard.home', [
+                'totalProducts' => Product::where('tenant_id', $tenant_id)->count(),
+                'totalCategories' => Category::where('tenant_id', $tenant_id)->count(),
+                'totalImagesProducts' => ProductImage::where('tenant_id', $tenant_id)->count(),
+                'totalServices' => Service::where('tenant_id', $tenant_id)->count(),
+                'recentProducts' => Product::with('productImages')->latest()->take(5)->where('tenant_id', $tenant_id)->get(),
+            ]);
+        } catch (\Throwable $th) {
+            return view('dashboard.error');
+        }
     }
 }

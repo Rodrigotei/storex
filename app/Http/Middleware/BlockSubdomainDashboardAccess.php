@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
-class SetTenantDatabase
+class BlockSubdomainDashboardAccess
 {
     /**
      * Handle an incoming request.

@@ -299,10 +299,11 @@ class ClientController extends Controller
             );
             $search = $request->search;
             $products = Product::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
-            if($products->isEmpty() ){
+            $services = Service::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
+            if($products->isEmpty() && $services->isEmpty() ){
                 return redirect()->route('client.home')->withErrors(['error' => 'Nada foi encontrado.']);
             }
-            return view('client.search', compact('search', 'products'));
+            return view('client.search', compact('search', 'products', 'services'));
        } catch (ValidationException $e) {
             return back()->withErrors(['error' => 'Nada encontrado.']);
        } catch (\Throwable $th) {

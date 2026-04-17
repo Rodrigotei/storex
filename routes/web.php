@@ -7,7 +7,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\BlockSubdomainAccess;
-use App\Http\Middleware\SetTenantDatabase;
+use App\Http\Middleware\BlockSubdomainDashboardAccess;
 use App\Http\Middleware\SetTenantDataBaseClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -19,7 +19,7 @@ Route::middleware(BlockSubdomainAccess::class)->group(function(){
     Route::post('/register', [UsersController::class, 'store'])->name('register'); 
 });
 
-Route::middleware(['auth', SetTenantDatabase::class])->prefix('dashboard')->group(function(){
+Route::middleware(['auth', BlockSubdomainDashboardAccess::class])->prefix('dashboard')->group(function(){
     Route::get('/', [HomeController::class, 'index'])->name('dashboard.home');
     Route::resource('/categories', CategoriesController::class)->except(['show'])->names('dashboard.categories');
     Route::resource('/products', ProductsController::class)->except(['show'])->names('dashboard.products');
