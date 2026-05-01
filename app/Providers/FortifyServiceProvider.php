@@ -51,8 +51,8 @@ class FortifyServiceProvider extends ServiceProvider
             $host = $request->getHost();
             $parts = explode('.', $host);
 
-            if (count($parts) > 2 || (app()->environment('local') && count($parts) > 1 && $parts[0] !== 'localhost')) {
-                return redirect(config('app.url') . 'dashboard/login');
+            if (count($parts) > 2) {
+                return redirect(config('app.url') . '/dashboard/login');
             }
             return view('dashboard.login');
         });

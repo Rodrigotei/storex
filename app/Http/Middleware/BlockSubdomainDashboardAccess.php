@@ -18,9 +18,9 @@ class BlockSubdomainDashboardAccess
     public function handle(Request $request, Closure $next): Response
     {
         $host = $request->getHost();
-        $parts = explode('.', $host);
-        if (count($parts) > 2 || (app()->environment('local') && count($parts) > 1 && $parts[0] !== 'localhost')) {
-            return redirect(env('APP_URL').'dashboard');
+        $domain = config('app.domain');
+        if ($host !== $domain) {
+            abort(404);
         }
         return $next($request);
     }
