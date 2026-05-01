@@ -2,7 +2,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" 
         x-data="{ activeImg: '{{ asset('storage/' . ($product->productImages->first()->img ?? 'products/default.png')) }}', qty: 1 }">
         <div class="mb-8">
-            <a href="{{ route('client.home') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-[#004aad] transition-colors group">
+            <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-[#004aad] transition-colors group">
                 <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Voltar ao início
             </a>
@@ -48,7 +48,7 @@
                     <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-2 uppercase tracking-wider">Descrição</h3>
                     <p class="text-slate-600 dark:text-gray-400 leading-relaxed">{{ $product->description ?? 'Sem descrição disponível.' }}</p>
                 </div>
-                <form action="{{ route('client.cart.add') }}" method="POST" class="space-y-10">
+                <form action="{{ route('client.cart.add', ['tenant' => app('store')->slug]) }}" method="POST" class="space-y-10">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                     @if($product->productVariations->count() > 0)

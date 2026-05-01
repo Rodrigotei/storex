@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between gap-4">
             <h1 class="font-bold text-2xl text-slate-800 dark:text-white tracking-tight">Seu Carrinho</h1>
-            <a href="{{ route('client.home') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-[#004aad] transition-colors group">
+            <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-[#004aad] transition-colors group">
                 <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Voltar ao início
             </a>
@@ -25,7 +25,7 @@
                             <div><span class="text-gray-500 text-sm">Observação:</span> {{ $item['observation'] }}</div>
                         </div>
                         <div class="flex flex-col items-end gap-3">
-                            <form action="{{ route('client.cart.delete') }}" method="POST">
+                            <form action="{{ route('client.cart.delete', ['tenant' => app('store')->slug]) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <input type="hidden" name="index" value="{{ $index }}">
@@ -62,7 +62,7 @@
                             Finalizar
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
-                        <form action="{{ route('client.order.finish') }}" method="POST" :class="{ 'hidden': !open }" class="space-y-5 mt-5">
+                        <form action="{{ route('client.order.finish', ['tenant' => app('store')->slug]) }}" method="POST" :class="{ 'hidden': !open }" class="space-y-5 mt-5">
                             @csrf
                             <input type="hidden" name="delivery_fee" value="{{ $delivery_fee ?? 0 }}">
                             <div>
@@ -117,7 +117,7 @@
         <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[40px] py-20 px-10 text-center">
             <div class="w-24 h-24 bg-slate-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6"><svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Ops! Seu carrinho está vazio.</h2>
-            <a href="{{ route('client.home') }}" class="inline-flex bg-[#004aad] text-white font-bold px-10 py-4 rounded-full hover:bg-[#0158cd] transition-all shadow-lg mt-3">Voltar ao início</a>
+            <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="inline-flex bg-[#004aad] text-white font-bold px-10 py-4 rounded-full hover:bg-[#0158cd] transition-all shadow-lg mt-3">Voltar ao início</a>
         </div>
     @endif
     <div class="fixed bottom-5 right-5 z-[60] flex flex-col gap-3">
@@ -174,7 +174,6 @@
             }
 
         }
-        function editCategory(id) { window.location.href = `/dashboard/categories/${id}/edit`; }
         setTimeout(() => {
             document.querySelectorAll('.message').forEach(el => {
                 el.style.opacity = '0';

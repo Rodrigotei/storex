@@ -1,7 +1,7 @@
 <x-client_layout>
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="{ activeImg: '{{ asset('storage/' . ($service->serviceImages->first()->img ?? 'images/default.png')) }}' }">
         <div class="mb-8">
-            <a href="{{ route('client.home') }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-[#004aad] transition-colors group">
+            <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-[#004aad] transition-colors group">
                 <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Voltar aos serviços
             </a>
@@ -47,7 +47,7 @@
                     <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-3 uppercase tracking-wider flex items-center"><span class="w-8 h-[2px] bg-[#004aad] mr-3"></span> Detalhes do Serviço</h3>
                     <pre class="text-slate-600 font-sans dark:text-gray-400 leading-relaxed text-lg">{{ $service->description ?? 'Entre em contato para saber mais detalhes sobre este serviço.' }}</pre>
                 </div>
-                <form action="{{ route('client.service.finish') }}" method="POST" class="space-y-6">
+                <form action="{{ route('client.service.finish', ['tenant' => app('store')->slug]) }}" method="POST" class="space-y-6">
                     @csrf
                     <input type="hidden" name="service_id" value="{{ $service->id }}">
                     <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3 ml-1">Preferência de Data/Hora</label>

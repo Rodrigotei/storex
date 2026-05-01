@@ -41,7 +41,7 @@ class ClientController extends Controller
             return view('client.error');
         }
     }
-    public function category(string $id)
+    public function category(string $tenant, string $id) // tenant required by route binding
     {
         try {
             $tenant_id = $this->getTenantId();
@@ -55,7 +55,7 @@ class ClientController extends Controller
             return view('client.error');
         }
     }
-    public function product(string $id)
+    public function product(string $tenant, string $id) // tenant required by route binding
     {
         try {
             $tenant_id = $this->getTenantId();
@@ -68,7 +68,7 @@ class ClientController extends Controller
             return view('client.error');
         }
     }
-    public function service(string $id)
+    public function service(string $tenant, string $id) // tenant required by route binding
     {
         try {
             $tenant_id = $this->getTenantId();

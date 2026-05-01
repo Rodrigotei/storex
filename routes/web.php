@@ -33,7 +33,7 @@ Route::domain('{tenant}.'.config('app.domain'))->middleware(SetTenantDataBaseCli
     Route::get('/', [ClientController::class, 'index'])->name('client.home');
     Route::get('/categories', [ClientController::class, 'categories'])->name('client.categories');
     Route::get('/category/{id}', [ClientController::class, 'category'])->name('client.category');
-    Route::get('/product/{id}', [ClientController::class, 'product'])->name('client.product');
+    Route::get('/product/{id}', [ClientController::class, 'product'])->whereNumber('id')->name('client.product');
     Route::get('/service/{id}', [ClientController::class, 'service'])->name('client.service');
     Route::get('/cart', [ClientController::class, 'cart'])->name('client.cart');
     Route::post('/cart', [ClientController::class, 'add'])->name('client.cart.add');

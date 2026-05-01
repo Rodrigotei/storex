@@ -57,11 +57,11 @@
          <section class="mb-12">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Categorias</h2>
-                <a href="{{ route('client.categories') }}" class="text-sm text-gray-500 hover:text-gray-700 font-bold">Ver todas</a>
+                <a href="{{ route('client.categories', ['tenant' => app('store')->slug]) }}" class="text-sm text-gray-500 hover:text-gray-700 font-bold">Ver todas</a>
             </div>
             <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
                 @foreach($categories as $category)
-                    <a href="{{ route('client.category', $category->id) }}" class="flex-none w-32 md:w-40 group text-center">
+                    <a href="{{ route('client.category', ['tenant' => app('store')->slug, 'id' => $category->id]) }}" class="flex-none w-32 md:w-40 group text-center">
                         <div class="w-full aspect-square bg-white dark:bg-gray-900 rounded-[30px] border border-slate-200 dark:border-gray-800 flex items-center justify-center mb-3 group-hover:border-[#0158cd] group-hover:shadow-lg transition-all overflow-hidden">
                             <img src="{{ asset($category->img ? 'storage/'.$category->img : 'storage/images/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
@@ -94,7 +94,9 @@
                                         R$ {{ number_format($promotionalProduct->promotional_price, 2, ',', '.') }}
                                     </span>
                                 </div>
-                                <button onclick="showProduct({{ $promotionalProduct->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+                                <a href="{{ route('client.product', ['tenant' => app('store')->slug, 'id' => $promotionalProduct->id]) }}">
+                                    <button class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -129,9 +131,9 @@
                                         R$ {{ number_format($product->price, 2, ',', '.') }}
                                     </span>
                                 @endif
-                                <button onclick="showProduct({{ $product->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg>
-                                </button>
+                                <a href="{{ route('client.product', ['tenant' => app('store')->slug, 'id' => $product->id]) }}">
+                                    <button class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -165,9 +167,9 @@
                                         R$ {{ number_format($service->price, 2, ',', '.') }}
                                     </span>
                                 @endif
-                                <button onclick="showService({{ $service->id }})" class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg>
-                                </button>
+                                 <a href="{{ route('client.service', ['tenant' => app('store')->slug, 'id' => $service->id]) }}">
+                                    <button class="p-3 bg-[#004aad] text-white rounded-2xl hover:bg-[#0158cd] transition-all shadow-lg shadow-blue-500/20 active:scale-90"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -194,12 +196,6 @@
         @enderror
     </div>
     <script>
-        function showProduct(id){
-            window.location.href = `/loja/product/${id}`;
-        }
-        function showService(id){
-            window.location.href = `/loja/service/${id}`;
-        }
         setTimeout(() => {
             document.querySelectorAll('.message').forEach(el => {
                 el.style.opacity = '0';

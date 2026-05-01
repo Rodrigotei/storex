@@ -24,7 +24,7 @@
         <p class="text-slate-600 dark:text-gray-400 mb-6 leading-relaxed">Tivemos um problema ao exibir este conteúdo do catálogo. Pode ser algo temporário ou o item não está mais disponível.</p>
         <div class="bg-slate-50 dark:bg-gray-800/50 rounded-2xl p-4 mb-6 text-sm text-slate-600 dark:text-gray-300">💡 Tente voltar e explorar outros produtos ou serviços disponíveis.</div>
         <div class="space-y-3">
-            <a href="{{ route('client.home') }}" class="block w-full py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg active:scale-95">Voltar ao Início <i class="fas fa-store ml-2 text-sm"></i></a>
+            <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="block w-full py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg active:scale-95">Voltar ao Início <i class="fas fa-store ml-2 text-sm"></i></a>
         </div>
         <p class="text-xs text-slate-400 mt-6">Se o problema continuar, tente novamente em instantes.</p>
     </div>
