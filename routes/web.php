@@ -8,14 +8,14 @@ use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\BlockSubdomainAccess;
 use App\Http\Middleware\BlockSubdomainDashboardAccess;
+use App\Http\Middleware\EnsureRegisterSuccess;
 use App\Http\Middleware\SetTenantDataBaseClient;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::domain(config('app.domain'))->middleware(BlockSubdomainAccess::class)->group(function(){
     Route::view('/', 'website.home')->name('home'); 
     Route::view('/register', 'website.register'); 
-    Route::view('/payment', 'website.payment')->name('payment'); 
+    Route::view('/payment', 'website.payment')->middleware(EnsureRegisterSuccess::class)->name('payment'); 
     Route::post('/register', [UsersController::class, 'store'])->name('register'); 
 });
 

@@ -64,14 +64,13 @@ class UsersController extends Controller
                 'img.max' => 'A imagem deve ter no máximo 2MB.',
             ]
         );
-
         try {
             DB::beginTransaction();
             $user = User::create([
                 'name'     => $request->name,
                 'document' => $request->document,
                 'email'    => $request->email,
-                'password' => bcrypt($request->password),
+                'password' => $request->password, // O cast 'hashed' no modelo User irá cuidar do hash
                 'status' => 'pendente'
             ]);
 
@@ -81,20 +80,32 @@ class UsersController extends Controller
                 $imgPath = $request->file('img')->storeAs('logo', $imgName, 'public');
             }
 
-            $user->store()->create([
+            $store = $user->store()->create([
                 'name' => $request->store_name,
                 'slug' => $request->slug,
                 'phone' => $request->phone,
                 'description' => $request->description,
                 'img' => $imgPath,
             ]);
+            $store->address()->create([
+                'street' => '',
+                'number' => '',
+                'complement' => '',
+                'neighborhood' => '',
+                'city' => '',
+                'state' => '',
+                'zip_code' => '',
+            ]);
             DB::commit();
-            return redirect()->route('payment');
+            return redirect()->route('payment')->with('register_success', true);
         } catch (ValidationException $e) {
+            DB::rollBack();
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Erro no banco de dados.'])->withInput();
         } catch (\Exception $e) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Erro ao processar cadastro'])->withInput();
         }
     }

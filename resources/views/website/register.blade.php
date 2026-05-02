@@ -13,7 +13,7 @@
         <div><a href="/" class="text-2xl font-black text-[#004aad] dark:text-white uppercase tracking-tighter">StoreX</a></div>
         <nav class="hidden md:flex items-center gap-6">
             <a href="/" class="text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd]">Home</a>
-            <a href="/login" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm">Login</a>
+            <a href="{{ route('dashboard.home') }}" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm">Login</a>
         </nav>
     </header>
     <main class="container mx-auto px-4 py-12">
@@ -39,7 +39,8 @@
                         </div>
                         <div class="flex flex-col gap-2">
                             <label class="text-sm font-semibold">CPF ou CNPJ</label>
-                            <input type="text" name="document" placeholder="000.000.000-00" value="{{ old('document') }}"  class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 focus:ring-2 focus:ring-[#004aad] outline-none transition">
+                            <input type="text" name="document" oninput="formatDocument(this)" placeholder="000.000.000-00" value="{{ old('document') }}"  class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 focus:ring-2 focus:ring-[#004aad] outline-none transition">
+                            <p class="text-[11px] text-slate-500 dark:text-gray-400">Apenas números.</p>
                             @error('document') 
                                 <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
                             @enderror
@@ -90,7 +91,8 @@
                         </div>
                         <div class="flex flex-col gap-2">
                             <label class="text-sm font-semibold">WhatsApp / Telefone *</label>
-                            <input type="text" name="phone" placeholder="(00) 00000-0000" required value="{{ old('phone') }}"  class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 focus:ring-2 focus:ring-[#004aad] outline-none transition">
+                            <input type="text" name="phone" oninput="formatPhone(this)" placeholder="(00) 00000-0000" required value="{{ old('phone') }}"  class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 focus:ring-2 focus:ring-[#004aad] outline-none transition">
+                            <p class="text-[11px] text-slate-500 dark:text-gray-400">Apenas números com DDD.</p>
                             @error('phone') 
                                 <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
                             @enderror
@@ -129,7 +131,21 @@
         @enderror
     </div>
     <script>
-          setTimeout(() => {
+        function formatDocument(input){
+            let value = input.value.replace(/\D/g, '');
+            if(value.length > 11){
+                if(value.length > 14) value = value.slice(0,14);
+            }else{
+                if(value.length > 11) value = value.slice(0,11);
+            }
+            input.value = value;
+        }
+        function formatPhone(input){
+            let value = input.value.replace(/\D/g, '');
+            if(value.length > 11) value = value.slice(0,11);
+            input.value = value;
+        }   
+        setTimeout(() => {
             document.querySelectorAll('.message').forEach(el => {
                 el.style.opacity = '0';
                 el.style.transform = 'translateX(20px)';
