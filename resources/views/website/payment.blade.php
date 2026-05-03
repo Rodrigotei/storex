@@ -22,11 +22,11 @@
             <div class="absolute -top-2 -right-2 w-6 h-6 bg-[#004aad] rounded-full"></div>
         </div>
         <h1 class="text-3xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Calma! Falta apenas um passo.</h1>
-        <p class="text-slate-600 dark:text-gray-400 text-lg mb-6 leading-relaxed">Seus dados já foram salvos, mas sua loja ainda não está ativa. Para liberar seu acesso, você será redirecionado para a **Hotmart**, nossa plataforma parceira de pagamentos.</p>
+        <p class="text-slate-600 dark:text-gray-400 text-lg mb-6 leading-relaxed">Seus dados já foram salvos, mas sua loja ainda não está ativa. Para liberar seu acesso, você será redirecionado para a **Cakto**, nossa plataforma parceira de pagamentos.</p>
         <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-8 text-left">
             <div class="flex items-center gap-3">
                 <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
-                <p class="text-red-700 dark:text-red-400 font-bold leading-tight text-sm">IMPORTANTE: No checkout da Hotmart, utilize o MESMO E-MAIL que você acabou de cadastrar aqui.</p>
+                <p class="text-red-700 dark:text-red-400 font-bold leading-tight text-sm">IMPORTANTE: No checkout da Cakto, utilize o MESMO E-MAIL que você acabou de cadastrar aqui.</p>
             </div>
         </div>
         <div class="bg-slate-50 dark:bg-gray-800/50 rounded-2xl p-4 mb-8 flex justify-between items-center border border-slate-100 dark:border-gray-700">
@@ -35,13 +35,12 @@
                 <span class="font-bold text-slate-800 dark:text-gray-200">Assinatura Ilimitada</span>
             </div>
             <div class="text-right">
-                <span class="text-xl font-black text-[#004aad] dark:text-blue-400">R$ 79,90</span>
-                <span class="block text-[10px] text-slate-500">/mensal</span>
+                <span class="text-xl font-black text-[#004aad] dark:text-blue-400">R$ 749,00</span>
             </div>
         </div>
         <div class="space-y-4">
-            <a href="https://pay.hotmart.com/L98040814I?checkoutMode=10" class="block w-full py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg hover:shadow-[#004aad]/30 active:scale-95">
-                Finalizar na Hotmart <i class="fas fa-external-link-alt ml-2 text-sm"></i>
+            <a href="https://pay.cakto.com.br/3d77pew_871382" class="block w-full py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg hover:shadow-[#004aad]/30 active:scale-95">
+                Finalizar na Cakto <i class="fas fa-external-link-alt ml-2 text-sm"></i>
             </a>
             <p class="text-xs text-slate-400"><i class="fas fa-shield-alt mr-1"></i> Ambiente de pagamento seguro e criptografado.</p>
         </div>

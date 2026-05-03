@@ -36,15 +36,15 @@
             <div class="box-info">
                 <p style="margin: 0; font-size: 15px; color: #1e293b;">
                     <strong>Seu próximo passo:</strong><br>
-                    Para ativar seu catálogo e começar a receber pedidos, finalize o pagamento da sua assinatura na Hotmart.
+                    Para ativar seu catálogo e começar a receber pedidos, finalize o pagamento da sua assinatura na Cakto.
                 </p>
             </div>
 
             <p class="alert-text">
-                ⚠️ LEMBRETE: Use o e-mail <u>{{ $email }}</u> na Hotmart para ativação automática.
+                ⚠️ LEMBRETE: Use o e-mail <u>{{ $email }}</u> na Cakto para ativação automática.
             </p>
 
-            <a href="https://pay.hotmart.com/L98040814I?checkoutMode=10" class="button">FINALIZAR PAGAMENTO</a>
+            <a href="https://pay.cakto.com.br/3d77pew_871382" class="button">FINALIZAR PAGAMENTO</a>
             
             <p style="margin-top: 30px; font-size: 13px; color: #94a3b8;">
                 Se você já realizou o pagamento, desconsidere este e-mail. A ativação pode levar alguns minutos.
