@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ActiveAccount;
+use App\Mail\CreateAccount;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -10,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Models\Store;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class UsersController extends Controller
@@ -96,6 +99,7 @@ class UsersController extends Controller
                 'state' => '',
                 'zip_code' => '',
             ]);
+            Mail::to($user->email)->send(new CreateAccount($user->name, $user->email, $store->slug));
             DB::commit();
             return redirect()->route('payment')->with('register_success', true);
         } catch (ValidationException $e) {
@@ -106,7 +110,7 @@ class UsersController extends Controller
             return back()->withErrors(['error' => 'Erro no banco de dados.'])->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Erro ao processar cadastro'])->withInput();
+            return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
 
@@ -242,5 +246,18 @@ class UsersController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function active(string $email)
+    {
+        try {
+            $user = User::with('store')->where('email', $email)->firstOrFail();
+            $user->status = 'ativo';
+            $user->save();
+            Mail::to($email)->send(new ActiveAccount($user->name, $user->store->slug));
+            return true;
+        } catch (\Throwable $th) {
+            return abort(500, 'Ocorreu um erro inesperado.');
+         }
     }
 }
