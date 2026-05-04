@@ -4,23 +4,26 @@ namespace App\Http\Middleware;
 
 use App\Models\Store;
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\Response;
 
 class SetTenantDataBaseClient
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        $slug = $request->route('tenant');
-        if (!$slug || $slug === 'www') {
-            abort(404);
+        try {
+            $slug = $request->route('tenant');
+            if (!$slug || $slug === 'www') {
+                throw new Exception('Invalid tenant slug');
+            }
+            $store = Store::where('slug', $slug)->first();
+            if (!$store) {
+                throw new Exception("Store not found");
+            }
+            app()->instance('store', $store);
+            return $next($request);
+        } catch (\Throwable $th) {
+            return response()->view('client.error');
         }
-        $store = Store::where('slug', $slug)->first();
-        if (!$store) {
-            abort(404);
-        }
-        app()->instance('store', $store);
-        return $next($request);
     }
 }
