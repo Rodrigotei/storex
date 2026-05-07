@@ -34,7 +34,7 @@ class ClientController extends Controller
             $tenant_id = $this->getTenantId();
             $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get();
             if($categories->isEmpty()){
-                return redirect()->route('client.home')->withErrors(['error' => 'Nenhuma categoria foi encontrada.']);
+                return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Nenhuma categoria foi encontrada.']);
             }
             return view('client.categories', compact('categories'));
         } catch (\Throwable $th) {
@@ -47,7 +47,7 @@ class ClientController extends Controller
             $tenant_id = $this->getTenantId();
             $products = Product::with('category')->where('category_id', $id)->where('status', true)->where('tenant_id', $tenant_id)->get();
             if($products->isEmpty()){
-                return redirect()->route('client.home')->withErrors(['error' => 'Nenhum produto encontrado para esta categoria.']);
+                return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Nenhum produto encontrado para esta categoria.']);
             }
             $categoryName = Category::where('status', true)->where('tenant_id', $tenant_id)->find($id,'name');
             return view('client.category', compact('categoryName', 'products'));
@@ -61,7 +61,7 @@ class ClientController extends Controller
             $tenant_id = $this->getTenantId();
             $product = Product::with(['category', 'productImages', 'productVariations', 'productVariations.variation'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
             if(!$product){
-                return redirect()->route('client.home')->withErrors(['error' => 'Produto não encontrado.']);
+                return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Produto não encontrado.']);
             }
             return view('client.product', compact('product'));
         } catch (\Throwable $th) {
@@ -74,7 +74,7 @@ class ClientController extends Controller
             $tenant_id = $this->getTenantId();
             $service = Service::with(['serviceImages'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
             if(!$service){
-                return redirect()->route('client.home')->withErrors(['error' => 'Serviço não encontrado.']);
+                return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Serviço não encontrado.']);
             }
             return view('client.service', compact('service'));
         } catch (\Throwable $th) {
@@ -237,13 +237,16 @@ class ClientController extends Controller
             $data = $request->validate(
                 [
                     'service_id' => 'required|exists:services,id',
-                    'date' => 'nullable|date',
-                    'time' => 'nullable',
+                    'date' => 'required|date',
+                    'time' => 'required',
                     'message' => 'nullable|string|max:1000',
                     'name' => 'required|string|max:255',
                 ],
                 [
                     'service_id.required' => 'Serviço não identificado',
+                    'date.required' => 'Informe a data',
+                    'date.date' => 'Data inválida',
+                    'time.required' => 'Informe o horário',
                     'name.required' => 'Informe seu nome'
                 ]
             );
@@ -301,7 +304,7 @@ class ClientController extends Controller
             $products = Product::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
             $services = Service::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
             if($products->isEmpty() && $services->isEmpty() ){
-                return redirect()->route('client.home')->withErrors(['error' => 'Nada foi encontrado.']);
+                return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Nada foi encontrado.']);
             }
             return view('client.search', compact('search', 'products', 'services'));
        } catch (ValidationException $e) {

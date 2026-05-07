@@ -99,6 +99,13 @@
                     <p class="text-gray-600">Publique seus produtos com descrições, imagens e promoções em um catálogo online acessível a qualquer momento.</p>
                 </div>
                 <div class="max-w-[400px] bg-white p-6 rounded-lg shadow-md hover:-translate-y-2 transition">
+                    <i class="fas fa-tools text-3xl text-[#004aad] mb-4"></i>
+                    <h3 class="text-xl font-semibold text-black mb-2">Gestão de Serviços</h3>
+                    <p class="text-gray-600">
+                        Cadastre e organize seus serviços com descrições detalhadas e preços, facilitando o atendimento e a contratação pelos clientes.
+                    </p>
+                </div>
+                <div class="max-w-[400px] bg-white p-6 rounded-lg shadow-md hover:-translate-y-2 transition">
                     <i class="fas fa-search text-3xl text-[#004aad] mb-4"></i>
                     <h3 class="text-xl font-semibold text-black mb-2">Busca Inteligente</h3>
                     <p class="text-gray-600">Facilite a navegação dos clientes com uma barra de pesquisa que encontra produtos de forma rápida e eficiente.</p>

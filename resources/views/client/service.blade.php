@@ -45,7 +45,7 @@
                 </div>
                 <div class="bg-slate-50 dark:bg-gray-800/30 rounded-[30px] p-8 mb-8 border border-slate-100 dark:border-gray-800">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-3 uppercase tracking-wider flex items-center"><span class="w-8 h-[2px] bg-[#004aad] mr-3"></span> Detalhes do Serviço</h3>
-                    <pre class="text-slate-600 font-sans dark:text-gray-400 leading-relaxed text-lg">{{ $service->description ?? 'Entre em contato para saber mais detalhes sobre este serviço.' }}</pre>
+                    <pre class="text-slate-600 text-wrap font-sans dark:text-gray-400 leading-relaxed text-lg">{{ $service->description ?? 'Entre em contato para saber mais detalhes sobre este serviço.' }}</pre>
                 </div>
                 <form action="{{ route('client.service.finish', ['tenant' => app('store')->slug]) }}" method="POST" class="space-y-6">
                     @csrf
@@ -54,12 +54,20 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3 ml-1">Data</label>
-                            <input type="date" name="date" class="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-800 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] outline-none transition-all">
+                            <input type="date" name="date" value="{{ old('date') }}" class="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-800 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] outline-none transition-all">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3 ml-1">Horário</label>
-                            <input type="time" name="time" class="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-800 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] outline-none transition-all">
+                            <input type="time" name="time" value="{{ old('time') }}" class="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-800 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] outline-none transition-all">
                         </div>
+                    </div>
+                    <div class="flex gap-5">
+                        @error('date')
+                            <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
+                        @enderror
+                        @error('time')
+                            <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3 ml-1">Informações Adicionais</label>
@@ -67,9 +75,9 @@
                     </div>
                     <div class="hidden" id="fieldName">
                         <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-3 ml-1">Nome</label>
-                        <input class="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-800 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] outline-none transition-all" type="text" name="name" placeholder="Informe seu nome">
+                        <input class="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-slate-200 dark:border-gray-800 text-slate-900 dark:text-gray-200 rounded-[20px] focus:ring-2 focus:ring-[#0158cd] outline-none transition-all" type="text" name="name" placeholder="Informe seu nome" value="{{ old('name') }}">
                     </div>
-                     @error('name')
+                    @error('name')
                         <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
                     @enderror
                     <div class="pt-4">
