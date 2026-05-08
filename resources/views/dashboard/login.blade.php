@@ -38,5 +38,27 @@
             </div>
         </div>
     </div>
+    @if ($errors->has('account'))
+        <div 
+            x-data="{ open: true }"
+            x-show="open"
+            x-transition
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+        >
+            <div @click.away="open = false" class="w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 border border-slate-200 dark:border-gray-800">
+                <div class="text-center">
+                    <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-500/10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Conta pendente</h2>
+                    <p class="mt-3 text-sm text-slate-600 dark:text-gray-400 leading-relaxed">Sua conta foi criada com sucesso, mas ainda precisa da confirmação do pagamento para ser ativada.</p>
+                    <div class="mt-8 flex flex-col gap-3">
+                        <a href="{{ route('payment') }}" class="w-full bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold py-3 rounded-full transition-all">Finalizar pagamento</a>
+                        <button  @click="open = false" class="w-full border border-slate-300 dark:border-gray-700 text-slate-700 dark:text-gray-300 font-semibold py-3 rounded-full hover:bg-slate-100 dark:hover:bg-gray-800 transition-all">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </body>
 </html>

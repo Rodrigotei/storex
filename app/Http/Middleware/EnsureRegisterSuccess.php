@@ -18,6 +18,7 @@ class EnsureRegisterSuccess
         if (!session('register_success')) {
             return redirect()->route('home');
         }
+        session()->forget('register_success');
 
         return $next($request);
     }

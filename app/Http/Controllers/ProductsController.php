@@ -124,7 +124,8 @@ class ProductsController extends Controller
     public function edit(string $id)
     {
          try {
-            $categories = Category::all();
+            $tenant_id = auth()->user()->store->id;
+            $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
             $product = Product::with(['productImages', 'productVariations', 'productVariations.variation'])->findOrFail($id);
             return view('dashboard.products.edit',compact('product', 'categories', 'variations'));
