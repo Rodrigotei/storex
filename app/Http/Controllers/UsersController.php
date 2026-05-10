@@ -253,6 +253,7 @@ class UsersController extends Controller
         try {
             $user = User::with('store')->where('email', $email)->firstOrFail();
             $user->status = 'ativo';
+            $user->expires_at = now()->addYear();
             $user->save();
             Mail::to($email)->send(new ActiveAccount($user->name, $user->store->slug));
             return true;

@@ -11,13 +11,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class CategoriesController extends Controller
 {
     public function index(): View
     {
         try {
-            $categories = Category::where('tenant_id', auth()->user()->store->id)->paginate(10);
+            $categories = Category::where('tenant_id', auth()->user()->id)->paginate(10);
             return view('dashboard.categories.index', compact('categories'));
         } catch (\Throwable $th) {
             return view('dashboard.error');
@@ -54,25 +55,32 @@ class CategoriesController extends Controller
                 $fileName = $request->file('img')->hashName();
                 $filePath = $request->file('img')->storeAs('categories', $fileName, 'public');
             }
+            DB::beginTransaction();
             Category::create([
-                'tenant_id' => auth()->user()->store->id,
+                'tenant_id' => auth()->user()->id,
                 'name' => $request->name,
                 'img' => $filePath,
                 'status' => $request->status,
             ]);
+            DB::commit();
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria criada com sucesso!');
         } catch (ValidationException $e){
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
+            DB::rollBack();
+            if (!empty($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
     public function edit(string $id): View|RedirectResponse
     {
         try {
-            $category = Category::findOrFail($id);
+            $category = Category::where('tenant_id', auth()->user()->id)->findOrFail($id);
             return view('dashboard.categories.edit' , compact('category'));
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Categoria não encontrada.']);
@@ -98,55 +106,66 @@ class CategoriesController extends Controller
                     'status.in' => 'Selecione um status válido.'
                 ]
             );
-            $filePath = null;
+            $category = Category::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $oldImage = $category->img;
+            $newImage = null;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $filePath = $request->file('img')->storeAs('categories', $fileName, 'public');
+                $newImage = $request->file('img')->storeAs('categories', $fileName, 'public');
             }
-            $category = Category::findOrFail($id);
+            DB::beginTransaction();
             $category->name = $request->name;
-
             $oldStatus = $category->status;
-
             if ($oldStatus == 1 && $request->status == 0) {
-                Product::where('category_id', $category->id)->update(['status' => 0]);
-            }
-
-            if($filePath){
-                if($category->img){
-                    Storage::disk('public')->delete($category->img);
-                }
-                $category->img = $filePath;
+                Product::where('category_id', $category->id)->where('tenant_id', auth()->user()->id)->update(['status' => 0]);
             }
             $category->status = $request->status;
+            if($newImage){
+                $category->img = $newImage;
+            }
             $category->save();
+            DB::commit();
+            if ($newImage && $oldImage) {
+                Storage::disk('public')->delete($oldImage);
+            }
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria salva com sucesso!');
         } catch (ValidationException $e){
             return back()->withErrors($e->validator)->withInput();
         } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return back()->withErrors(['error' => 'Categoria não encontrada.'])->withInput();
         } catch (QueryException $e){
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
+            DB::rollBack();
+            if (!empty($newImage)) {
+                Storage::disk('public')->delete($newImage);
+            }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
     public function destroy(string $id): RedirectResponse
     {
         try {
-            $products = Product::where('category_id', $id)->exists();
+            $products = Product::where('category_id', $id)->where('tenant_id', auth()->user()->id)->exists();
             if($products){
                 return back()->withErrors(['error' => 'Existem produtos vinculados à essa categoria.']);
             }
-            $category = Category::findOrFail($id);
-            if($category->img){
+            $category = Category::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            DB::beginTransaction();
+            $imgPath = $category->img; 
+            $category->delete();
+            DB::commit();
+            if($imgPath){
                 Storage::disk('public')->delete($category->img);
             }
-            $category->delete();
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria excluída com sucesso!');
         } catch (ModelNotFoundException $e){
+            DB::rollBack();
             return back()->withErrors(['error' => 'Categoria não encontrada.']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
