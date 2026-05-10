@@ -20,7 +20,7 @@ class ProductsController extends Controller
     public function index()
     {
         try {
-            $tenant_id = auth()->user()->store->id;
+            $tenant_id = auth()->user()->id;
             $products = Product::with(['category', 'productImages'])->where('tenant_id', $tenant_id)->paginate(10);
             return view('dashboard.products.index', compact('products'));
         } catch (\Throwable $th) {
@@ -30,7 +30,7 @@ class ProductsController extends Controller
     public function create()
     {
         try {
-            $tenant_id = auth()->user()->store->id;
+            $tenant_id = auth()->user()->id;
             $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
             return view('dashboard.products.create', compact('categories', 'variations'));
@@ -71,7 +71,7 @@ class ProductsController extends Controller
                 'price' => $request->price,
                 'description' => $request->description,
                 'status' => $request->status,
-                'tenant_id' => auth()->user()->store->id
+                'tenant_id' => auth()->user()->id
             ]);
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
@@ -85,7 +85,7 @@ class ProductsController extends Controller
                     }
                     $uploadedImages[] = $filePath;
                     ProductImage::create([
-                        'tenant_id' => auth()->user()->store->id,
+                        'tenant_id' => auth()->user()->id,
                         'product_id' => $product->id,
                         'img' => $filePath
                     ]);
@@ -95,7 +95,7 @@ class ProductsController extends Controller
             if(!empty($variation_values) && $request->variation_id) {
                 foreach ($variation_values as $value) {
                     ProductVariation::create([
-                        'tenant_id' => auth()->user()->store->id,
+                        'tenant_id' => auth()->user()->id,
                         'product_id' => $product->id,
                         'variation_id' => $request->variation_id,
                         'value' => $value
@@ -109,14 +109,18 @@ class ProductsController extends Controller
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
             DB::rollBack();
-            foreach ($uploadedImages as $path) {
-                Storage::disk('public')->delete($path);
+            if(!empty($uploadedImages)){
+                foreach ($uploadedImages as $path) {
+                    Storage::disk('public')->delete($path);
+                }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
-            foreach ($uploadedImages as $path) {
-                Storage::disk('public')->delete($path);
+            if(!empty($uploadedImages)){
+                foreach ($uploadedImages as $path) {
+                    Storage::disk('public')->delete($path);
+                }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
@@ -124,10 +128,10 @@ class ProductsController extends Controller
     public function edit(string $id)
     {
          try {
-            $tenant_id = auth()->user()->store->id;
+            $tenant_id = auth()->user()->id;
             $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
-            $product = Product::with(['productImages', 'productVariations', 'productVariations.variation'])->findOrFail($id);
+            $product = Product::with(['productImages', 'productVariations', 'productVariations.variation'])->where('tenant_id', $tenant_id)->findOrFail($id);
             return view('dashboard.products.edit',compact('product', 'categories', 'variations'));
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Produto não encontrado.']);
@@ -166,8 +170,8 @@ class ProductsController extends Controller
                     'promotional_price.lt' => 'O preço promocional deve ser menor que o preço normal.',
                 ]
             );
+            $product = Product::where('tenant_id', auth()->user()->id)->findOrFail($id);
             DB::beginTransaction();
-            $product = Product::findOrFail($id);
             $product->name = $request->name;
             $product->category_id = $request->category_id;
             $product->price = $request->price;
@@ -186,14 +190,13 @@ class ProductsController extends Controller
                     }
                     $uploadedImages[] = $filePath;
                     ProductImage::create([
-                        'tenant_id' => auth()->user()->store->id,
+                        'tenant_id' => auth()->user()->id,
                         'product_id' => $product->id,
                         'img' => $filePath
                     ]);
                 }
             }
-            $product->save();
-            ProductVariation::where('product_id', $product->id)->delete();
+            ProductVariation::where('product_id', $product->id)->where('tenant_id', auth()->user()->id)->delete();
             $variation_values = array_filter($request->variation_values ?? []);
             if($request->has_variation) {
                  if (!$request->variation_id) {
@@ -204,12 +207,14 @@ class ProductsController extends Controller
                 }
                 foreach ($variation_values as $value) {
                     ProductVariation::create([
+                        'tenant_id' => auth()->user()->id,
                         'product_id' => $product->id,
                         'variation_id' => $request->variation_id,
                         'value' => $value
                     ]);
                 }
             }
+            $product->save();
             DB::commit();
             return back()->with('success', 'Produto atualizado com sucesso!');
         } catch (ValidationException $e){
@@ -217,14 +222,18 @@ class ProductsController extends Controller
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
             DB::rollBack();
-            foreach ($uploadedImages as $path) {
-                Storage::disk('public')->delete($path);
+            if(!empty($uploadedImages)){
+                foreach ($uploadedImages as $path) {
+                    Storage::disk('public')->delete($path);
+                }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
-            foreach ($uploadedImages as $path) {
-                Storage::disk('public')->delete($path);
+            if(!empty($uploadedImages)){
+                foreach ($uploadedImages as $path) {
+                    Storage::disk('public')->delete($path);
+                }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
@@ -232,30 +241,40 @@ class ProductsController extends Controller
     public function destroy(string $id)
     {
         try {
-            $product = Product::with('productImages')->findOrFail($id);
-            foreach ($product->productImages as $image) {
-                Storage::disk('public')->delete($image->img);
-                $image->delete();
-            }
+            $product = Product::with('productImages')->where('tenant_id', auth()->user()->id)->findOrFail($id);
+            DB::beginTransaction();
+            $imgPaths = $product->productImages->pluck('img')->toArray();
             $product->delete();
+            DB::commit();
+            if (!empty($imgPaths)) {
+                foreach ($imgPaths as $image) {
+                    Storage::disk('public')->delete($image);
+                }
+            }
             return redirect()->route('dashboard.products.index')->with('success', 'Produto excluído com sucesso!');
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Produto não encontrado.']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
-    public function deleteImage($id)
+    public function deleteImage(string $id)
     {
         try {
-            $productImage = ProductImage::findOrFail($id);
-            Storage::disk('public')->delete($productImage->img);
+            $productImage = ProductImage::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            DB::beginTransaction();
+            $imgPath = $productImage->img;
             $productImage->delete();
+            DB::commit();
+            Storage::disk('public')->delete($imgPath);
             return back()->with('success', 'Imagem excluída com sucesso.');
         } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Imagem não encontrada.']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
+
         }
     }
 }

@@ -16,7 +16,7 @@ class ServicesController extends Controller
     public function index()
     {
         try {
-            $tenant_id = auth()->user()->store->id;
+            $tenant_id = auth()->user()->id;
             $services = Service::with(['serviceImages'])->where('tenant_id', $tenant_id)->paginate(10);
             return view('dashboard.services.index', compact('services'));
         } catch (\Throwable $th) {
@@ -60,7 +60,7 @@ class ServicesController extends Controller
                 'description' => $request->description,
                 'status' => $request->status,
                 'duration' => $request->duration ?? null,
-                'tenant_id' => auth()->user()->store->id
+                'tenant_id' => auth()->user()->id
             ]);
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
@@ -73,7 +73,7 @@ class ServicesController extends Controller
                         throw new \Exception('Falha ao salvar imagem.');
                     }
                     ServiceImage::create([
-                        'tenant_id' => auth()->user()->store->id,
+                        'tenant_id' => auth()->user()->id,
                         'service_id' => $service->id,
                         'img' => $filePath
                     ]);
@@ -82,7 +82,6 @@ class ServicesController extends Controller
             DB::commit();
             return redirect()->route('dashboard.services.index')->with('success', 'Serviço criado com sucesso!');
         } catch (ValidationException $e){
-            DB::rollBack();
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
             DB::rollBack();
@@ -95,7 +94,7 @@ class ServicesController extends Controller
     public function edit(string $id)
     {
         try {
-            $service = Service::with(['serviceImages'])->findOrFail($id);
+            $service = Service::with(['serviceImages'])->where('tenant_id', auth()->user()->id)->findOrFail($id);
             return view('dashboard.services.edit',compact('service'));
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Serviço não encontrado.']);
@@ -130,8 +129,8 @@ class ServicesController extends Controller
                     'promotional_price.lt' => 'O preço promocional deve ser menor que o preço normal.',
                 ]
             );
-            DB::beginTransaction();
             $service = Service::findOrFail($id);
+            DB::beginTransaction();
             $service->name = $request->name;
             $service->price = $request->price;
             $service->promotional_price = $request->promotional_price;
@@ -158,7 +157,6 @@ class ServicesController extends Controller
             DB::commit();
             return back()->with('success', 'Serviço atualizado com sucesso!');
         } catch (ValidationException $e){
-            DB::rollBack();
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e){
             DB::rollBack();
@@ -171,29 +169,38 @@ class ServicesController extends Controller
     public function destroy(string $id)
     {
         try {
-            $service = Service::with('serviceImages')->findOrFail($id);
-            foreach ($service->serviceImages as $image) {
-                Storage::disk('public')->delete($image->img);
-                $image->delete();
-            }
+            $service = Service::with('serviceImages')->where('tenant_id', auth()->user()->id)->findOrFail($id);
+            DB::beginTransaction();
+            $imgPaths = $service->serviceImages->pluck('img')->toArray();
             $service->delete();
+            DB::commit();
+            if(!empty($imgPaths)){
+                foreach ($imgPaths as $image) {
+                    Storage::disk('public')->delete($image);
+                }
+            }   
             return redirect()->route('dashboard.services.index')->with('success', 'Serviço excluído com sucesso!');
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Serviço não encontrado.']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
-    public function deleteImage($id)
+    public function deleteImage(string $id)
     {
         try {
-            $productImage = ServiceImage::findOrFail($id);
-            Storage::disk('public')->delete($productImage->img);
-            $productImage->delete();
+            $serviceImage = ServiceImage::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            DB::beginTransaction();
+            $imgPath = $serviceImage->img;
+            $serviceImage->delete();
+            DB::commit();
+            Storage::disk('public')->delete($imgPath);
             return back()->with('success', 'Imagem excluída com sucesso.');
         } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Imagem não encontrada.']);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
