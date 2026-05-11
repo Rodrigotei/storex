@@ -22,6 +22,9 @@
     @endauth
     <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {{ $slot }}
+
+        <x-alert />
+
     </main>
     @vite('resources/js/app.js')
 </body>
