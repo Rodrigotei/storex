@@ -33,7 +33,7 @@
                     <button type="submit" class="w-full bg-[#004aad] hover:bg-[#0158cd] dark:bg-white dark:text-[#004aad] dark:hover:bg-gray-200 text-white font-bold py-3 rounded-full shadow-lg transform active:scale-[0.98] transition-all duration-200 uppercase text-sm tracking-wider">Entrar</button>
                 </form>
                 <div class="mt-6 text-center">
-                    <a href="/" class="text-xs text-slate-400 hover:text-[#004aad] dark:hover:text-white transition-colors">Esqueceu sua senha?</a>
+                    <a href="{{ route('password.request') }}" class="text-xs text-slate-400 hover:text-[#004aad] dark:hover:text-white transition-colors">Esqueceu sua senha?</a>
                 </div>
             </div>
         </div>

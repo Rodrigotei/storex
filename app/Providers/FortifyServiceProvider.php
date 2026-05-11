@@ -70,5 +70,13 @@ class FortifyServiceProvider extends ServiceProvider
             }
             return null;
         });
+
+        Fortify::requestPasswordResetLinkView(function(){
+            return view('dashboard.forgot-password');
+        });
+
+        Fortify::resetPasswordView(function(){
+            return view('dashboard.reset-password');
+        });
     }
 }
