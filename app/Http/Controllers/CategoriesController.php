@@ -18,7 +18,7 @@ class CategoriesController extends Controller
     public function index(): View
     {
         try {
-            $categories = Category::where('tenant_id', auth()->user()->id)->paginate(10);
+            $categories = Category::where('tenant_id', auth()->user()->store->id)->paginate(10);
             return view('dashboard.categories.index', compact('categories'));
         } catch (\Throwable $th) {
             return view('dashboard.error');
@@ -57,7 +57,7 @@ class CategoriesController extends Controller
             }
             DB::beginTransaction();
             Category::create([
-                'tenant_id' => auth()->user()->id,
+                'tenant_id' => auth()->user()->store->id,
                 'name' => $request->name,
                 'img' => $filePath,
                 'status' => $request->status,
@@ -80,7 +80,7 @@ class CategoriesController extends Controller
     public function edit(string $id): View|RedirectResponse
     {
         try {
-            $category = Category::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $category = Category::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             return view('dashboard.categories.edit' , compact('category'));
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Categoria não encontrada.']);
@@ -106,7 +106,7 @@ class CategoriesController extends Controller
                     'status.in' => 'Selecione um status válido.'
                 ]
             );
-            $category = Category::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $category = Category::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             $oldImage = $category->img;
             $newImage = null;
             if ($request->hasFile('img')) {
@@ -117,7 +117,7 @@ class CategoriesController extends Controller
             $category->name = $request->name;
             $oldStatus = $category->status;
             if ($oldStatus == 1 && $request->status == 0) {
-                Product::where('category_id', $category->id)->where('tenant_id', auth()->user()->id)->update(['status' => 0]);
+                Product::where('category_id', $category->id)->where('tenant_id', auth()->user()->store->id)->update(['status' => 0]);
             }
             $category->status = $request->status;
             if($newImage){
@@ -148,11 +148,11 @@ class CategoriesController extends Controller
     public function destroy(string $id): RedirectResponse
     {
         try {
-            $products = Product::where('category_id', $id)->where('tenant_id', auth()->user()->id)->exists();
+            $products = Product::where('category_id', $id)->where('tenant_id', auth()->user()->store->id)->exists();
             if($products){
                 return back()->withErrors(['error' => 'Existem produtos vinculados à essa categoria.']);
             }
-            $category = Category::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $category = Category::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             DB::beginTransaction();
             $imgPath = $category->img; 
             $category->delete();

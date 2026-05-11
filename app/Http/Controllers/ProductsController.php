@@ -20,7 +20,7 @@ class ProductsController extends Controller
     public function index()
     {
         try {
-            $tenant_id = auth()->user()->id;
+            $tenant_id = auth()->user()->store->id;
             $products = Product::with(['category', 'productImages'])->where('tenant_id', $tenant_id)->paginate(10);
             return view('dashboard.products.index', compact('products'));
         } catch (\Throwable $th) {
@@ -30,7 +30,7 @@ class ProductsController extends Controller
     public function create()
     {
         try {
-            $tenant_id = auth()->user()->id;
+            $tenant_id = auth()->user()->store->id;
             $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
             return view('dashboard.products.create', compact('categories', 'variations'));
@@ -71,7 +71,7 @@ class ProductsController extends Controller
                 'price' => $request->price,
                 'description' => $request->description,
                 'status' => $request->status,
-                'tenant_id' => auth()->user()->id
+                'tenant_id' => auth()->user()->store->id
             ]);
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
@@ -85,7 +85,7 @@ class ProductsController extends Controller
                     }
                     $uploadedImages[] = $filePath;
                     ProductImage::create([
-                        'tenant_id' => auth()->user()->id,
+                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
                         'img' => $filePath
                     ]);
@@ -95,7 +95,7 @@ class ProductsController extends Controller
             if(!empty($variation_values) && $request->variation_id) {
                 foreach ($variation_values as $value) {
                     ProductVariation::create([
-                        'tenant_id' => auth()->user()->id,
+                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
                         'variation_id' => $request->variation_id,
                         'value' => $value
@@ -128,7 +128,7 @@ class ProductsController extends Controller
     public function edit(string $id)
     {
          try {
-            $tenant_id = auth()->user()->id;
+            $tenant_id = auth()->user()->store->id;
             $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
             $product = Product::with(['productImages', 'productVariations', 'productVariations.variation'])->where('tenant_id', $tenant_id)->findOrFail($id);
@@ -170,7 +170,7 @@ class ProductsController extends Controller
                     'promotional_price.lt' => 'O preço promocional deve ser menor que o preço normal.',
                 ]
             );
-            $product = Product::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $product = Product::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             DB::beginTransaction();
             $product->name = $request->name;
             $product->category_id = $request->category_id;
@@ -190,13 +190,13 @@ class ProductsController extends Controller
                     }
                     $uploadedImages[] = $filePath;
                     ProductImage::create([
-                        'tenant_id' => auth()->user()->id,
+                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
                         'img' => $filePath
                     ]);
                 }
             }
-            ProductVariation::where('product_id', $product->id)->where('tenant_id', auth()->user()->id)->delete();
+            ProductVariation::where('product_id', $product->id)->where('tenant_id', auth()->user()->store->id)->delete();
             $variation_values = array_filter($request->variation_values ?? []);
             if($request->has_variation) {
                  if (!$request->variation_id) {
@@ -207,7 +207,7 @@ class ProductsController extends Controller
                 }
                 foreach ($variation_values as $value) {
                     ProductVariation::create([
-                        'tenant_id' => auth()->user()->id,
+                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
                         'variation_id' => $request->variation_id,
                         'value' => $value
@@ -241,7 +241,7 @@ class ProductsController extends Controller
     public function destroy(string $id)
     {
         try {
-            $product = Product::with('productImages')->where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $product = Product::with('productImages')->where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             DB::beginTransaction();
             $imgPaths = $product->productImages->pluck('img')->toArray();
             $product->delete();
@@ -262,7 +262,7 @@ class ProductsController extends Controller
     public function deleteImage(string $id)
     {
         try {
-            $productImage = ProductImage::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $productImage = ProductImage::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             DB::beginTransaction();
             $imgPath = $productImage->img;
             $productImage->delete();

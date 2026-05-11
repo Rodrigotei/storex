@@ -16,7 +16,7 @@ class ServicesController extends Controller
     public function index()
     {
         try {
-            $tenant_id = auth()->user()->id;
+            $tenant_id = auth()->user()->store->id;
             $services = Service::with(['serviceImages'])->where('tenant_id', $tenant_id)->paginate(10);
             return view('dashboard.services.index', compact('services'));
         } catch (\Throwable $th) {
@@ -60,7 +60,7 @@ class ServicesController extends Controller
                 'description' => $request->description,
                 'status' => $request->status,
                 'duration' => $request->duration ?? null,
-                'tenant_id' => auth()->user()->id
+                'tenant_id' => auth()->user()->store->id
             ]);
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
@@ -73,7 +73,7 @@ class ServicesController extends Controller
                         throw new \Exception('Falha ao salvar imagem.');
                     }
                     ServiceImage::create([
-                        'tenant_id' => auth()->user()->id,
+                        'tenant_id' => auth()->user()->store->id,
                         'service_id' => $service->id,
                         'img' => $filePath
                     ]);
@@ -94,7 +94,7 @@ class ServicesController extends Controller
     public function edit(string $id)
     {
         try {
-            $service = Service::with(['serviceImages'])->where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $service = Service::with(['serviceImages'])->where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             return view('dashboard.services.edit',compact('service'));
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Serviço não encontrado.']);
@@ -169,7 +169,7 @@ class ServicesController extends Controller
     public function destroy(string $id)
     {
         try {
-            $service = Service::with('serviceImages')->where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $service = Service::with('serviceImages')->where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             DB::beginTransaction();
             $imgPaths = $service->serviceImages->pluck('img')->toArray();
             $service->delete();
@@ -190,7 +190,7 @@ class ServicesController extends Controller
     public function deleteImage(string $id)
     {
         try {
-            $serviceImage = ServiceImage::where('tenant_id', auth()->user()->id)->findOrFail($id);
+            $serviceImage = ServiceImage::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
             DB::beginTransaction();
             $imgPath = $serviceImage->img;
             $serviceImage->delete();
