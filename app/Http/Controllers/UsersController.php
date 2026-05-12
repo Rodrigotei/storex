@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Store;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class UsersController extends Controller
@@ -191,11 +192,11 @@ class UsersController extends Controller
                 'description' => $storeData['description'],
                 'delivery_fee' => $storeData['delivery_fee'],
             ];
+            $oldImg = $store->img;
             if($request->hasFile('img')){
                 $fileName = $request->file('img')->hashName();
                 $filePath = $request->file('img')->storeAs('logo', $fileName, 'public');
                 $data['img'] = $filePath;
-
             }
             $store->update($data);
             $addressData = $request->address;
@@ -210,6 +211,9 @@ class UsersController extends Controller
                 'complement' => $addressData['complement'],
             ]);
             DB::commit();
+            if($oldImg && isset($data['img'])){
+                Storage::disk('public')->delete($oldImg);
+            }
             return redirect()->back()->with('success', 'Perfil atualizado com sucesso!');
         } catch (ValidationException $e){
             return back()->withErrors($e->validator)->withInput();
@@ -218,7 +222,7 @@ class UsersController extends Controller
             return back()->withErrors(['error' => 'Usuário não encontrado'])->withInput();
         } catch (QueryException $e){
             DB::rollBack();
-            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();

@@ -19,19 +19,16 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">E-mail</label>
                         <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="seu@email.com" class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] focus:border-transparent outline-none transition-all placeholder:text-slate-400">
-                        @error('email')
-                            <p class="text-red-500 dark:text-red-400 text-xs mt-2 ml-4">{{ $message }}</p>
-                        @enderror
                     </div>  
                     <button type="submit" class="w-full bg-[#004aad] hover:bg-[#0158cd] dark:bg-white dark:text-[#004aad] dark:hover:bg-gray-200 text-white font-bold py-3 rounded-full shadow-lg transform active:scale-[0.98] transition-all duration-200 uppercase text-sm tracking-wider">Recuperar Senha</button>
                 </form>
                 <div class="mt-6 text-center">
-                    <a href="{{ route('login') }}" class="text-xs text-slate-400 hover:text-[#004aad] dark:hover:text-white transition-colors">Lembrou sua senha?</a>
+                    <a href="{{ route('dashboard.home') }}" class="text-xs text-slate-400 hover:text-[#004aad] dark:hover:text-white transition-colors">Lembrou sua senha?</a>
                 </div>
             </div>
         </div>
     </div>
-    @if (session('status'))
+    @if (session('status') || $errors->has('email'))
         <div class="fixed bottom-5 right-5 z-[60] flex flex-col gap-3">
             <div class="message bg-white dark:bg-gray-900 border-l-4 border-green-500 shadow-2xl rounded-xl p-4 flex items-center min-w-[300px] animate-bounce-subtle">
                 <div class="p-2 bg-green-100 dark:bg-green-500/20 rounded-full mr-3 text-green-600">
