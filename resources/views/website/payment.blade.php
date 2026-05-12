@@ -35,7 +35,7 @@
                 <span class="font-bold text-slate-800 dark:text-gray-200">Assinatura Ilimitada</span>
             </div>
             <div class="text-right">
-                <span class="text-xl font-black text-[#004aad] dark:text-blue-400">R$ 749,00</span>
+                <span class="text-xl font-black text-[#004aad] dark:text-blue-400">R$ 597,00</span>
             </div>
         </div>
         <div class="space-y-4">

@@ -38,8 +38,6 @@ class UsersController extends Controller
                 'store_name' => 'required|string|max:255',
                 'slug' => 'required|string|max:255|unique:stores,slug|alpha_dash',
                 'phone' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             ], 
             [
                 'name.required' => 'O nome é obrigatório.',
@@ -62,9 +60,6 @@ class UsersController extends Controller
                 'phone.required' => 'O telefone é obrigatório.',
                 'phone.max' => 'O telefone deve ter no máximo :max caracteres.',
                 'description.string' => 'A descrição deve ser um texto válido.',
-                'img.image' => 'O arquivo deve ser uma imagem.',
-                'img.mimes' => 'A imagem deve ser JPG, JPEG, PNG ou WEBP.',
-                'img.max' => 'A imagem deve ter no máximo 2MB.',
             ]
         );
         try {
@@ -74,30 +69,13 @@ class UsersController extends Controller
                 'document' => $request->document,
                 'email'    => $request->email,
                 'password' => $request->password, // O cast 'hashed' no modelo User irá cuidar do hash
-                'status' => 'pendente'
+                'status' => 'pending'
             ]);
-
-            $imgPath = null;
-            if ($request->hasFile('img')) {
-                $imgName = $request->file('img')->hashName();
-                $imgPath = $request->file('img')->storeAs('logo', $imgName, 'public');
-            }
 
             $store = $user->store()->create([
                 'name' => $request->store_name,
                 'slug' => $request->slug,
                 'phone' => $request->phone,
-                'description' => $request->description,
-                'img' => $imgPath,
-            ]);
-            $store->address()->create([
-                'street' => '',
-                'number' => '',
-                'complement' => '',
-                'neighborhood' => '',
-                'city' => '',
-                'state' => '',
-                'zip_code' => '',
             ]);
             Mail::to($user->email)->send(new CreateAccount($user->name, $user->email, $store->slug));
             DB::commit();
@@ -139,6 +117,7 @@ class UsersController extends Controller
                     'store.phone' => 'required|string|max:20',
                     'address.street' => 'required|string|max:255',
                     'address.number' => 'required|string|max:20',
+                    'address.complement' => 'nullable|string|max:255',
                     'address.neighborhood' => 'required|string|max:100',
                     'address.city' => 'required|string|max:100',
                     'address.state' => 'required|string|max:50',
@@ -169,6 +148,8 @@ class UsersController extends Controller
                     'address.number.required' => 'O número é obrigatório.',
                     'address.number.string' => 'O número deve ser válido.',
                     'address.number.max' => 'O número não pode ter mais de 20 caracteres.',
+                    'address.complement.string' => 'O complemento deve ser válido.',
+                    'address.complement.max' => 'O complemento não pode ter mais de 255 caracteres.',
                     'address.neighborhood.required' => 'O bairro é obrigatório.',
                     'address.neighborhood.string' => 'O bairro deve ser válido.',
                     'address.neighborhood.max' => 'O bairro não pode ter mais de 100 caracteres.',
@@ -226,6 +207,7 @@ class UsersController extends Controller
                 'city' => $addressData['city'],
                 'state' => $addressData['state'],
                 'zip_code' => $addressData['zip_code'],
+                'complement' => $addressData['complement'],
             ]);
             DB::commit();
             return redirect()->back()->with('success', 'Perfil atualizado com sucesso!');
@@ -236,7 +218,7 @@ class UsersController extends Controller
             return back()->withErrors(['error' => 'Usuário não encontrado'])->withInput();
         } catch (QueryException $e){
             DB::rollBack();
-            return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
+            return back()->withErrors(['error' => $e->getMessage()])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
@@ -252,7 +234,7 @@ class UsersController extends Controller
     {
         try {
             $user = User::with('store')->where('email', $email)->firstOrFail();
-            $user->status = 'ativo';
+            $user->status = 'active';
             $user->expires_at = now()->addYear();
             $user->save();
             Mail::to($email)->send(new ActiveAccount($user->name, $user->store->slug));

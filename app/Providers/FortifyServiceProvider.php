@@ -60,8 +60,8 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateUsing(function ($request) {
             $user = User::where('email', $request->email)->first();
             if ($user && password_verify($request->password, $user->password)) {
-                session()->put('register_success', true);
-                if ($user->status !== 'ativo') {
+                if ($user->status !== 'active') {
+                    session()->put('register_success', true);
                     throw ValidationException::withMessages([
                         'account' => 'Sua conta ainda está pendente de aprovação.'
                     ]);

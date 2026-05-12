@@ -140,8 +140,9 @@
                 </div>
                 <div class="w-full max-w-[400px] bg-[#fafafa] p-6 py-15 rounded-4xl border-2 border-[#004aad] shadow-[0_0_10px_#004aad] dark:shadow-[0_0_10px_#fff]  hover:-translate-y-1 transition">
                     <h3 class="text-2xl font-bold mb-4 text-gray-950">Assinatura Ilimitada</h3>
-                    <p class="text-3xl font-bold text-[#004aad] mb-4">R$ 77,36/mês</p>
-                    <p class="text-gray-600 font-bold mb-5">Ou R$ 749,00/ano (desconto de +20%)</p>
+                    <p class="text-3xl font-bold text-[#004aad] mb-4">R$ 61,75/mês</p>
+                    <p class="text-gray-600 font-bold">Ou R$ 597,00/ano (desconto de 20%)</p>
+                    <p class="font-bold underline text-[#004aad] mb-5">menos de R$ 2 por dia</p>
                     <ul class="mb-6 text-left space-y-2">
                         <li class="flex items-center gap-2 text-gray-950"><span class="text-[#004aad]">✔</span> Cadastro de produtos ilimitados</li>
                         <li class="flex items-center gap-2 text-gray-950"><span class="text-[#004aad]">✔</span> Gestão de categorias de produtos</li>

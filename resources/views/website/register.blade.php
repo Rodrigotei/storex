@@ -97,24 +97,10 @@
                                 <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
                             @enderror
                         </div>
-                        <div class="flex flex-col gap-2 md:col-span-2">
-                            <label class="text-sm font-semibold">Breve Descrição</label>
-                            <textarea name="description" rows="3" value="{{ old('description') }}"  class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 focus:ring-2 focus:ring-[#004aad] outline-none transition"></textarea>
-                            @error('description') 
-                                <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
-                            @enderror
-                        </div>
-                        <div class="flex flex-col gap-2 md:col-span-2">
-                            <label class="text-sm font-semibold">Logotipo da Loja</label>
-                            <input type="file" name="img" accept="image/*" class="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#004aad1a] file:text-[#004aad] hover:file:bg-[#004aad2a]">
-                            @error('img') 
-                                <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p> 
-                            @enderror
-                        </div>
                     </div>
                 </div>
                 <div class="flex flex-col items-center gap-4">
-                    <button type="submit" class="w-full md:w-[300px] py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg active:scale-95">Criar conta</button>
+                    <button type="submit" onclick="this.disabled = true; this.form.submit();" class="w-full md:w-[300px] py-4 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-bold text-lg transition-all shadow-lg active:scale-95">Criar conta</button>
                 </div>
             </form>
         </div>

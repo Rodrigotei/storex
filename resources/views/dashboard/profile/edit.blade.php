@@ -134,6 +134,13 @@
                         @enderror
                     </div>
                     <div>
+                        <label class="block text-sm font-semibold mb-2">Complemento</label>
+                        <input type="text" id="complement" name="address[complement]" value="{{ old('address.complement', $user->store?->address?->complement) }}" class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 rounded-full">
+                        @error('address.complement')
+                            <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
                         <label class="block text-sm font-semibold mb-2">Bairro</label>
                         <input type="text" id="neighborhood" name="address[neighborhood]" value="{{ old('address.neighborhood', $user->store?->address?->neighborhood) }}" class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 rounded-full">
                         @error('address.neighborhood')
@@ -163,6 +170,7 @@
                     <input type="password" name="password" placeholder="Nova senha" class="px-5 py-3 bg-slate-100 dark:bg-gray-950 rounded-full">
                     <input type="password" name="password_confirmation" placeholder="Confirmar senha" class="px-5 py-3 bg-slate-100 dark:bg-gray-950 rounded-full">
                 </div>
+                <p class="text-xs text-slate-500 dark:text-gray-400 mt-2">Informe apenas se quiser alterar a senha. Senão, deixe os campos em branco.</p>
                 @error('password')
                     <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
                 @enderror
