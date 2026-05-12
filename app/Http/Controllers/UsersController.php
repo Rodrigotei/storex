@@ -111,9 +111,7 @@ class UsersController extends Controller
         try {
             $request->validate(
                 [
-                    'name' => 'required|string|max:255',
                     'document' => 'required|string|max:20',
-                    'email' => 'required|email|max:255|unique:users,email,' . $id,
                     'store.name' => 'required|string|max:255',
                     'store.phone' => 'required|string|max:20',
                     'address.street' => 'required|string|max:255',
@@ -127,16 +125,6 @@ class UsersController extends Controller
                     'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
                 ],
                 [
-                    'name.required' => 'O nome é obrigatório.',
-                    'name.string' => 'O nome deve ser uma string válida.',
-                    'name.max' => 'O nome não pode ter mais de 255 caracteres.',
-                    'email.required' => 'O e-mail é obrigatório.',
-                    'email.email' => 'Informe um e-mail válido.',
-                    'email.max' => 'O e-mail não pode ter mais de 255 caracteres.',
-                    'email.unique' => 'Este e-mail já está em uso.',
-                    'document.required' => 'O CPF/CNPJ é obrigatório.',
-                    'document.string' => 'O CPF/CNPJ deve ser válido.',
-                    'document.max' => 'O CPF/CNPJ não pode ter mais de 20 caracteres.',
                     'store.name.required' => 'O nome da loja é obrigatório.',
                     'store.name.string' => 'O nome da loja deve ser uma string válida.',
                     'store.name.max' => 'O nome da loja não pode ter mais de 255 caracteres.',
@@ -176,8 +164,6 @@ class UsersController extends Controller
             
             DB::beginTransaction();
             $user->name = $request->name;
-            $user->email = $request->email;
-            $user->document = $request->document;
 
             if ($request->filled('password')) {
                 $user->password = bcrypt($request->password);
@@ -190,7 +176,7 @@ class UsersController extends Controller
                 'name' => $storeData['name'],
                 'phone' => $storeData['phone'],
                 'description' => $storeData['description'],
-                'delivery_fee' => $storeData['delivery_fee'],
+                'delivery_fee' => $storeData['delivery_fee'] ?? 0.00,
             ];
             $oldImg = $store->img;
             if($request->hasFile('img')){
@@ -202,13 +188,13 @@ class UsersController extends Controller
             $addressData = $request->address;
             $address = $store->address ?? $store->address()->create([]);
             $address->update([
-                'street' => $addressData['street'],
-                'number' => $addressData['number'],
-                'neighborhood' => $addressData['neighborhood'],
-                'city' => $addressData['city'],
-                'state' => $addressData['state'],
-                'zip_code' => $addressData['zip_code'],
-                'complement' => $addressData['complement'],
+                'street' => $addressData['street'] ?? '',
+                'number' => $addressData['number'] ?? '',
+                'neighborhood' => $addressData['neighborhood'] ?? '',
+                'city' => $addressData['city'] ?? '',
+                'state' => $addressData['state'] ?? '',
+                'zip_code' => $addressData['zip_code'] ?? '',
+                'complement' => $addressData['complement'] ?? '',
             ]);
             DB::commit();
             if($oldImg && isset($data['img'])){

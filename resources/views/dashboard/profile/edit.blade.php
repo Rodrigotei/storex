@@ -14,31 +14,35 @@
             @method('PATCH')
             {{-- ================= USER ================= --}}
             <div class="bg-white dark:bg-gray-900 shadow-sm border border-slate-200 dark:border-gray-800 rounded-[30px] p-8">
-                <div class="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-gray-800 pb-4">
-                    <h3 class="font-bold text-lg text-slate-800 dark:text-white">Dados da Conta</h3>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class=" mb-6 border-b border-slate-100 dark:border-gray-800 pb-4">
                     <div>
-                        <label class="block text-sm font-semibold mb-2">Nome</label>
-                        <input type="text" name="name" value="{{ old('name', $user->name) }}" required class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 rounded-full">
-                        @error('name')
-                            <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Documento <span class="text-gray-400 text-xs">(CPF)</span></label>
-                        <input type="text" name="document" oninput="formatDocument(this)" value="{{ old('document', ($user->document ?? '-')) }}" required class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 rounded-full">
-                        @error('document')
-                            <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
-                        @enderror
+                        <h3 class="font-bold text-lg text-slate-800 dark:text-white">Dados da Conta</h3>
+                        <p class="text-sm text-slate-500 dark:text-gray-400">Informações vinculadas à sua conta</p>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <label class="block text-sm font-semibold mb-2">Email</label>
-                    <input type="email" name="email" value="{{ old('email', $user->email) }}" required class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 rounded-full">
-                    @error('email')
-                        <p class="text-red-500 text-xs mt-2 ml-4">{{ $message }}</p>
-                    @enderror
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-800 rounded-2xl p-4">
+                        <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Nome</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-[#0158cd]/10 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5zm0 2c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg>
+                            </div>
+                            <span class="font-semibold text-slate-800 dark:text-white">{{ $user->name }}</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-800 rounded-2xl p-4">
+                        <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Documento</p>
+                        <span class="font-semibold text-slate-800 dark:text-white">{{ $user->document ?? '-' }}</span>
+                    </div>
+                </div>
+                <div class="mt-5 bg-slate-50 dark:bg-gray-950 border border-slate-200 dark:border-gray-800 rounded-2xl p-4">
+                    <p class="text-xs uppercase tracking-wide text-slate-400 mb-2">Email</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-16 10h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        </div>
+                        <span class="font-semibold text-slate-800 dark:text-white">{{ $user->email }}</span>
+                    </div>
                 </div>
             </div>
             {{-- ================= STORE ================= --}}
@@ -185,11 +189,6 @@
         </form>
     </div>
     <script>
-        function formatDocument(input){
-            let value = input.value.replace(/\D/g, '');
-            if(value.length > 11) value = value.slice(0,11);
-            input.value = value
-        }
         function formatPhone(input){
             let value = input.value.replace(/\D/g, '');
             if(value.length > 11) value = value.slice(0,11);
