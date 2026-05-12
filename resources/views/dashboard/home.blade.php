@@ -8,7 +8,28 @@
             <div class="text-sm font-medium text-slate-400 bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-slate-200 dark:border-gray-800">{{ now()->format('d de M, Y') }}</div>
         </div>
     </x-slot>
-
+    <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 p-4 rounded-[20px] shadow-sm hover:shadow-md transition-all">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-left gap-4">
+        <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-100 dark:bg-blue-500/10 rounded-2xl text-[#004aad] dark:text-blue-400 group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10L5 5H19L21 10"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10H21"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10V20H19V10"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20V15H14V20"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 14H8M16 14H17"/></svg>
+            </div>
+        </div>
+       <div class="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h3 class="text-slate-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Endereço da loja</h3>
+                <a href="https://{{ auth()->user()->store->slug }}.{{ config('app.domain') }}/loja" target="_blank" class="text-[#004aad] dark:text-blue-400 hover:underline break-all font-medium">
+                    {{ auth()->user()->store->slug }}.{{ config('app.domain') }}/loja
+                </a>
+            </div>
+            <button type="button" onclick="copyStoreUrl(this)" data-url="https://{{ auth()->user()->store->slug }}.{{ config('app.domain') }}/loja"class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-gray-800 hover:bg-[#004aad] hover:text-white text-slate-700 dark:text-gray-200 transition-all font-semibold text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke-width="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"></path></svg>
+                <span>Copiar link</span>
+            </button>
+       </div>
+    </div>
+</div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
         
         <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 p-6 rounded-[30px] shadow-sm hover:shadow-md transition-all group">
@@ -63,7 +84,7 @@
                     <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-gray-700 transition-all">
                         <div class="flex items-center gap-4">
                             <div>
-                                <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'storage/images/default.png') }}" class="w-12 h-12 object-cover rounded" alt="Imagem do produto" srcset="">
+                                <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'img/default.png') }}" class="w-12 h-12 object-cover rounded" alt="Imagem do produto" srcset="">
                             </div>
                             <div>
                                 <p class="text-sm font-bold text-slate-700 dark:text-gray-200">{{ $product->name }}</p>
@@ -108,4 +129,20 @@
         </div>
 
     </div>
+    <script>
+        function copyStoreUrl(button) {
+            const url = button.dataset.url;
+            navigator.clipboard.writeText(url);
+            const span = button.querySelector('span');
+            const originalText = span.innerText;
+            span.innerText = 'Copiado!';
+            button.classList.remove('bg-slate-100', 'dark:bg-gray-800', 'text-slate-700', 'dark:text-gray-200');
+            button.classList.add('bg-green-600', 'text-white');
+            setTimeout(() => {
+                span.innerText = originalText;
+                button.classList.remove('bg-green-600', 'text-white'); 
+                button.classList.add('bg-slate-100', 'dark:bg-gray-800', 'text-slate-700', 'dark:text-gray-200');
+            }, 1000);
+        }
+    </script>
 </x-dashboard_layout>

@@ -15,7 +15,7 @@
             @foreach($products as $product)
             <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
                 <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
-                    <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'storage/images/product-default.png') }}" class="w-full h-full object-cover">
+                    <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'img/default.png') }}" class="w-full h-full object-cover">
                 </div>
                 <div class="px-2">
                     <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $product->category->name }}</p>

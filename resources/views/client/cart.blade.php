@@ -15,7 +15,7 @@
                 @foreach(session('cart') as $index => $item)
                     @php $total += $item['price'] * $item['qty']; @endphp
                     <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[30px] p-4 flex items-center gap-4 sm:gap-6 shadow-sm">
-                        <div class="w-20 h-20 sm:w-24 sm:h-24 flex-none rounded-[20px] overflow-hidden bg-slate-100 dark:bg-gray-950"><img src="{{ asset('storage/' . ($item['image'] ?? 'products/default.png')) }}" class="w-full h-full object-cover"></div>
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 flex-none rounded-[20px] overflow-hidden bg-slate-100 dark:bg-gray-950"><img src="{{ asset($item['image'] ? 'storage/' . $item['image'] : 'img/default.png') }}" class="w-full h-full object-cover"></div>
                         <div class="flex-1 min-w-0">
                             <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate">{{ $item['name'] }}</h3>
                             @if(isset($item['variation']))

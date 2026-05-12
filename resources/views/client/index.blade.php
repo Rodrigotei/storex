@@ -63,7 +63,7 @@
                 @foreach($categories as $category)
                     <a href="{{ route('client.category', ['tenant' => app('store')->slug, 'id' => $category->id]) }}" class="flex-none w-20 md:w-30 group text-center">
                         <div class="w-full aspect-square bg-white dark:bg-gray-900 rounded-[30px] border border-slate-200 dark:border-gray-800 flex items-center justify-center mb-3 group-hover:border-[#0158cd] group-hover:shadow-lg transition-all overflow-hidden">
-                            <img src="{{ asset($category->img ? 'storage/'.$category->img : 'storage/images/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <img src="{{ asset($category->img ? 'storage/'.$category->img : 'img/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
                         <span class="text-sm font-bold text-slate-700 dark:text-gray-300 group-hover:text-[#004aad] transition-colors">{{ $category->name }}</span>
                     </a>
@@ -80,7 +80,7 @@
                 @foreach ($promotionalProducts as $promotionalProduct)
                     <div class="min-w-[180px] max-w-[180px] flex-shrink-0 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
                         <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
-                            <img src="{{ asset($promotionalProduct->productImages->first() ? 'storage/'.$promotionalProduct->productImages->first()->img : 'storage/images/default.png') }}" class="w-full h-full object-cover">
+                            <img src="{{ asset($promotionalProduct->productImages->first() ? 'storage/'.$promotionalProduct->productImages->first()->img : 'img/default.png') }}" class="w-full h-full object-cover">
                         </div>
                         <div class="px-2">
                             <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $promotionalProduct->category->name }}</p>
@@ -113,7 +113,7 @@
                 @foreach ($lastProducts as $product)
                     <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
                         <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
-                            <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'storage/images/default.png') }}" class="w-full h-full object-cover">
+                            <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'img/default.png') }}" class="w-full h-full object-cover">
                         </div>
                         <div class="px-2">
                             <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $product->category->name }}</p>
@@ -152,7 +152,7 @@
                 @foreach ($services as $service)
                     <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-3 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
                         <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
-                            <img src="{{ asset($service->serviceImages->first() ? 'storage/'.$service->serviceImages->first()->img : 'storage/images/default.png') }}" class="w-full h-full object-cover">
+                            <img src="{{ asset($service->serviceImages->first() ? 'storage/'.$service->serviceImages->first()->img : 'img/default.png') }}" class="w-full h-full object-cover">
                         </div>
                         <div class="px-2">
                             <h3 class="text-sm md:text-base font-bold text-slate-800 dark:text-white mb-2 line-clamp-1">{{ $service->name }}</h3>

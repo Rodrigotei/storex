@@ -31,7 +31,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <img src="{{ asset($service->serviceImages->first() ? 'storage/'.$service->serviceImages->first()->img : 'storage/images/default.png')}}" class="w-15 h-15 object-cover rounded" alt="Imagem do serviço" srcset="">
+                                <img src="{{ asset($service->serviceImages->first() ? 'storage/'.$service->serviceImages->first()->img : 'img/default.png')}}" class="w-15 h-15 object-cover rounded" alt="Imagem do serviço" srcset="">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($service->promotional_price != null && $service->promotional_price > 0)
