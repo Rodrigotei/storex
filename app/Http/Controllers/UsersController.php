@@ -111,7 +111,6 @@ class UsersController extends Controller
         try {
             $request->validate(
                 [
-                    'document' => 'required|string|max:20',
                     'store.name' => 'required|string|max:255',
                     'store.phone' => 'required|string|max:20',
                     'address.street' => 'required|string|max:255',
@@ -163,7 +162,6 @@ class UsersController extends Controller
             $user = User::with(['store', 'store.address'])->findOrFail($id);
             
             DB::beginTransaction();
-            $user->name = $request->name;
 
             if ($request->filled('password')) {
                 $user->password = bcrypt($request->password);

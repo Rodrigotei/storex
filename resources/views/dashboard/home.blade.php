@@ -5,7 +5,7 @@
                 <h2 class="font-bold text-2xl text-slate-800 dark:text-white tracking-tight">Painel de Controle</h2>
                 <p class="text-sm text-slate-500 dark:text-gray-400">Bem-vindo de volta, {{ auth()->user()->name }}!</p>
             </div>
-            <div class="text-sm font-medium text-slate-400 bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-slate-200 dark:border-gray-800">{{ now()->format('d de M, Y') }}</div>
+            <div class="text-sm font-medium text-slate-400 bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-slate-200 dark:border-gray-800">{{ now()->locale('pt_BR')->translatedFormat('d \d\e F, Y') }}</div>
         </div>
     </x-slot>
     <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 p-4 rounded-[20px] shadow-sm hover:shadow-md transition-all">
