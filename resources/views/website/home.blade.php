@@ -64,7 +64,6 @@
             <h1 class="text-3xl md:text-4xl font-bold mb-2">Catálogo online com sistema de pedidos completo.</h1>
             <h2 class="text-lg md:text-xl mt-1">StoreX: A plataforma que conecta seu catálogo de produtos ao seu cliente.</h2>
             <a href="/#planos" class="w-[250px] mx-auto md:mx-0 text-center mt-5 block px-10 py-3 rounded-2xl bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:bg-[#004aad] dark:text-white  dark:hover:bg-[#0158cd] dark:hover:text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Crie seu catálogo agora</a>            
-            <a href="/" class="w-[250px] mx-auto md:mx-0 text-center mt-5 block px-10 py-3 rounded-2xl bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:bg-[#004aad] dark:text-white  dark:hover:bg-[#0158cd] dark:hover:text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Conheça o app</a>
         </div>
         <div class="w-full max-w-[650px]"><img src="/img/bg-2.png" alt="" class="w-full max-w-[650px] md:max-w-[600px]"></div>
     </div>
