@@ -49,11 +49,11 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::loginView(function( Request $request) {
             $host = $request->getHost();
-            $parts = explode('.', $host);
-
-            if (count($parts) > 2) {
+            $domain = config('app.domain');
+            if ($host !== $domain) {
                 return redirect(config('app.url') . '/dashboard/login');
             }
+                
             return view('dashboard.login');
         });
 

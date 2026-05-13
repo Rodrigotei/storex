@@ -184,8 +184,8 @@
             </div>
             <div>
                 <h3 class="text-2xl mb-5">Fale Conosco</h3>
-                <p class="text-lg">Email: contato@rtcode.com.br</p>
-                <p class="text-lg mb-4">Telefone: (11) 99999-9999</p>
+                <p class="text-lg">Email: storex.app.br@gmail.com</p>
+                <p class="text-lg mb-4">Telefone: (79) 99682-0727</p>
             </div>
         </div>
         <div class="py-10 text-center text-slate-400 text-sm">
