@@ -1,9 +1,12 @@
 <nav class="bg-white dark:bg-gray-950 border-b border-slate-200 dark:border-gray-800 transition-colors duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard.home') }}" class="text-xl font-extrabold text-[#004aad] dark:text-white uppercase tracking-tight">{{ env('APP_NAME', 'StoreX') }}</a>
+                    <a href="{{ route('dashboard.home') }}"  class="text-2xl font-black text-[#004aad] dark:text-white uppercase tracking-tighter">
+                        <img src="{{ asset('img/1.png') }}" alt="StoreX" class="w-32 md:w-40 block dark:hidden">
+                        <img src="{{ asset('img/2.png') }}" alt="StoreX" class="w-32 md:w-40 hidden dark:flex">
+                    </a>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
                     <a href="{{ route('dashboard.categories.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">

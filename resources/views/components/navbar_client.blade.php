@@ -1,7 +1,10 @@
 <nav class="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-slate-200 dark:border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <div class="flex justify-between h-20 items-center">
-            <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="text-2xl font-black text-[#004aad]  dark:text-white uppercase tracking-tighter">StoreX</a>
+            <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="text-2xl font-black text-[#004aad] dark:text-white uppercase tracking-tighter">
+                <img src="{{ asset('img/1.png') }}" alt="StoreX" class="w-32 md:w-40 block dark:hidden">
+                <img src="{{ asset('img/2.png') }}" alt="StoreX" class="w-32 md:w-40 hidden dark:flex">
+            </a>
             <!-- Desktop (input visível) -->
             <div class="hidden md:flex flex-1 justify-center px-6">
                 <form action="{{ route('client.search', ['tenant' => app('store')->slug]) }}" method="POST" class="relative w-full max-w-md mt-5">

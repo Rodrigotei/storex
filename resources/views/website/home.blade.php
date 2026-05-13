@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/icon-white.png') }}">
     <title>{{ env('APP_NAME', 'StoreX') }}</title>
     @vite('resources/css/app.css')
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -16,9 +17,12 @@
 </head>
 <body class="bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-gray-200 antialiased transition-colors duration-300 min-h-screen">
 {{-- ============================================================ --}}
-    <header class="w-full flex justify-between items-center px-6 md:px-12 py-8">
+    <header class="w-full flex justify-between items-center px-6 md:px-12 py-8 md:py-5">
         <div>
-            <a href="/" class="text-2xl font-black text-[#004aad] dark:text-white uppercase tracking-tighter">StoreX</a>
+            <a href="/" class="text-2xl font-black text-[#004aad] dark:text-white uppercase tracking-tighter">
+                <img src="{{ asset('img/1.png') }}" alt="StoreX" class="w-32 md:w-50 block dark:hidden">
+                <img src="{{ asset('img/2.png') }}" alt="StoreX" class="w-32 md:w-50 hidden dark:flex">
+            </a>
         </div>
         <nav class="hidden md:flex items-center gap-6">
             <a href="/" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Home</a>
