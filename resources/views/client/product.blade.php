@@ -51,7 +51,7 @@
                 <form action="{{ route('client.cart.add', ['tenant' => app('store')->slug]) }}" method="POST" class="space-y-10">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    @if($product->variationGroups->first()->productVariations->count() > 0)
+                    @if($product->variationGroups->first()?->productVariations->count() > 0)
                         <div>
                         @foreach($product->variationGroups as $group)
                             <div x-data="{ maxSelection: {{ $group->max_selection }}, selected: [] }" class="mb-6">
