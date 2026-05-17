@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Variation extends Model
 {
-    public function productVariations(): HasMany
+    public function variationGroups(): HasMany
     {
-        return $this->hasMany(ProductVariation::class);
+        return $this->hasMany(VariationGroup::class);
     }
 }

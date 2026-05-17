@@ -12,9 +12,17 @@
                     @endif
                     <div>
                         <h1 class="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">{{ $store->name }}</h1>
-                        @if($store->description)
-                            <p class="text-sm text-slate-500 dark:text-gray-400 mt-1 max-w-md">{{ $store->description }}</p>
-                        @endif
+                       @if($store->description)
+                        <div x-data="{ expanded: false }" class="max-w-md mt-1">
+                            <p :class="expanded ? '' : 'line-clamp-2'" class="text-sm text-slate-500 dark:text-gray-400 transition-all">{{ $store->description }}</p>
+                            @if(strlen($store->description) > 120)
+                                <button type="button" @click="expanded = !expanded" class="mt-2 text-xs font-bold text-[#004aad] hover:text-[#0158cd] transition">
+                                    <span x-show="!expanded">Ver mais</span>
+                                    <span x-show="expanded">Ver menos</span>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
                         <div class="flex flex-wrap items-center gap-3 mt-3 text-xs">
                             @if($store->phone)
                                 <span class="px-3 py-1 rounded-full bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-300">📞 {{ $store->phone }}</span>
@@ -29,12 +37,15 @@
                     <a href="https://wa.me/55{{ preg_replace('/\D/', '', $store->phone) }}" target="_blank" class="px-5 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Entrar em Contato</a>
                 </div>
             </div>
-            <div x-data="{ tab: '' }" class="mt-8">
+            <div x-data="{ tab: null }" class="mt-8">
                 <div class="flex gap-6 border-b border-slate-200 dark:border-gray-800">
-                    <button @click="tab = 'address'" :class="tab === 'address' ? 'text-[#004aad] border-[#004aad]' : 'text-slate-500 border-transparent'"class="pb-3 border-b-2 font-bold text-sm transition-all">Endereço</button>
+                    <button  @click="tab = tab === 'address' ? null : 'address'" :class="tab === 'address'  ? 'text-[#004aad] border-[#004aad]'  : 'text-slate-500 border-transparent'" class="pb-3 border-b-2 font-bold text-sm transition-all flex items-center gap-2">
+                        Endereço
+                        <svg  class="w-4 h-4 transition-transform duration-300" :class="tab === 'address' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
                 </div>
                 <div class="pt-6 text-sm">
-                    <div x-show="tab === 'address'" x-transition>
+                    <div x-show="tab === 'address'" x-transition x-cloak>
                         @if($store->address)
                             <div class="bg-slate-50 dark:bg-gray-800 rounded-2xl p-4 text-slate-600 dark:text-gray-300 space-y-1">
                                 <p class="font-semibold">{{ $store->address->street }}, {{ $store->address->number }}</p>
@@ -44,6 +55,7 @@
                                 <p>{{ $store->address->neighborhood }}</p>
                                 <p>{{ $store->address->city }} - {{ $store->address->state }}</p>
                                 <p class="text-sm text-slate-400">CEP: {{ $store->address->zip_code }}</p>
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($store->address->street . ', ' . $store->address->number . ', ' . $store->address->city) }}" target="_blank" class="inline-flex items-center gap-2 mt-2 text-[#004aad] hover:text-[#0158cd] font-semibold transition">Abrir no mapa</a>
                             </div>
                         @else
                             <p class="text-slate-500">Endereço não informado.</p>

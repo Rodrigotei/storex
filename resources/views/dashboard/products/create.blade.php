@@ -91,12 +91,33 @@
                                 <option value="{{ $variation->id }}">{{ $variation->name }}</option>
                             @endforeach
                         </select>
+                        <div class="flex gap-4 mt-3">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Seleção Mínima</label>
+                                <select name="min_selection"  class="w-full text-center px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none appearance-none">
+                                   @for ($i=0; $i < 10; $i++)
+                                       <option value="{{ $i }}">{{ $i }}</option>
+                                   @endfor 
+                                </select>
+                            </div>
+                            <div>
+                                <label for="max_selection" class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Seleção Máxima</label>
+                                <select name="max_selection"  class="w-full text-center px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none appearance-none">
+                                   @for ($i=0; $i < 10; $i++)
+                                       <option value="{{ $i }}">{{ $i }}</option>
+                                   @endfor 
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div id="variation-values" class="space-y-3">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Valores da Variação</label>
-                        <div class="flex gap-2">
-                            <input type="text" name="variation_values[]" placeholder="Ex: P, M, G ou Azul, Vermelho" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none">
-                            <button type="button" id="add-variation-value"class="px-5 py-2 bg-[#004aad] text-white rounded-full text-sm">+</button>
+                        <div class="flex flex-col md:flex-row gap-3 w-full">
+                            <div class="flex flex-col md:flex-row flex-1 gap-3">
+                                <input type="text" name="variations[0][value]" placeholder="Ex: P, M, G ou Azul, Vermelho" class="w-full flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+                                <input type="number" step="0.01" name="variations[0][additional_price]" placeholder="Preço adicional (opcional)" class="w-full md:w-56 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+                            </div>
+                            <button type="button" id="add-variation-value" class="h-12 min-w-12 px-4 bg-[#004aad] hover:bg-[#003b8a] text-white rounded-2xl text-lg font-semibold transition flex items-center justify-center shadow-sm">+</button>
                         </div>
                     </div>
                 </div>
@@ -143,10 +164,9 @@
             previewContainer.classList.remove('hidden');
             placeholder.classList.add('hidden');
         }
+
         const hasVariation = document.getElementById('has-variation');
         const variationContainer = document.getElementById('variation-container');
-        const addBtn = document.getElementById('add-variation-value');
-        const valuesContainer = document.getElementById('variation-values');
         hasVariation.addEventListener('change', () => {
             if (hasVariation.checked) {
                 variationContainer.classList.remove('hidden');
@@ -154,14 +174,22 @@
                 variationContainer.classList.add('hidden');
             }
         });
+
+        const addBtn = document.getElementById('add-variation-value');
+        const valuesContainer = document.getElementById('variation-values');
+        let variationIndex = 1;
         addBtn.addEventListener('click', () => {
             const div = document.createElement('div');
-            div.className = "flex gap-2";
+            div.className = "flex flex-col md:flex-row gap-3 w-full";
             div.innerHTML = `
-            <input type="text" name="variation_values[]" placeholder="Outro valor" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none">
+            <div class="flex flex-col md:flex-row flex-1 gap-3">
+                <input type="text" name="variations[${variationIndex}][value]" placeholder="Ex: P, M, G ou Azul, Vermelho" class="w-full flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+                <input type="number" step="0.01" name="variations[${variationIndex}][additional_price]" placeholder="Preço adicional (opcional)" class="w-full md:w-56 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+            </div>
             <button type="button" class="remove-variation px-5 py-2 bg-red-500 text-white rounded-full text-sm">x</button>
             `;
             valuesContainer.appendChild(div);
+            variationIndex++;
         });
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('remove-variation')) {

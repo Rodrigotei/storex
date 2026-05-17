@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariation;
 use App\Models\Variation;
+use App\Models\VariationGroup;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -50,6 +51,12 @@ class ProductsController extends Controller
                     'img' => 'nullable|array',
                     'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
                     'status' => 'required|in:0,1',
+                    'variation_id' => 'nullable|exists:variations,id',
+                    'min_selection' => 'nullable|integer|min:0',
+                    'max_selection' => 'nullable|integer|min:0|gte:min_selection',
+                    'variations' => 'nullable|array',
+                    'variations.*.value' => 'nullable|string|max:255',
+                    'variations.*.additional_price' => 'nullable|numeric|min:0',
                 ],
                 [
                     'name.required' => 'O nome é obrigatório.',
@@ -61,6 +68,14 @@ class ProductsController extends Controller
                     'img.*.max' => 'Cada imagem deve ter no máximo 2MB.',
                     'status.required' => 'O status é obrigatório.',
                     'status.in' => 'Selecione um status válido.',
+                    'variation_id.exists' => 'Tipo de variação inválida.',
+                    'min_selection.integer' => 'A seleção mínima deve ser um número inteiro.',
+                    'min_selection.min' => 'A seleção mínima não pode ser negativa.',
+                    'max_selection.integer' => 'A seleção máxima deve ser um número inteiro.',
+                    'max_selection.min' => 'A seleção máxima não pode ser negativa.',
+                    'max_selection.gte' => 'A seleção máxima deve ser maior ou igual à seleção mínima.',
+                    'variations.*.additional_price.numeric' => 'O preço adicional deve ser um número válido.',
+                    'variations.*.additional_price.min' => 'O preço adicional não pode ser negativo',
                     
                 ]
             );
@@ -91,14 +106,24 @@ class ProductsController extends Controller
                     ]);
                 }
             }
-            $variation_values = array_filter($request->variation_values ?? []);
-            if(!empty($variation_values) && $request->variation_id) {
-                foreach ($variation_values as $value) {
+            if($request->filled('variation_id') && $request->variations[0]['value'] != null){
+                $variationGroup = VariationGroup::create([
+                    'tenant_id' => auth()->user()->store->id,
+                    'product_id' => $product->id,
+                    'variation_id' => $request->variation_id,
+                    'min_selection' => $request->min_selection ?? 0,
+                    'max_selection' => $request->max_selection ?? 1,
+                ]);
+                foreach($request->variations as $variation){
+                    if (empty($variation['value'])) {
+                        continue;
+                    }
                     ProductVariation::create([
-                        'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
-                        'variation_id' => $request->variation_id,
-                        'value' => $value
+                        'variation_group_id' => $variationGroup->id,
+                        'value' => trim($variation['value']),
+                        'additional_price' => !empty($variation['additional_price']) ? $variation['additional_price']: 0,
+                        'status' => true
                     ]);
                 }
             }
@@ -131,7 +156,14 @@ class ProductsController extends Controller
             $tenant_id = auth()->user()->store->id;
             $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
-            $product = Product::with(['productImages', 'productVariations', 'productVariations.variation'])->where('tenant_id', $tenant_id)->findOrFail($id);
+            $product = Product::with([
+                'productImages', 
+                'variationGroups', 
+                'variationGroups.variation', 
+                'variationGroups.productVariations' => function ($query){
+                    $query->orderBy('value');
+                }
+            ])->where('tenant_id', $tenant_id)->findOrFail($id);
             return view('dashboard.products.edit',compact('product', 'categories', 'variations'));
         } catch (ModelNotFoundException $e){
             return back()->withErrors(['error' => 'Produto não encontrado.']);
@@ -153,6 +185,12 @@ class ProductsController extends Controller
                     'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
                     'status' => 'required|in:0,1',
                     'promotional_price' => 'nullable|numeric|min:0|lt:price',
+                    'variation_id' => 'nullable|exists:variations,id',
+                    'min_selection' => 'nullable|integer|min:0',
+                    'max_selection' => 'nullable|integer|min:0|gte:min_selection',
+                    'variations' => 'nullable|array',
+                    'variations.*.value' => 'nullable|string|max:255',
+                    'variations.*.additional_price' => 'nullable|numeric|min:0',
 
                 ],
                 [
@@ -168,6 +206,14 @@ class ProductsController extends Controller
                     'promotional_price.numeric' => 'O preço promocional deve ser um número válido.',
                     'promotional_price.min' => 'O preço promocional não pode ser negativo.',
                     'promotional_price.lt' => 'O preço promocional deve ser menor que o preço normal.',
+                    'variation_id.exists' => 'Tipo de variação inválida.',
+                    'min_selection.integer' => 'A seleção mínima deve ser um número inteiro.',
+                    'min_selection.min' => 'A seleção mínima não pode ser negativa.',
+                    'max_selection.integer' => 'A seleção máxima deve ser um número inteiro.',
+                    'max_selection.min' => 'A seleção máxima não pode ser negativa.',
+                    'max_selection.gte' => 'A seleção máxima deve ser maior ou igual à seleção mínima.',
+                    'variations.*.additional_price.numeric' => 'O preço adicional deve ser um número válido.',
+                    'variations.*.additional_price.min' => 'O preço adicional não pode ser negativo',
                 ]
             );
             $product = Product::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
@@ -196,22 +242,28 @@ class ProductsController extends Controller
                     ]);
                 }
             }
-            ProductVariation::where('product_id', $product->id)->where('tenant_id', auth()->user()->store->id)->delete();
-            $variation_values = array_filter($request->variation_values ?? []);
-            if($request->has_variation) {
-                 if (!$request->variation_id) {
-                    throw new \Exception('Selecione o tipo de variação.');
-                }
-                if (empty($variation_values)) {
-                    throw new \Exception('Adicione pelo menos um valor de variação.');
-                }
-                foreach ($variation_values as $value) {
-                    ProductVariation::create([
-                        'tenant_id' => auth()->user()->store->id,
-                        'product_id' => $product->id,
-                        'variation_id' => $request->variation_id,
-                        'value' => $value
-                    ]);
+            VariationGroup::where('product_id', $product->id)->where('tenant_id', auth()->user()->store->id)->delete();
+            if($request->filled('variation_id') && $request->has_variation == 'on'){
+                $variationGroup = VariationGroup::create([
+                    'tenant_id' => auth()->user()->store->id,
+                    'product_id' => $product->id,
+                    'variation_id' => $request->variation_id,
+                    'min_selection' => $request->min_selection ?? 0,
+                    'max_selection' => $request->max_selection ?? 1,
+                ]);
+                if(!empty($request->variations)){
+                    foreach($request->variations as $variation){
+                        if (empty($variation['value'])) {
+                            continue;
+                        }
+                        ProductVariation::create([
+                            'product_id' => $product->id,
+                            'variation_group_id' => $variationGroup->id,
+                            'value' => trim($variation['value']),
+                            'additional_price' => !empty($variation['additional_price']) ? $variation['additional_price']: 0,
+                            'status' => $variation['status'] ?? true
+                        ]);
+                    }
                 }
             }
             $product->save();

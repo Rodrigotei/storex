@@ -53,7 +53,7 @@
                         @enderror
                     </div>
                     @if ($product->productImages->isNotEmpty())
-                    <div class="col-span-2">
+                    <div class="col-span-2 overflow-x-auto">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Imagens salvas</label>
                         <div class="flex gap-4 items-start">
                             @for ($i = 0; $i < count($product->productImages); $i++)
@@ -70,7 +70,7 @@
                         <div class="relative group">
                             <input type="file" name="img[]" multiple accept="image/*" id="img-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                             <div class="w-full px-5 py-8 bg-slate-100 dark:bg-gray-950 border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-[20px] text-center group-hover:border-[#0158cd] transition-all">
-                                <div id="preview-container" class="hidden mb-4 flex justify-center gap-2">
+                                <div id="preview-container" class="hidden mb-4 flex justify-center gap-2 overflow-x-auto">
                                 </div>
                                 <div id="upload-placeholder">
                                     <svg class="w-8 h-8 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -97,38 +97,71 @@
                         @enderror
                     </div>
                 </div>
-                @php
-                    $variationList = $product->productVariations;
-                    $firstVariation = $variationList->first();
-                @endphp
                 <div class="col-span-1 md:col-span-2 mt-4">
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" name="has_variation" @checked($firstVariation ? true : false) id="has-variation" class="w-5 h-5 text-[#004aad] rounded">
+                        <input type="checkbox" name="has_variation" @checked($product->variationGroups->isNotEmpty() ? true : false) id="has-variation" class="w-5 h-5 text-[#004aad] rounded">
                         <span class="text-sm font-semibold text-slate-700 dark:text-gray-300">Este produto possui variações?</span>
                     </label>
                 </div>
-                <div id="variation-container" @class(['hidden' => !$firstVariation]) class="col-span-1 md:col-span-2 space-y-4 mt-4">
+                <div id="variation-container" @class(['hidden' => $product->variationGroups->isEmpty()]) class="col-span-1 md:col-span-2 space-y-4 mt-4">
                     <div class="mt-3">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Tipo de Variação</label>
                         <select name="variation_id" class="w-full px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none appearance-none">
                             <option value="">Selecione</option>
                              @foreach($variations as $variation)
-                                <option value="{{ $variation->id }}" @selected($variation->id == ($firstVariation?->variation->id ?? null))>{{ $variation->name }}</option>
+                                <option value="{{ $variation->id }}" @selected($variation->id == ($product->variationGroups->first()?->variation->id ?? null))>{{ $variation->name }}</option>
                             @endforeach
                         </select>
                     </div>
+                    <div class="flex gap-4 mt-3">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Seleção Mínima</label>
+                            <select name="min_selection"  class="w-full text-center px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none appearance-none">
+                                @for ($i=0; $i < 10; $i++)
+                                    <option value="{{ $i }}" @selected($i == ($product->variationGroups->first()?->min_selection ?? null))>{{ $i }}</option>
+                                @endfor 
+                            </select>
+                        </div>
+                        <div>
+                            <label for="max_selection" class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Seleção Máxima</label>
+                            <select name="max_selection"  class="w-full text-center px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none appearance-none">
+                                @for ($i=0; $i < 10; $i++)
+                                    <option value="{{ $i }}" @selected($i == ($product->variationGroups->first()?->max_selection ?? null))>{{ $i }}</option>
+                                @endfor 
+                            </select>
+                        </div>
+                    </div>
                     <div id="variation-values" class="space-y-3 mt-3">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Valores da Variação</label>
-                        <div class="flex gap-2">
-                            <input type="text" name="variation_values[]" value="{{ $firstVariation?->value }}" placeholder="Ex: P, M, G ou Azul, Vermelho" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none">
-                            <button type="button" id="add-variation-value"class="px-5 py-2 bg-[#004aad] text-white rounded-full text-sm">+</button>
-                        </div>
-                        @foreach ($variationList->skip(1) as $variation)
-                            <div class="flex gap-2">
-                                <input type="text" name="variation_values[]" value="{{ $variation->value }}" placeholder="Outro valor" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none">
-                                <button type="button" class="remove-variation px-5 py-2 bg-red-500 text-white rounded-full text-sm">x</button>
+                        @forelse ($product->variationGroups->first()->productVariations ?? [] as $index => $variation)
+                             <div class="variation-item flex flex-col md:flex-row gap-3 w-full border border-slate-200 dark:border-gray-700 rounded-2xl p-4 relative">
+                                <div class="flex flex-col md:flex-row flex-1 gap-3">
+                                    <input type="text" name="variations[{{ $index }}][value]" value="{{ $variation->value }}" placeholder="Ex: P, M, G ou Azul, Vermelho" class="w-full flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+                                   <div class="flex gap-3">
+                                        <input type="number" step="0.01" name="variations[{{ $index }}][additional_price]" value="{{ $variation->additional_price == 0.00 ? '' : $variation->additional_price }}" placeholder="Preço adicional (opcional)" class="w-full md:max-w-[80px] text-center px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+                                        <div class="col-span-2 md:col-span-1">
+                                            <select name="variations[{{ $index }}][status]" class="w-[90px] text-center px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition appearance-none">
+                                                <option value="1" @selected($variation->status == '1')>Ativo</option>
+                                                <option value="0" @selected($variation->status == '0')>Inativo</option>
+                                            </select>
+                                        </div>
+                                   </div>
+                                </div>
+                                @if ($loop->first)
+                                    <button type="button" id="add-variation-value" class="h-12 min-w-12 px-4 bg-[#004aad] hover:bg-[#003b8a] text-white rounded-2xl text-lg font-semibold transition flex items-center justify-center shadow-sm">+</button>
+                                @else
+                                    <button type="button" class="remove-variation px-5 py-2 bg-red-500 text-white rounded-full text-sm">x</button>
+                                @endif
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="flex flex-col md:flex-row gap-3 w-full">
+                                <div class="flex flex-col md:flex-row flex-1 gap-3">
+                                    <input type="text" name="variations[0][value]" placeholder="Ex: P, M, G ou Azul, Vermelho" class="w-full flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+                                    <input type="number" step="0.01" name="variations[0][additional_price]" placeholder="Preço adicional (opcional)" class="w-full md:w-56 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+                                </div>
+                                <button type="button" id="add-variation-value" class="h-12 min-w-12 px-4 bg-[#004aad] hover:bg-[#003b8a] text-white rounded-2xl text-lg font-semibold transition flex items-center justify-center shadow-sm">+</button>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -191,30 +224,35 @@
 
 
     const hasVariation = document.getElementById('has-variation');
-        const variationContainer = document.getElementById('variation-container');
-        const addBtn = document.getElementById('add-variation-value');
-        const valuesContainer = document.getElementById('variation-values');
-        hasVariation.addEventListener('change', () => {
-            if (hasVariation.checked) {
-                variationContainer.classList.remove('hidden');
-            } else {
-                variationContainer.classList.add('hidden');
-            }
-        });
-        addBtn.addEventListener('click', () => {
-            const div = document.createElement('div');
-            div.className = "flex gap-2";
-            div.innerHTML = `
-            <input type="text" name="variation_values[]" placeholder="Outro valor" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none">
+    const variationContainer = document.getElementById('variation-container');
+    hasVariation.addEventListener('change', () => {
+        if (hasVariation.checked) {
+            variationContainer.classList.remove('hidden');
+        } else {
+            variationContainer.classList.add('hidden');
+        }
+    });
+    const addBtn = document.getElementById('add-variation-value');
+    const valuesContainer = document.getElementById('variation-values');
+    let variationIndex = {{ $product->variationGroups->first()?->productVariations?->count() ?? 0}};
+    addBtn.addEventListener('click', () => {
+        const div = document.createElement('div');
+        div.className = "variation-item flex flex-col md:flex-row gap-3 w-full border border-slate-200 dark:border-gray-700 rounded-2xl p-4 relative";
+        div.innerHTML = `
+        <input type="text" name="variations[${variationIndex}][value]" placeholder="Ex: P, M, G ou Azul, Vermelho" class="w-full flex-1 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
+        <div class="flex flex-row gap-3">
+            <input type="number" step="0.01" name="variations[${variationIndex}][additional_price]" placeholder="Preço adicional (opcional)" class="w-full md:w-56 px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 rounded-2xl text-sm text-slate-700 dark:text-gray-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0158cd] transition">
             <button type="button" class="remove-variation px-5 py-2 bg-red-500 text-white rounded-full text-sm">x</button>
-            `;
-            valuesContainer.appendChild(div);
-        });
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-variation')) {
-                e.target.parentElement.remove();
-            }
-        });
+        </div>
+        `;
+        valuesContainer.appendChild(div);
+        variationIndex++;
+    });
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-variation')) {
+            e.target.closest('.variation-item').remove();
+        }
+    });
 </script>
 </x-dashboard_layout>
 

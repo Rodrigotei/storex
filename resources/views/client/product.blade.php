@@ -51,18 +51,62 @@
                 <form action="{{ route('client.cart.add', ['tenant' => app('store')->slug]) }}" method="POST" class="space-y-10">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    @if($product->productVariations->count() > 0)
-                        <div x-data="{ selectedVariationName: ''}">
-                            <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-4">{{ $product->productVariations->first()->variation->name }}</label>
-                            <input type="hidden" name="variation_name" :value="selectedVariationName">
-                            <div class="flex flex-wrap gap-3">
-                                @foreach($product->productVariations as $variation)
+                    @if($product->variationGroups->count() > 0)
+                        <div>
+                        @foreach($product->variationGroups as $group)
+                            <div x-data="{ maxSelection: {{ $group->max_selection }}, selected: [] }" class="mb-6">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">{{ $group->variation->name }}</label>
+                                    <span class="text-xs text-slate-500 dark:text-gray-400">
+                                    @if($group->min_selection > 0)
+                                        Obrigatório
+                                        @if($group->max_selection > 1)
+                                            • Escolha até {{ $group->max_selection }}
+                                        @endif
+                                    @else
+                                        Opcional
+                                        @if($group->max_selection > 1)
+                                            • Escolha até {{ $group->max_selection }}
+                                        @endif
+                                    @endif
+                                    </span>
+                                </div>  
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                @foreach($group->productVariations as $variation)
                                     <label class="relative cursor-pointer group">
-                                        <input @click="selectedVariationName = '{{ $variation->value }}'" type="radio" name="variation_id" value="{{ $variation->id }}" class="peer sr-only" required>
-                                        <div class="px-6 py-3 bg-white dark:bg-gray-950 border-2 border-slate-200 dark:border-gray-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-gray-400 peer-checked:border-[#004aad] peer-checked:bg-blue-50/50 dark:peer-checked:bg-blue-500/10 peer-checked:text-[#004aad] transition-all duration-300">{{ $variation->value }}</div>
+                                    @if($group->max_selection > 1)
+                                        <input type="checkbox" name="product_variations[]" value="{{ $variation->id }}" class="peer sr-only"
+                                        @if($group->min_selection > 0)
+                                            :required="selected.length < {{ $group->min_selection }}"
+                                        @endif
+                                        @change="
+                                            if($event.target.checked){
+                                                if(selected.length >= maxSelection){$event.target.checked = false; return;}
+                                                selected.push('{{ $variation->id }}');
+                                            } else {
+                                                selected = selected.filter(item => item != '{{ $variation->id }}');
+                                            }"
+                                        >
+                                    @else   
+                                        <input type="radio" name="product_variations[]" value="{{ $variation->id }}" class="peer sr-only"
+                                        @if($group->min_selection > 0)
+                                            required
+                                        @endif
+                                        >
+                                    @endif
+                                        <div class="px-5 py-4 bg-white dark:bg-gray-950 border-2 border-slate-200 dark:border-gray-800 rounded-2xl text-sm font-bold text-slate-600 dark:text-gray-400 peer-checked:border-[#004aad] peer-checked:bg-blue-50/50 dark:peer-checked:bg-blue-500/10 peer-checked:text-[#004aad] transition-all duration-300">
+                                            <div class="flex justify-between items-center">
+                                                <span>{{ $variation->value }}</span>
+                                                @if($variation->additional_price > 0)
+                                                    <span class="text-xs mt-1 text-emerald-600 dark:text-emerald-400 font-semibold">+ R$ {{ number_format($variation->additional_price, 2, ',', '.') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </label>
                                 @endforeach
+                                </div>
                             </div>
+                        @endforeach
                         </div>
                     @endif
                     <div class="col-span-1 md:col-span-2">
