@@ -105,7 +105,7 @@ class ProductsController extends Controller
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products', $fileName, 'public');
+                    $filePath = $file->storeAs('products', $fileName);
                     if (! $filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
@@ -149,7 +149,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::delete($path);
                 }
             }
 
@@ -158,7 +158,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::delete($path);
                 }
             }
 
@@ -254,7 +254,7 @@ class ProductsController extends Controller
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products', $fileName, 'public');
+                    $filePath = $file->storeAs('products', $fileName);
                     if (! $filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
@@ -302,7 +302,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::delete($path);
                 }
             }
 
@@ -311,7 +311,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::delete($path);
                 }
             }
 
@@ -330,7 +330,7 @@ class ProductsController extends Controller
             DB::commit();
             if (! empty($imgPaths)) {
                 foreach ($imgPaths as $image) {
-                    Storage::disk('public')->delete($image);
+                    Storage::delete($image);
                 }
             }
 
@@ -352,7 +352,7 @@ class ProductsController extends Controller
             $imgPath = $productImage->img;
             $productImage->delete();
             DB::commit();
-            Storage::disk('public')->delete($imgPath);
+            Storage::delete($imgPath);
 
             return back()->with('success', 'Imagem excluída com sucesso.');
         } catch (ModelNotFoundException $e) {

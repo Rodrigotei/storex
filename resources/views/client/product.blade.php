@@ -1,6 +1,6 @@
 <x-client_layout>
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" 
-        x-data="{ activeImg: '{{ asset($product->productImages->first() ? 'storage/' . $product->productImages->first()->img : 'img/default.png') }}', qty: 1 }">
+        x-data="{ activeImg: '{{ $product->productImages->first() ? Storage::url($product->productImages->first()->img) : asset('img/default.png') }}', qty: 1 }">
         <div class="mb-8">
             <a href="{{ route('client.home', ['tenant' => app('store')->slug]) }}" class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-[#004aad] transition-colors group">
                 <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -16,8 +16,8 @@
                 @if($product->productImages->count() > 0)
                     <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
                         @foreach($product->productImages as $image)
-                            <button @click="activeImg = '{{ asset('storage/' . $image->img) }}'" class="relative flex-none w-24 h-24 rounded-[20px] overflow-hidden border-2 transition-all duration-300" :class="activeImg === '{{ asset('storage/' . $image->img) }}' ? 'border-[#004aad] ring-4 ring-blue-500/10' : 'border-transparent opacity-60 hover:opacity-100'">
-                                <img src="{{ asset('storage/' . $image->img) }}" class="w-full h-full object-cover">
+                            <button @click="activeImg = '{{ Storage::url($image->img) }}'" class="relative flex-none w-24 h-24 rounded-[20px] overflow-hidden border-2 transition-all duration-300" :class="activeImg === '{{ Storage::url($image->img) }}' ? 'border-[#004aad] ring-4 ring-blue-500/10' : 'border-transparent opacity-60 hover:opacity-100'">
+                                <img src="{{ Storage::url($image->img) }}" class="w-full h-full object-cover">
                             </button>
                         @endforeach
                     </div>

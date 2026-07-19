@@ -60,7 +60,7 @@ class CategoriesController extends Controller
             $filePath = null;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $filePath = $request->file('img')->storeAs('categories', $fileName, 'public');
+                $filePath = $request->file('img')->storeAs('categories', $fileName);
             }
             DB::beginTransaction();
             Category::create([
@@ -81,7 +81,7 @@ class CategoriesController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             if (! empty($filePath)) {
-                Storage::disk('public')->delete($filePath);
+                Storage::delete($filePath);
             }
 
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
@@ -126,7 +126,7 @@ class CategoriesController extends Controller
             $newImage = null;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $newImage = $request->file('img')->storeAs('categories', $fileName, 'public');
+                $newImage = $request->file('img')->storeAs('categories', $fileName);
             }
             DB::beginTransaction();
             $category->name = $request->name;
@@ -141,7 +141,7 @@ class CategoriesController extends Controller
             $category->save();
             DB::commit();
             if ($newImage && $oldImage) {
-                Storage::disk('public')->delete($oldImage);
+                Storage::delete($oldImage);
             }
 
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria salva com sucesso!');
@@ -158,7 +158,7 @@ class CategoriesController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             if (! empty($newImage)) {
-                Storage::disk('public')->delete($newImage);
+                Storage::delete($newImage);
             }
 
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
@@ -179,7 +179,7 @@ class CategoriesController extends Controller
             $category->delete();
             DB::commit();
             if ($imgPath) {
-                Storage::disk('public')->delete($category->img);
+                Storage::delete($imgPath);
             }
 
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria excluída com sucesso!');

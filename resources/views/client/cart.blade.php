@@ -19,7 +19,7 @@
                 @endphp
                 <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[30px] p-4 flex items-center gap-4 sm:gap-6 shadow-sm">
                     <div class="w-20 h-20 sm:w-24 sm:h-24 flex-none rounded-[20px] overflow-hidden bg-slate-100 dark:bg-gray-950">
-                        <img src="{{ asset($item['image'] ? 'storage/' . $item['image'] : 'img/default.png') }}" class="w-full h-full object-cover">
+                        <img src="{{ $item['image'] ? Storage::url($item['image']) : asset('img/default.png') }}" class="w-full h-full object-cover">
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-start justify-between gap-4">

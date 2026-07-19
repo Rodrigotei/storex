@@ -24,7 +24,7 @@
                         <tr class="hover:bg-slate-50/50 dark:hover:bg-gray-800/30 transition-colors group">
                             <td class="px-6 py-4 whitespace-nowrap"><span class="text-sm font-semibold text-slate-700 dark:text-gray-200">{{ $category->name }}</span></td>
                             <td class="px-6 py-2 whitespace-nowrap">
-                                 <img src="{{ asset($category->img ? 'storage/'.$category->img : 'img/default.png') }}" alt="Imagem da categoria" class="w-15 h-15 object-cover rounded">
+                                 <img src="{{ $category->img ? Storage::url($category->img) : asset('img/default.png') }}" alt="Imagem da categoria" class="w-15 h-15 object-cover rounded">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($category->status ?? true)

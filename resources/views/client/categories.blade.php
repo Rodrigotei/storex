@@ -16,7 +16,7 @@
                 @foreach($categories as $category)
                     <a href="{{ route('client.category', ['tenant' => app('store')->slug, 'id' => $category->id]) }}"  class="w-full max-w-[160px] group text-center">
                         <div class="w-full aspect-square bg-white dark:bg-gray-900 rounded-[30px] border border-slate-200 dark:border-gray-800 flex items-center justify-center mb-3 group-hover:border-[#0158cd] group-hover:shadow-lg transition-all overflow-hidden">
-                            <img src="{{ asset($category->img ? 'storage/'.$category->img : 'img/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <img src="{{ $category->img ? Storage::url($category->img) : asset('img/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
                         <span class="text-sm font-bold text-slate-700 dark:text-gray-300 group-hover:text-[#004aad] transition-colors">{{ $category->name }}</span>
                     </a>

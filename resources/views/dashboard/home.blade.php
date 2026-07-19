@@ -74,7 +74,7 @@
                 @forelse($recentProducts ?? [] as $product)
                     <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-gray-700 transition-all">
                         <div class="flex items-center gap-4 min-w-0">
-                            <img src="{{ asset($product->productImages->first() ? 'storage/' . $product->productImages->first()->img : 'img/default.png') }}" class="w-12 h-12 object-cover rounded-xl flex-shrink-0" alt="Imagem do produto">
+                            <img src="{{ $product->productImages->first() ? Storage::url($product->productImages->first()->img) : asset('img/default.png') }}" class="w-12 h-12 object-cover rounded-xl flex-shrink-0" alt="Imagem do produto">
                             <div class="min-w-0">
                                 <p class="text-sm font-bold text-slate-700 dark:text-gray-200 truncate">{{ $product->name }}</p>
                                 <p class="text-xs text-slate-400">{{ $product->category->name ?? 'Sem categoria' }}</p>

@@ -4,7 +4,7 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div class="flex items-start gap-4">
                     @if ($store->img)
-                        <img src="{{ asset('storage/'.$store->img) }}" class="w-20 h-20 object-cover rounded" alt="logo {{ $store->name }}" srcset="">
+                        <img src="{{ Storage::url($store->img) }}" class="w-20 h-20 object-cover rounded" alt="logo {{ $store->name }}" srcset="">
                     @else
                         <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-gray-700">
                             <span class="text-xl font-bold text-[#004aad]">{{ strtoupper(substr($store->name, 0, 2)) }}</span>
@@ -75,7 +75,7 @@
                 @foreach($categories as $category)
                     <a href="{{ route('client.category', ['tenant' => app('store')->slug, 'id' => $category->id]) }}" class="flex-none w-20 md:w-30 group text-center">
                         <div class="w-full aspect-square bg-white dark:bg-gray-900 rounded-[30px] border border-slate-200 dark:border-gray-800 flex items-center justify-center mb-3 group-hover:border-[#0158cd] group-hover:shadow-lg transition-all overflow-hidden">
-                            <img src="{{ asset($category->img ? 'storage/'.$category->img : 'img/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <img src="{{ $category->img ? Storage::url($category->img) : asset('img/default.png') }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
                         <span class="text-sm font-bold text-slate-700 dark:text-gray-300 group-hover:text-[#004aad] transition-colors">{{ $category->name }}</span>
                     </a>
@@ -92,7 +92,7 @@
                 @foreach ($promotionalProducts as $promotionalProduct)
                     <div class="min-w-[180px] max-w-[180px] flex-shrink-0 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
                         <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
-                            <img src="{{ asset($promotionalProduct->productImages->first() ? 'storage/'.$promotionalProduct->productImages->first()->img : 'img/default.png') }}" class="w-full h-full object-cover">
+                            <img src="{{ $promotionalProduct->productImages->first() ? Storage::url($promotionalProduct->productImages->first()->img) : asset('img/default.png') }}" class="w-full h-full object-cover">
                         </div>
                         <div class="px-2">
                             <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $promotionalProduct->category->name }}</p>
@@ -125,7 +125,7 @@
                 @foreach ($lastProducts as $product)
                     <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[35px] p-4 transition-all hover:shadow-2xl hover:shadow-blue-500/10 group">
                         <div class="relative aspect-square bg-slate-100 dark:bg-gray-950 rounded-[25px] overflow-hidden mb-4">
-                            <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'img/default.png') }}" class="w-full h-full object-cover">
+                            <img src="{{ $product->productImages->first() ? Storage::url($product->productImages->first()->img) : asset('img/default.png') }}" class="w-full h-full object-cover">
                         </div>
                         <div class="px-2">
                             <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-1">{{ $product->category->name }}</p>

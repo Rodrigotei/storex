@@ -102,7 +102,7 @@
                     <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Adicionar Imagem</label>
                     <div class="flex flex-col md:flex-row md:items-center gap-2">
                         @if ($user->store->img)
-                                <img src="{{ asset('storage/'.$user->store->img) }}" class="w-20 h-20 object-cover rounded" alt="logo {{ $user->store->name }}" srcset="">
+                                <img src="{{ Storage::url($user->store->img) }}" class="w-20 h-20 object-cover rounded" alt="logo {{ $user->store->name }}" srcset="">
                         @else
                             <div class="w-20 h-20 md:w-25 md:h-25 rounded-2xl bg-slate-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-gray-700">
                                 <span class="text-xl font-bold text-[#004aad]">{{ strtoupper(substr($user->store->name, 0, 2)) }}</span>

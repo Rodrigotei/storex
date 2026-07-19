@@ -32,7 +32,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <img src="{{ asset($product->productImages->first() ? 'storage/'.$product->productImages->first()->img : 'img/default.png')}}" class="w-15 h-15 object-cover rounded" alt="Imagem do produto" srcset="">
+                                <img src="{{ $product->productImages->first() ? Storage::url($product->productImages->first()->img) : asset('img/default.png') }}" class="w-15 h-15 object-cover rounded" alt="Imagem do produto" srcset="">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-3 py-1 text-xs font-medium bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-400 rounded-lg">{{ $product->category->name ?? 'Sem categoria' }}</span>
