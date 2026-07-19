@@ -8,38 +8,45 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
 
 class CategoriesController extends Controller
 {
     public function index(): View
     {
         try {
+            $this->authorize('viewAny', Category::class);
             $categories = Category::where('tenant_id', auth()->user()->store->id)->paginate(10);
+
             return view('dashboard.categories.index', compact('categories'));
         } catch (\Throwable $th) {
             return view('dashboard.error');
         }
     }
+
     public function create(): View
     {
         try {
+            $this->authorize('create', Category::class);
+
             return view('dashboard.categories.create');
         } catch (\Throwable $th) {
             return view('dashboard.error');
         }
     }
+
     public function store(Request $request): RedirectResponse
     {
         try {
+            $this->authorize('create', Category::class);
             $request->validate(
                 [
                     'name' => 'required',
                     'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-                    'status' => 'required|in:0,1'
+                    'status' => 'required|in:0,1',
                 ],
                 [
                     'name.required' => 'O nome da categoria é obrigatório.',
@@ -47,7 +54,7 @@ class CategoriesController extends Controller
                     'img.mimes' => 'A imagem deve ser JPG, PNG ou WEBP.',
                     'img.max' => 'A imagem deve ter no máximo 2MB.',
                     'status.required' => 'O status é obrigatório.',
-                    'status.in' => 'Selecione um status válido.'
+                    'status.in' => 'Selecione um status válido.',
                 ]
             );
             $filePath = null;
@@ -63,31 +70,38 @@ class CategoriesController extends Controller
                 'status' => $request->status,
             ]);
             DB::commit();
+
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria criada com sucesso!');
-        } catch (ValidationException $e){
+        } catch (ValidationException $e) {
             return back()->withErrors($e->validator)->withInput();
-        } catch (QueryException $e){
+        } catch (QueryException $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
-            if (!empty($filePath)) {
+            if (! empty($filePath)) {
                 Storage::disk('public')->delete($filePath);
             }
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
+
     public function edit(string $id): View|RedirectResponse
     {
         try {
             $category = Category::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
-            return view('dashboard.categories.edit' , compact('category'));
-        } catch (ModelNotFoundException $e){
+            $this->authorize('update', $category);
+
+            return view('dashboard.categories.edit', compact('category'));
+        } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Categoria não encontrada.']);
         } catch (\Throwable $th) {
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
+
     public function update(Request $request, string $id): RedirectResponse
     {
         try {
@@ -95,7 +109,7 @@ class CategoriesController extends Controller
                 [
                     'name' => 'required',
                     'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-                    'status' => 'required|in:0,1'
+                    'status' => 'required|in:0,1',
                 ],
                 [
                     'name.required' => 'O nome da categoria é obrigatório.',
@@ -103,10 +117,11 @@ class CategoriesController extends Controller
                     'img.mimes' => 'A imagem deve ser JPG, PNG ou WEBP.',
                     'img.max' => 'A imagem deve ter no máximo 2MB.',
                     'status.required' => 'O status é obrigatório.',
-                    'status.in' => 'Selecione um status válido.'
+                    'status.in' => 'Selecione um status válido.',
                 ]
             );
             $category = Category::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
+            $this->authorize('update', $category);
             $oldImage = $category->img;
             $newImage = null;
             if ($request->hasFile('img')) {
@@ -120,7 +135,7 @@ class CategoriesController extends Controller
                 Product::where('category_id', $category->id)->where('tenant_id', auth()->user()->store->id)->update(['status' => 0]);
             }
             $category->status = $request->status;
-            if($newImage){
+            if ($newImage) {
                 $category->img = $newImage;
             }
             $category->save();
@@ -128,44 +143,53 @@ class CategoriesController extends Controller
             if ($newImage && $oldImage) {
                 Storage::disk('public')->delete($oldImage);
             }
+
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria salva com sucesso!');
-        } catch (ValidationException $e){
+        } catch (ValidationException $e) {
             return back()->withErrors($e->validator)->withInput();
-        } catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Categoria não encontrada.'])->withInput();
-        } catch (QueryException $e){
+        } catch (QueryException $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
-            if (!empty($newImage)) {
+            if (! empty($newImage)) {
                 Storage::disk('public')->delete($newImage);
             }
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
+
     public function destroy(string $id): RedirectResponse
     {
         try {
             $products = Product::where('category_id', $id)->where('tenant_id', auth()->user()->store->id)->exists();
-            if($products){
+            if ($products) {
                 return back()->withErrors(['error' => 'Existem produtos vinculados à essa categoria.']);
             }
             $category = Category::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
+            $this->authorize('delete', $category);
             DB::beginTransaction();
-            $imgPath = $category->img; 
+            $imgPath = $category->img;
             $category->delete();
             DB::commit();
-            if($imgPath){
+            if ($imgPath) {
                 Storage::disk('public')->delete($category->img);
             }
+
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria excluída com sucesso!');
-        } catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Categoria não encontrada.']);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }

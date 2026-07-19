@@ -9,7 +9,7 @@
     </x-slot>
 
     <div class="mt-8 max-w-4xl mx-auto">
-        <form action="{{ route('dashboard.profile.update', $user->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6" novalidate>
+        <form action="{{ route('dashboard.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6" novalidate>
             @csrf
             @method('PATCH')
             {{-- ================= USER ================= --}}

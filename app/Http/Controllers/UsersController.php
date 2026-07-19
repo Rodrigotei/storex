@@ -9,12 +9,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
-use App\Models\Store;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class UsersController extends Controller
 {
@@ -39,7 +37,7 @@ class UsersController extends Controller
                 'store_name' => 'required|string|max:255',
                 'slug' => 'required|string|max:255|unique:stores,slug|alpha_dash',
                 'phone' => 'required|string|max:255',
-            ], 
+            ],
             [
                 'name.required' => 'O nome é obrigatório.',
                 'name.max' => 'O nome deve ter no máximo :max caracteres.',
@@ -66,11 +64,11 @@ class UsersController extends Controller
         try {
             DB::beginTransaction();
             $user = User::create([
-                'name'     => $request->name,
+                'name' => $request->name,
                 'document' => $request->document,
-                'email'    => $request->email,
+                'email' => $request->email,
                 'password' => $request->password, // O cast 'hashed' no modelo User irá cuidar do hash
-                'status' => 'pending'
+                'status' => 'pending',
             ]);
 
             $store = $user->store()->create([
@@ -80,33 +78,38 @@ class UsersController extends Controller
             ]);
             Mail::to($user->email)->send(new CreateAccount($user->name, $user->email, $store->slug));
             DB::commit();
+
             return redirect()->route('payment')->with('register_success', true);
         } catch (ValidationException $e) {
             DB::rollBack();
+
             return back()->withErrors($e->validator)->withInput();
         } catch (QueryException $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Erro no banco de dados.'])->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
 
-    public function edit(string $id)
+    public function edit()
     {
         try {
-            $user = User::with(['store', 'store.address'])->findOrFail($id);
+            $user = User::with(['store', 'store.address'])->findOrFail(auth()->id());
+            $this->authorize('update', $user->store);
+
             return view('dashboard.profile.edit', compact('user'));
-        } catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Usuário não encontrado.']);
-        } 
-        catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return view('dashboard.error');
         }
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
         try {
             $request->validate(
@@ -159,8 +162,9 @@ class UsersController extends Controller
                 ]
             );
 
-            $user = User::with(['store', 'store.address'])->findOrFail($id);
-            
+            $user = User::with(['store', 'store.address'])->findOrFail(auth()->id());
+            $this->authorize('update', $user->store);
+
             DB::beginTransaction();
 
             if ($request->filled('password')) {
@@ -177,7 +181,7 @@ class UsersController extends Controller
                 'delivery_fee' => $storeData['delivery_fee'] ?? 0.00,
             ];
             $oldImg = $store->img;
-            if($request->hasFile('img')){
+            if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
                 $filePath = $request->file('img')->storeAs('logo', $fileName, 'public');
                 $data['img'] = $filePath;
@@ -195,20 +199,24 @@ class UsersController extends Controller
                 'complement' => $addressData['complement'] ?? '',
             ]);
             DB::commit();
-            if($oldImg && isset($data['img'])){
+            if ($oldImg && isset($data['img'])) {
                 Storage::disk('public')->delete($oldImg);
             }
+
             return redirect()->back()->with('success', 'Perfil atualizado com sucesso!');
-        } catch (ValidationException $e){
+        } catch (ValidationException $e) {
             return back()->withErrors($e->validator)->withInput();
-        } catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Usuário não encontrado'])->withInput();
-        } catch (QueryException $e){
+        } catch (QueryException $e) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
@@ -226,9 +234,10 @@ class UsersController extends Controller
             $user->expires_at = now()->addYear();
             $user->save();
             Mail::to($email)->send(new ActiveAccount($user->name, $user->store->slug));
+
             return true;
         } catch (\Throwable $th) {
             return abort(500, 'Ocorreu um erro inesperado.');
-         }
+        }
     }
 }

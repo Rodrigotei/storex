@@ -11,22 +11,23 @@ use App\Http\Middleware\EnsureRegisterSuccess;
 use App\Http\Middleware\SetTenantDataBaseClient;
 use Illuminate\Support\Facades\Route;
 
-Route::domain(config('app.domain'))->middleware(BlockSubdomainAccess::class)->group(function(){
-    Route::view('/', 'website.home')->name('home'); 
-    Route::view('/register', 'website.register'); 
-    Route::view('/payment', 'website.payment')->middleware(EnsureRegisterSuccess::class)->name('payment'); 
-    Route::post('/register', [UsersController::class, 'store'])->name('register'); 
+Route::domain(config('app.domain'))->middleware(BlockSubdomainAccess::class)->group(function () {
+    Route::view('/', 'website.home')->name('home');
+    Route::view('/register', 'website.register');
+    Route::view('/payment', 'website.payment')->middleware(EnsureRegisterSuccess::class)->name('payment');
+    Route::post('/register', [UsersController::class, 'store'])->name('register');
 });
 
-Route::domain(config('app.domain'))->middleware(['auth', BlockSubdomainDashboardAccess::class])->prefix('dashboard')->group(function(){
+Route::domain(config('app.domain'))->middleware(['auth', BlockSubdomainDashboardAccess::class])->prefix('dashboard')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('dashboard.home');
     Route::resource('/categories', CategoriesController::class)->except(['show'])->names('dashboard.categories');
     Route::resource('/products', ProductsController::class)->except(['show'])->names('dashboard.products');
     Route::delete('/products/image/{id}', [ProductsController::class, 'deleteImage'])->name('dashboard.product.delete-image');
-    Route::resource('/profile', UsersController::class)->except(['show'])->names('dashboard.profile');
+    Route::get('/profile/edit', [UsersController::class, 'edit'])->name('dashboard.profile.edit');
+    Route::patch('/profile', [UsersController::class, 'update'])->name('dashboard.profile.update');
 });
 
-Route::domain('{tenant}.'.config('app.domain'))->middleware(SetTenantDataBaseClient::class)->prefix('loja')->group(function(){
+Route::domain('{tenant}.'.config('app.domain'))->middleware(SetTenantDataBaseClient::class)->prefix('loja')->group(function () {
     Route::get('/', [ClientController::class, 'index'])->name('client.home');
     Route::get('/categories', [ClientController::class, 'categories'])->name('client.categories');
     Route::get('/category/{id}', [ClientController::class, 'category'])->name('client.category');
