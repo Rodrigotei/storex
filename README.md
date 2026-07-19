@@ -1,58 +1,281 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Storex
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma SaaS de catálogo digital para comércios.
 
-## About Laravel
+## 📌 Sobre o projeto
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+O **Storex** é uma plataforma SaaS desenvolvida para ajudar empresas a criarem um catálogo digital profissional, moderno e responsivo, sem precisar de conhecimento técnico.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+A plataforma atende diferentes segmentos, incluindo:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* Lojas
+* Lanchonetes
 
-## Learning Laravel
+Cada empresa possui:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Um painel administrativo completo
+* Um catálogo público personalizado
+* Subdomínio próprio
+* Gestão de produtos
+* Controle visual moderno e responsivo
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+# 🌐 Estrutura da aplicação
 
-## Agentic Development
+## Landing Page
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Página institucional da plataforma:
 
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```txt
+storex.app.br
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Responsável por:
 
-## Contributing
+* Apresentação do serviço
+* Conversão de clientes
+* Cadastro de novos usuários
+* Informações sobre planos e funcionalidades
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Painel Administrativo
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Acesso administrativo do cliente:
 
-## Security Vulnerabilities
+```txt
+storex.app.br/dashboard
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Funcionalidades:
 
-## License
+* Gestão do catálogo
+* Cadastro de produtos
+* Upload de imagens
+* Configuração da loja
+* Controle de informações públicas
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Catálogo Público
+
+Catálogo acessível pelos clientes finais:
+
+```txt
+{slug}.storex.app.br/loja
+```
+
+Exemplo:
+
+```txt
+minhaloja.storex.app.br/loja
+```
+
+---
+
+# 🚀 Funcionalidades
+
+## Gestão de Catálogo
+
+* Cadastro de produtos
+* Organização por categorias
+* Upload de imagens
+* Controle de disponibilidade
+* Destaque de itens
+
+## Personalização
+
+* Nome da empresa
+* Logo
+* Informações de contato
+
+## Estrutura Multi-tenant
+
+Cada empresa possui:
+
+* Dados isolados
+* Catálogo independente
+* Subdomínio próprio
+* Ambiente separado
+
+## Responsividade
+
+Interface otimizada para:
+
+* Smartphones
+* Tablets
+* Desktop
+
+## Experiência do usuário
+
+* Interface moderna
+* Navegação simples
+* Carregamento rápido
+* Design focado em conversão
+
+---
+
+# 🛠️ Stack utilizada
+
+## Backend
+
+* PHP
+* Laravel
+
+## Frontend
+
+* Blade
+* TailwindCSS
+* Alpine.js
+
+## Banco de Dados
+
+* MySQL
+
+## Infraestrutura
+
+* VPS Linux
+* Nginx
+* SSL
+* Sistema multi-tenant por subdomínio
+
+---
+
+# 🧱 Arquitetura
+
+## Multi-tenancy
+
+O sistema utiliza arquitetura multi-tenant baseada em subdomínios.
+
+Cada cliente acessa seu catálogo através de um slug único:
+
+```txt
+empresa.storex.app.br
+```
+
+---
+
+# 🔒 Segurança
+
+O projeto segue boas práticas de segurança:
+
+* Validação de dados
+* Proteção CSRF
+* Sanitização de inputs
+* Isolamento de tenants
+* Controle de permissões
+* Proteção contra acesso indevido
+
+---
+
+# ⚡ Performance
+
+Estratégias utilizadas:
+
+* Queries otimizadas
+* Indexação no banco de dados
+* Lazy loading
+* Assets otimizados
+* Estrutura preparada para cache
+
+---
+
+# 📁 Estrutura do projeto
+
+```bash
+app/
+bootstrap/
+config/
+database/
+public/
+resources/
+routes/
+storage/
+```
+
+---
+
+# 🔧 Instalação
+
+## Clonar repositório
+
+```bash
+git clone https://github.com/seuusuario/storex.git
+```
+
+## Entrar na pasta
+
+```bash
+cd storex
+```
+
+## Instalar dependências
+
+```bash
+composer install
+npm install
+```
+
+## Configurar ambiente
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+## Configurar banco de dados
+
+Edite o arquivo `.env`:
+
+```env
+DB_DATABASE=storex
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+## Rodar migrations
+
+```bash
+php artisan migrate
+```
+
+## Executar projeto
+
+```bash
+php artisan serve
+npm run dev
+```
+
+---
+
+# 🌍 Deploy
+
+Recomendado:
+
+* VPS Linux
+* Ubuntu 22+
+* Nginx
+* PHP 8.3+
+* MySQL 8+
+* SSL configurado
+
+---
+
+# 📈 Objetivo do projeto
+
+O Storex foi criado com foco em:
+
+* Simplicidade
+* Velocidade
+* Conversão
+* Facilidade de uso
+* Escalabilidade
+
+A proposta é permitir que pequenas e médias empresas tenham presença digital profissional sem complexidade.
+
+---
+
+# 👨‍💻 Autor
+
+Desenvolvido por Rodrigo Teixeira.
