@@ -143,7 +143,7 @@ class ClientController extends Controller
                     // 'additional_price' => $additionalPrice,
                     'final_price' => $finalPrice,
                     'qty' => $request->quantity,
-                    'variation' => $product->variationGroups->first()->variation->name,
+                    'variation' => $product->variationGroups->first()->variation->name ?? null,
                     'variation_key' => $variationKey,
                     'variations' => $variations,
                     'image' => $product->productImages->first()->img ?? null,

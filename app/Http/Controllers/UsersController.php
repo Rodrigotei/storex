@@ -179,7 +179,7 @@ class UsersController extends Controller
             $oldImg = $store->img;
             if($request->hasFile('img')){
                 $fileName = $request->file('img')->hashName();
-                $filePath = $request->file('img')->storeAs('logo', $fileName, 'public');
+                $filePath = $request->file('img')->storeAs('logo', $fileName, 's3');
                 $data['img'] = $filePath;
             }
             $store->update($data);
@@ -196,7 +196,7 @@ class UsersController extends Controller
             ]);
             DB::commit();
             if($oldImg && isset($data['img'])){
-                Storage::disk('public')->delete($oldImg);
+                Storage::disk('s3')->delete($oldImg);
             }
             return redirect()->back()->with('success', 'Perfil atualizado com sucesso!');
         } catch (ValidationException $e){

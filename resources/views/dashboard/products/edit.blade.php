@@ -58,7 +58,7 @@
                         <div class="flex gap-4 items-start">
                             @for ($i = 0; $i < count($product->productImages); $i++)
                                 <div class="flex flex-col gap-1 items-center">
-                                    <img src="{{ asset($product->productImages[$i]->img ? 'storage/'.$product->productImages[$i]->img : 'storage/images/default.png') }}" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200 dark:border-gray-800 shadow-sm">
+                                    <img src="{{ asset($product->productImages[$i]->img ? Storage::disk('s3')->url($product->productImages[$i]->img): 'storage/images/default.png') }}" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200 dark:border-gray-800 shadow-sm">
                                     <button type="button" onclick="deleteImage({{ $product->productImages[$i]->id }})" class="py-1 px-2 bg-red-600 hover:bg-red-400 active:bg-red-800 text-white rounded transition-all text-sm">Remover</button>
                                 </div>
                             @endfor

@@ -30,7 +30,7 @@
                         <div class="flex flex-col sm:flex-row gap-4 items-start">
                             <div class="shrink-0">
                                 <p class="text-[10px] uppercase font-bold text-slate-400 mb-1 ml-1 tracking-wider">Atual</p>
-                                <img src="{{ asset($category->img ? 'storage/'.$category->img : 'img/default.png') }}" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200 dark:border-gray-800 shadow-sm">
+                                <img src="{{ asset($category->img ? Storage::disk('s3')->url($category->img) : 'img/default.png') }}" class="w-24 h-24 object-cover rounded-2xl border-2 border-slate-200 dark:border-gray-800 shadow-sm">
                             </div>
 
                             <div class="flex-1 w-full relative group">

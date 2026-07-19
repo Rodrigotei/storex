@@ -94,7 +94,7 @@ class ProductsController extends Controller
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products',$fileName ,'public');
+                    $filePath = $file->storeAs('products',$fileName ,'s3');
                     if (!$filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
@@ -136,7 +136,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if(!empty($uploadedImages)){
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::disk('s3')->delete($path);
                 }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
@@ -144,7 +144,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if(!empty($uploadedImages)){
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::disk('s3')->delete($path);
                 }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
@@ -230,7 +230,7 @@ class ProductsController extends Controller
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products',$fileName ,'public');
+                    $filePath = $file->storeAs('products',$fileName ,'s3');
                     if (!$filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
@@ -276,7 +276,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if(!empty($uploadedImages)){
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::disk('s3')->delete($path);
                 }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
@@ -284,7 +284,7 @@ class ProductsController extends Controller
             DB::rollBack();
             if(!empty($uploadedImages)){
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('public')->delete($path);
+                    Storage::disk('s3')->delete($path);
                 }
             }
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
@@ -300,7 +300,7 @@ class ProductsController extends Controller
             DB::commit();
             if (!empty($imgPaths)) {
                 foreach ($imgPaths as $image) {
-                    Storage::disk('public')->delete($image);
+                    Storage::disk('s3')->delete($image);
                 }
             }
             return redirect()->route('dashboard.products.index')->with('success', 'Produto excluído com sucesso!');
@@ -319,7 +319,7 @@ class ProductsController extends Controller
             $imgPath = $productImage->img;
             $productImage->delete();
             DB::commit();
-            Storage::disk('public')->delete($imgPath);
+            Storage::disk('s3')->delete($imgPath);
             return back()->with('success', 'Imagem excluída com sucesso.');
         } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Imagem não encontrada.']);

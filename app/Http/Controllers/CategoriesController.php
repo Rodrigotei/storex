@@ -53,7 +53,7 @@ class CategoriesController extends Controller
             $filePath = null;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $filePath = $request->file('img')->storeAs('categories', $fileName, 'public');
+                $filePath = $request->file('img')->storeAs('categories', $fileName, 's3');
             }
             DB::beginTransaction();
             Category::create([
@@ -111,7 +111,7 @@ class CategoriesController extends Controller
             $newImage = null;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $newImage = $request->file('img')->storeAs('categories', $fileName, 'public');
+                $newImage = $request->file('img')->storeAs('categories', $fileName, 's3');
             }
             DB::beginTransaction();
             $category->name = $request->name;
@@ -158,7 +158,7 @@ class CategoriesController extends Controller
             $category->delete();
             DB::commit();
             if($imgPath){
-                Storage::disk('public')->delete($category->img);
+                Storage::disk('s3')->delete($category->img);
             }
             return redirect()->route('dashboard.categories.index')->with('success', 'Categoria excluída com sucesso!');
         } catch (ModelNotFoundException $e){
