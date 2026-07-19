@@ -19,9 +19,7 @@ class HomeController extends Controller
                 'totalProducts' => Product::where('tenant_id', $tenant_id)->count(),
                 'totalCategories' => Category::where('tenant_id', $tenant_id)->count(),
                 'totalImagesProducts' => ProductImage::where('tenant_id', $tenant_id)->count(),
-                'totalServices' => Service::where('tenant_id', $tenant_id)->count(),
                 'recentProducts' => Product::with('productImages')->latest()->take(5)->where('tenant_id', $tenant_id)->get(),
-                'recentServices' => Service::with('serviceImages')->latest()->take(5)->where('tenant_id', $tenant_id)->get(),
             ]);
         } catch (\Throwable $th) {
             return view('dashboard.error');

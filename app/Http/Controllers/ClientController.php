@@ -24,8 +24,7 @@ class ClientController extends Controller
             $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get()->take(5);
             $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->where('tenant_id', $tenant_id)->get();
             $promotionalProducts = Product::with('productImages')->whereNot('promotional_price', null)->where('status', true)->where('tenant_id', $tenant_id)->get()->take(10);
-            $services = Service::with('serviceImages')->where('status', true)->where('tenant_id', $tenant_id)->get()->take(10);
-            return view('client.index', compact('store', 'categories', 'lastProducts', 'promotionalProducts', 'services'));
+            return view('client.index', compact('store', 'categories', 'lastProducts', 'promotionalProducts'));
         } catch (\Throwable $th) {
             return view('client.error');
         }
@@ -74,19 +73,6 @@ class ClientController extends Controller
                 return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Produto não encontrado.']);
             }
             return view('client.product', compact('product'));
-        } catch (\Throwable $th) {
-            return view('client.error');
-        }
-    }
-    public function service(string $tenant, string $id) // tenant required by route binding
-    {
-        try {
-            $tenant_id = $this->getTenantId();
-            $service = Service::with(['serviceImages'])->where('status', true)->where('tenant_id', $tenant_id)->find($id);
-            if(!$service){
-                return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Serviço não encontrado.']);
-            }
-            return view('client.service', compact('service'));
         } catch (\Throwable $th) {
             return view('client.error');
         }
@@ -299,66 +285,6 @@ class ClientController extends Controller
         return back()->withErrors(['error' => 'Ocorreu um erro ao finalizar seu pedido.'])->withInput();
        }
     }
-    public function serviceFinish(Request $request)
-    {
-        try {
-            $data = $request->validate(
-                [
-                    'service_id' => 'required|exists:services,id',
-                    'date' => 'required|date',
-                    'time' => 'required',
-                    'message' => 'nullable|string|max:1000',
-                    'name' => 'required|string|max:255',
-                ],
-                [
-                    'service_id.required' => 'Serviço não identificado',
-                    'date.required' => 'Informe a data',
-                    'date.date' => 'Data inválida',
-                    'time.required' => 'Informe o horário',
-                    'name.required' => 'Informe seu nome'
-                ]
-            );
-
-            $service = Service::findOrFail($data['service_id']);
-            $formattedDate = '-';
-
-            $days = [
-                'Sunday' => 'domingo',
-                'Monday' => 'segunda-feira',
-                'Tuesday' => 'terça-feira',
-                'Wednesday' => 'quarta-feira',
-                'Thursday' => 'quinta-feira',
-                'Friday' => 'sexta-feira',
-                'Saturday' => 'sábado',
-            ];
-            if (!empty($data['date'])) {
-                $date = Carbon::parse($data['date']);
-                $dayName = $days[$date->format('l')];
-                $formattedDate = "{$dayName}, " . $date->format('d/m/Y');
-            }
-            $formattedTime = $data['time'] ?? '-';
-            $details = $data['message'] ?? 'Sem detalhes adicionais.';
-            $name = $data['name'];
-
-            $message = "Olá!\n\n";
-            $message .= "Me chamo *{$name}*.\n\n";
-            $message .= "Tenho interesse no serviço *{$service->name}*.\n\n";
-            $message .= "Data: *{$formattedDate}*\n";
-            $message .= "Horário: *{$formattedTime}*\n\n";
-            $message .= "Detalhes:\n{$details}\n\n";
-            $message .= "Pode me confirmar a disponibilidade?";
-
-            $encodedMessage = urlencode($message);
-            $store = $this->getStore();
-
-            return redirect()->away("https://wa.me/55{$store->phone}?text={$encodedMessage}");
-
-        } catch(ValidationException $e){
-            return back()->withErrors($e->validator)->with('error_name', 'true')->withInput();
-        } catch (\Throwable $th) {
-            return back()->withErrors(['error' => 'Ocorreu um erro  ao finalizar sua solicitação.'])->with('error_name', 'true')->withInput();
-        }
-    }
     public function search(Request $request)
     {
        $tenant_id = $this->getTenantId();
@@ -370,11 +296,10 @@ class ClientController extends Controller
             );
             $search = $request->search;
             $products = Product::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
-            $services = Service::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
-            if($products->isEmpty() && $services->isEmpty() ){
+            if($products->isEmpty() ){
                 return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Nada foi encontrado.']);
             }
-            return view('client.search', compact('search', 'products', 'services'));
+            return view('client.search', compact('search', 'products'));
        } catch (ValidationException $e) {
             return back()->withErrors(['error' => 'Nada encontrado.']);
        } catch (\Throwable $th) {

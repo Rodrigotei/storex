@@ -30,7 +30,7 @@
        </div>
     </div>
 </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         
         <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 p-6 rounded-[30px] shadow-sm hover:shadow-md transition-all group">
             <div class="flex items-center justify-between mb-4">
@@ -61,17 +61,6 @@
             <h3 class="text-slate-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Fotos dos produtos</h3>
             <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ $totalImagesProducts ?? 0 }}</p>
         </div>
-        
-        <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 p-6 rounded-[30px] shadow-sm hover:shadow-md transition-all group">
-            <div class="flex items-center justify-between mb-4">
-                <div class="p-3 bg-blue-100 dark:bg-blue-500/10 rounded-2xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="#004aad" stroke-width="2"/><path d="M4 12h2M18 12h2M12 4v2M12 18v2M6.2 6.2l1.4 1.4M16.4 16.4l1.4 1.4M6.2 17.8l1.4-1.4M16.4 7.6l1.4-1.4" stroke="#0158cd" stroke-width="2" stroke-linecap="round"/></svg>
-                </div>
-            </div>
-            <h3 class="text-slate-500 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">Serviços</h3>
-            <p class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ $totalServices ?? 0 }}</p>
-        </div>
-
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         <div class="lg:col-span-2 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[30px] p-8">
@@ -79,7 +68,6 @@
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white">Adicionados Recentemente</h3>
                 <div class="flex items-center gap-4">
                     <a href="{{ route('dashboard.products.index') }}" class="text-xs font-bold text-[#004aad] dark:text-blue-400 uppercase hover:underline">Produtos</a>
-                    <a href="{{ route('dashboard.services.index') }}" class="text-xs font-bold text-[#004aad] dark:text-blue-400 uppercase hover:underline">Serviços</a>
                 </div>
             </div>
             <div class="space-y-4">
@@ -99,27 +87,6 @@
                     </div>
                 @empty
                 @endforelse
-                @forelse($recentServices ?? [] as $service)
-                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-gray-700 transition-all">
-                        <div class="flex items-center gap-4 min-w-0">
-                            <img  src="{{ asset($service->serviceImages->first() ? 'storage/' . $service->serviceImages->first()->img : 'img/default.png') }}" class="w-12 h-12 object-cover rounded-xl flex-shrink-0" alt="Imagem do serviço">
-                            <div class="min-w-0">
-                                <p class="text-sm font-bold text-slate-700 dark:text-gray-200 truncate">{{ $service->name }}</p>
-                                <p class="text-xs text-slate-400">Serviço</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="inline-block w-[70px] font-bold text-sm text-slate-700 dark:text-gray-200">R$ {{ number_format($service->price, 2, ',', '.') }}</span>
-                            <p class="text-[10px] uppercase font-bold text-emerald-500 mt-1">Serviço</p>
-                        </div>
-                    </div>
-                @empty
-                @endforelse
-               @if((($recentProducts ?? collect())->count() === 0) && (($recentServices ?? collect())->count() === 0))
-    <p class="text-center text-slate-400 py-10 italic">
-        Nenhuma atividade recente.
-    </p>
-@endif
             </div>
         </div>
         <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[30px] p-8">
@@ -136,12 +103,6 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                     </span>
                     <span class="font-bold text-sm">Nova Categoria</span>
-                </a>
-                <a href="{{ route('dashboard.services.create') }}" class="flex items-center p-4 bg-slate-100 dark:bg-gray-950 rounded-2xl text-slate-600 dark:text-gray-300 hover:bg-[#004aad] hover:text-white transition-all group">
-                    <span class="p-2 bg-white dark:bg-gray-800 rounded-lg mr-3 group-hover:bg-white/20">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z" stroke-width="2"/><path d="M4 12h2M18 12h2M12 4v2M12 18v2M6.2 6.2l1.4 1.4M16.4 16.4l1.4 1.4M6.2 17.8l1.4-1.4M16.4 7.6l1.4-1.4"  stroke-width="2" stroke-linecap="round"/></svg>
-                    </span>
-                    <span class="font-bold text-sm">Novo Serviço</span>
                 </a>
                  <a href="{{ route('dashboard.profile.edit', auth()->user()->id) }}" class="flex items-center p-4 bg-slate-100 dark:bg-gray-950 rounded-2xl text-slate-600 dark:text-gray-300 hover:bg-[#004aad] hover:text-white transition-all group">
                     <span class="p-2 bg-white dark:bg-gray-800 rounded-lg mr-3 group-hover:bg-white/20">

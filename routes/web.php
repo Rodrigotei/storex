@@ -4,7 +4,6 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductsController;
-use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\BlockSubdomainAccess;
 use App\Http\Middleware\BlockSubdomainDashboardAccess;
@@ -24,8 +23,6 @@ Route::domain(config('app.domain'))->middleware(['auth', BlockSubdomainDashboard
     Route::resource('/categories', CategoriesController::class)->except(['show'])->names('dashboard.categories');
     Route::resource('/products', ProductsController::class)->except(['show'])->names('dashboard.products');
     Route::delete('/products/image/{id}', [ProductsController::class, 'deleteImage'])->name('dashboard.product.delete-image');
-    Route::resource('/services', ServicesController::class)->except(['show'])->names('dashboard.services');
-    Route::delete('/services/image/{id}', [ServicesController::class, 'deleteImage'])->name('dashboard.service.delete-image');
     Route::resource('/profile', UsersController::class)->except(['show'])->names('dashboard.profile');
 });
 
@@ -34,12 +31,10 @@ Route::domain('{tenant}.'.config('app.domain'))->middleware(SetTenantDataBaseCli
     Route::get('/categories', [ClientController::class, 'categories'])->name('client.categories');
     Route::get('/category/{id}', [ClientController::class, 'category'])->name('client.category');
     Route::get('/product/{id}', [ClientController::class, 'product'])->whereNumber('id')->name('client.product');
-    Route::get('/service/{id}', [ClientController::class, 'service'])->name('client.service');
     Route::get('/cart', [ClientController::class, 'cart'])->name('client.cart');
     Route::post('/cart', [ClientController::class, 'add'])->name('client.cart.add');
     Route::delete('/cart', [ClientController::class, 'delete'])->name('client.cart.delete');
     Route::post('/order/finish', [ClientController::class, 'orderFinish'])->name('client.order.finish');
-    Route::post('/service/finish', [ClientController::class, 'serviceFinish'])->name('client.service.finish');
     Route::post('/search', [ClientController::class, 'search'])->name('client.search');
 });
 
