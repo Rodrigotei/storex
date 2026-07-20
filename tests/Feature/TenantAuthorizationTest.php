@@ -11,10 +11,7 @@ use App\Models\VariationGroup;
 use Illuminate\Support\Facades\Gate;
 
 beforeEach(function () {
-    config([
-        'app.domain' => 'storex.test',
-        'app.url' => 'http://storex.test',
-    ]);
+    $this->rootUrl = 'http://'.config('app.domain');
 
     $this->userA = User::factory()->create();
     $this->storeA = Store::create([
@@ -49,10 +46,13 @@ beforeEach(function () {
         'state' => 'RJ',
         'zip_code' => '20040002',
     ]);
+
+    $this->storeAUrl = 'http://'.$this->storeA->slug.'.'.config('app.domain');
+    $this->storeBUrl = 'http://'.$this->storeB->slug.'.'.config('app.domain');
 });
 
 it('edita somente o perfil do usuário autenticado', function () {
-    $response = $this->actingAs($this->userA)->patch('http://storex.test/dashboard/profile', [
+    $response = $this->actingAs($this->userA)->patch($this->rootUrl.'/dashboard/profile', [
         'store' => [
             'name' => 'Loja A Atualizada',
             'phone' => '11888888888',
@@ -77,7 +77,7 @@ it('edita somente o perfil do usuário autenticado', function () {
 
 it('não expõe mais uma rota de perfil com id de outro usuário', function () {
     $this->actingAs($this->userA)
-        ->get("http://storex.test/dashboard/profile/{$this->userB->id}/edit")
+        ->get($this->rootUrl."/dashboard/profile/{$this->userB->id}/edit")
         ->assertNotFound();
 });
 
@@ -107,8 +107,8 @@ it('não permite cadastrar produto em categoria de outro tenant', function () {
     ]);
 
     $response = $this->actingAs($this->userA)
-        ->from('http://storex.test/dashboard/products/create')
-        ->post('http://storex.test/dashboard/products', [
+        ->from($this->rootUrl.'/dashboard/products/create')
+        ->post($this->rootUrl.'/dashboard/products', [
             'name' => 'Produto invasor',
             'category_id' => $categoryB->id,
             'price' => 10,
@@ -162,8 +162,8 @@ it('não aceita no carrinho uma variação de outro produto ou tenant', function
         'status' => true,
     ]);
 
-    $response = $this->from('http://loja-a.storex.test/loja/product/'.$productA->id)
-        ->post('http://loja-a.storex.test/loja/cart', [
+    $response = $this->from($this->storeAUrl.'/loja/product/'.$productA->id)
+        ->post($this->storeAUrl.'/loja/cart', [
             'product_id' => $productA->id,
             'quantity' => 1,
             'product_variations' => [$optionB->id],
@@ -187,12 +187,12 @@ it('adiciona produto sem variação e mantém carrinhos separados por tenant', f
         'status' => true,
     ]);
 
-    $this->post('http://loja-a.storex.test/loja/cart', [
+    $this->post($this->storeAUrl.'/loja/cart', [
         'product_id' => $productA->id,
         'quantity' => 2,
     ])->assertSessionHas('cart:'.$this->storeA->id);
 
-    $this->get('http://loja-b.storex.test/loja/cart')
+    $this->get($this->storeBUrl.'/loja/cart')
         ->assertSessionMissing('cart:'.$this->storeB->id);
 });
 
@@ -220,8 +220,8 @@ it('aplica no servidor o mínimo obrigatório de uma variação', function () {
         'max_selection' => 1,
     ]);
 
-    $response = $this->from('http://loja-a.storex.test/loja/product/'.$productA->id)
-        ->post('http://loja-a.storex.test/loja/cart', [
+    $response = $this->from($this->storeAUrl.'/loja/product/'.$productA->id)
+        ->post($this->storeAUrl.'/loja/cart', [
             'product_id' => $productA->id,
             'quantity' => 1,
         ]);
