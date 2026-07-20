@@ -27,7 +27,7 @@
                     </button>
 
                     <div x-show="open"  @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-2xl shadow-xl py-2 z-50">
-                        <a href="{{ route('dashboard.profile.edit', auth()->user()->id) }}" class="block px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">Perfil</a>
+                        <a href="{{ route('dashboard.profile.edit') }}" class="block px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800 transition">Perfil</a>
                         <div class="border-t border-slate-100 dark:border-gray-800 my-1"></div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -50,7 +50,7 @@
     <div x-show="openMobile" class="sm:hidden border-t border-slate-100 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 pt-2 pb-4 space-y-1">
         <a href="{{ route('dashboard.categories.index') }}" class="block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-900">Categorias</a>
         <a href="{{ route('dashboard.products.index') }}" class="block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-900">Produtos</a>
-        <a href="{{ route('dashboard.profile.edit', auth()->user()->id) }}" class="block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-900">Perfil</a>
+        <a href="{{ route('dashboard.profile.edit') }}" class="block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-900">Perfil</a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="w-full text-left block pl-3 pr-4 py-2 rounded-lg text-base font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">Sair</button>

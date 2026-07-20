@@ -8,18 +8,18 @@
             </a>
         </div>
     </x-slot>
-    @if(session('cart') && count(session('cart')) > 0)
+    @if(count($cart) > 0)
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 space-y-4">
             @php $total = 0; @endphp
-            @foreach(session('cart') as $index => $item)
+            @foreach($cart as $index => $item)
                 @php
                     $itemTotal = $item['final_price'] * $item['qty'];
                     $total += $itemTotal;
                 @endphp
                 <div class="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[30px] p-4 flex items-center gap-4 sm:gap-6 shadow-sm">
                     <div class="w-20 h-20 sm:w-24 sm:h-24 flex-none rounded-[20px] overflow-hidden bg-slate-100 dark:bg-gray-950">
-                        <img src="{{ $item['image'] ? Storage::disk('s3')->url($item['image']) : 'img/default.png' }}" class="w-full h-full object-cover">
+                        <img src="{{ $item['image'] ? Storage::url($item['image']) : asset('img/default.png') }}" class="w-full h-full object-cover">
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-start justify-between gap-4">
@@ -27,11 +27,11 @@
                                 <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate">{{ $item['name'] }}</h3>
                                 @if(!empty($item['variations']))
                                     <div class="py-2">
-                                        <p class="text-sm text-slate-700 dark:text-gray-200">{{ $item['variation'] }}</p>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                             @foreach($item['variations'] as $variation)
                                                 <div class="flex items-center justify-between gap-3 text-xs bg-slate-100 dark:bg-gray-800 rounded-xl px-3 py-2">
                                                     <div class="flex flex-col">
+                                                        <span class="text-slate-400">{{ $variation['group'] ?? $item['variation'] }}</span>
                                                         <span class="text-slate-500 dark:text-gray-400">{{ $variation['value'] }}</span>
                                                     </div>
                                                     @if($variation['additional_price'] > 0)

@@ -21,32 +21,43 @@ class ProductsController extends Controller
     public function index()
     {
         try {
+            $this->authorize('viewAny', Product::class);
             $tenant_id = auth()->user()->store->id;
             $products = Product::with(['category', 'productImages'])->where('tenant_id', $tenant_id)->paginate(10);
+
             return view('dashboard.products.index', compact('products'));
         } catch (\Throwable $th) {
             return view('dashboard.error');
         }
     }
+
     public function create()
     {
         try {
+            $this->authorize('create', Product::class);
             $tenant_id = auth()->user()->store->id;
             $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
+
             return view('dashboard.products.create', compact('categories', 'variations'));
         } catch (\Throwable $th) {
             return view('dashboard.error');
         }
     }
+
     public function store(Request $request)
     {
         $uploadedImages = [];
         try {
+            $this->authorize('create', Product::class);
+            $tenantId = auth()->user()->store->id;
             $request->validate(
                 [
                     'name' => 'required',
-                    'category_id' => 'required|exists:categories,id',
+                    'category_id' => [
+                        'required',
+                        Rule::exists('categories', 'id')->where('tenant_id', $tenantId),
+                    ],
                     'price' => 'required|numeric|min:0',
                     'img' => 'nullable|array',
                     'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -76,7 +87,7 @@ class ProductsController extends Controller
                     'max_selection.gte' => 'A seleção máxima deve ser maior ou igual à seleção mínima.',
                     'variations.*.additional_price.numeric' => 'O preço adicional deve ser um número válido.',
                     'variations.*.additional_price.min' => 'O preço adicional não pode ser negativo',
-                    
+
                 ]
             );
             DB::beginTransaction();
@@ -86,27 +97,27 @@ class ProductsController extends Controller
                 'price' => $request->price,
                 'description' => $request->description,
                 'status' => $request->status,
-                'tenant_id' => auth()->user()->store->id
+                'tenant_id' => $tenantId,
             ]);
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
-                    if(!$file->isValid()) {
+                    if (! $file->isValid()) {
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products',$fileName ,'s3');
-                    if (!$filePath) {
+                    $filePath = $file->storeAs('products', $fileName);
+                    if (! $filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
                     $uploadedImages[] = $filePath;
                     ProductImage::create([
                         'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
-                        'img' => $filePath
+                        'img' => $filePath,
                     ]);
                 }
             }
-            if($request->filled('variation_id') && $request->variations[0]['value'] != null){
+            if ($request->filled('variation_id') && $request->variations[0]['value'] != null) {
                 $variationGroup = VariationGroup::create([
                     'tenant_id' => auth()->user()->store->id,
                     'product_id' => $product->id,
@@ -114,7 +125,7 @@ class ProductsController extends Controller
                     'min_selection' => $request->min_selection ?? 0,
                     'max_selection' => $request->max_selection ?? 1,
                 ]);
-                foreach($request->variations as $variation){
+                foreach ($request->variations as $variation) {
                     if (empty($variation['value'])) {
                         continue;
                     }
@@ -122,64 +133,76 @@ class ProductsController extends Controller
                         'product_id' => $product->id,
                         'variation_group_id' => $variationGroup->id,
                         'value' => trim($variation['value']),
-                        'additional_price' => !empty($variation['additional_price']) ? $variation['additional_price']: 0,
-                        'status' => true
+                        'additional_price' => ! empty($variation['additional_price']) ? $variation['additional_price'] : 0,
+                        'status' => true,
                     ]);
                 }
             }
             DB::commit();
+
             return redirect()->route('dashboard.products.index')->with('success', 'Produto criado com sucesso!');
-        } catch (ValidationException $e){
+        } catch (ValidationException $e) {
             DB::rollBack();
+
             return back()->withErrors($e->validator)->withInput();
-        } catch (QueryException $e){
+        } catch (QueryException $e) {
             DB::rollBack();
-            if(!empty($uploadedImages)){
+            if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('s3')->delete($path);
+                    Storage::delete($path);
                 }
             }
+
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
-            if(!empty($uploadedImages)){
+            if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('s3')->delete($path);
+                    Storage::delete($path);
                 }
             }
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
+
     public function edit(string $id)
     {
-         try {
+        try {
             $tenant_id = auth()->user()->store->id;
             $categories = Category::where('tenant_id', $tenant_id)->get();
             $variations = Variation::orderBy('name')->get();
             $product = Product::with([
-                'productImages', 
-                'variationGroups', 
-                'variationGroups.variation', 
-                'variationGroups.productVariations' => function ($query){
+                'productImages',
+                'variationGroups',
+                'variationGroups.variation',
+                'variationGroups.productVariations' => function ($query) {
                     $query->orderBy('value');
-                }
+                },
             ])->where('tenant_id', $tenant_id)->findOrFail($id);
-            return view('dashboard.products.edit',compact('product', 'categories', 'variations'));
-        } catch (ModelNotFoundException $e){
+            $this->authorize('update', $product);
+
+            return view('dashboard.products.edit', compact('product', 'categories', 'variations'));
+        } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Produto não encontrado.']);
         } catch (\Throwable $th) {
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
-        
+
     }
+
     public function update(Request $request, string $id)
     {
         $uploadedImages = [];
         try {
+            $tenantId = auth()->user()->store->id;
             $request->validate(
                 [
                     'name' => 'required',
-                    'category_id' => 'required|exists:categories,id',
+                    'category_id' => [
+                        'required',
+                        Rule::exists('categories', 'id')->where('tenant_id', $tenantId),
+                    ],
                     'price' => 'required',
                     'img' => 'nullable|array',
                     'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -216,7 +239,8 @@ class ProductsController extends Controller
                     'variations.*.additional_price.min' => 'O preço adicional não pode ser negativo',
                 ]
             );
-            $product = Product::where('tenant_id', auth()->user()->store->id)->findOrFail($id);
+            $product = Product::where('tenant_id', $tenantId)->findOrFail($id);
+            $this->authorize('update', $product);
             DB::beginTransaction();
             $product->name = $request->name;
             $product->category_id = $request->category_id;
@@ -226,24 +250,24 @@ class ProductsController extends Controller
             $product->status = $request->status;
             if ($request->hasFile('img')) {
                 foreach ($request->file('img') as $file) {
-                     if(!$file->isValid()) {
+                    if (! $file->isValid()) {
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products',$fileName ,'s3');
-                    if (!$filePath) {
+                    $filePath = $file->storeAs('products', $fileName);
+                    if (! $filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
                     $uploadedImages[] = $filePath;
                     ProductImage::create([
                         'tenant_id' => auth()->user()->store->id,
                         'product_id' => $product->id,
-                        'img' => $filePath
+                        'img' => $filePath,
                     ]);
                 }
             }
             VariationGroup::where('product_id', $product->id)->where('tenant_id', auth()->user()->store->id)->delete();
-            if($request->filled('variation_id') && $request->has_variation == 'on'){
+            if ($request->filled('variation_id') && $request->has_variation == 'on') {
                 $variationGroup = VariationGroup::create([
                     'tenant_id' => auth()->user()->store->id,
                     'product_id' => $product->id,
@@ -251,8 +275,8 @@ class ProductsController extends Controller
                     'min_selection' => $request->min_selection ?? 0,
                     'max_selection' => $request->max_selection ?? 1,
                 ]);
-                if(!empty($request->variations)){
-                    foreach($request->variations as $variation){
+                if (! empty($request->variations)) {
+                    foreach ($request->variations as $variation) {
                         if (empty($variation['value'])) {
                             continue;
                         }
@@ -260,57 +284,66 @@ class ProductsController extends Controller
                             'product_id' => $product->id,
                             'variation_group_id' => $variationGroup->id,
                             'value' => trim($variation['value']),
-                            'additional_price' => !empty($variation['additional_price']) ? $variation['additional_price']: 0,
-                            'status' => $variation['status'] ?? true
+                            'additional_price' => ! empty($variation['additional_price']) ? $variation['additional_price'] : 0,
+                            'status' => $variation['status'] ?? true,
                         ]);
                     }
                 }
             }
             $product->save();
             DB::commit();
+
             return back()->with('success', 'Produto atualizado com sucesso!');
-        } catch (ValidationException $e){
+        } catch (ValidationException $e) {
             DB::rollBack();
+
             return back()->withErrors($e->validator)->withInput();
-        } catch (QueryException $e){
+        } catch (QueryException $e) {
             DB::rollBack();
-            if(!empty($uploadedImages)){
+            if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('s3')->delete($path);
+                    Storage::delete($path);
                 }
             }
+
             return back()->withErrors(['error' => 'Ocorreu um erro na conexão com banco de dados.'])->withInput();
         } catch (\Throwable $th) {
             DB::rollBack();
-            if(!empty($uploadedImages)){
+            if (! empty($uploadedImages)) {
                 foreach ($uploadedImages as $path) {
-                    Storage::disk('s3')->delete($path);
+                    Storage::delete($path);
                 }
             }
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.'])->withInput();
         }
     }
+
     public function destroy(string $id)
     {
         try {
             $product = Product::with('productImages')->where('tenant_id', auth()->user()->store->id)->findOrFail($id);
+            $this->authorize('delete', $product);
             DB::beginTransaction();
             $imgPaths = $product->productImages->pluck('img')->toArray();
             $product->delete();
             DB::commit();
-            if (!empty($imgPaths)) {
+            if (! empty($imgPaths)) {
                 foreach ($imgPaths as $image) {
-                    Storage::disk('s3')->delete($image);
+                    Storage::delete($image);
                 }
             }
+
             return redirect()->route('dashboard.products.index')->with('success', 'Produto excluído com sucesso!');
-        } catch (ModelNotFoundException $e){
+        } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Produto não encontrado.']);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
         }
     }
+
     public function deleteImage(string $id)
     {
         try {
@@ -319,12 +352,14 @@ class ProductsController extends Controller
             $imgPath = $productImage->img;
             $productImage->delete();
             DB::commit();
-            Storage::disk('s3')->delete($imgPath);
+            Storage::delete($imgPath);
+
             return back()->with('success', 'Imagem excluída com sucesso.');
         } catch (ModelNotFoundException $e) {
             return back()->withErrors(['error' => 'Imagem não encontrada.']);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return back()->withErrors(['error' => 'Ocorreu um erro inesperado.']);
 
         }
