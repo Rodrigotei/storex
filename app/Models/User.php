@@ -29,6 +29,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'expires_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -36,6 +37,13 @@ class User extends Authenticatable
     public function store(): HasOne
     {
         return $this->hasOne(Store::class);
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->status === 'active'
+            && $this->expires_at !== null
+            && $this->expires_at->isFuture();
     }
 
     public function sendPasswordResetNotification($token): void

@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\BlockSubdomainAccess;
 use App\Http\Middleware\BlockSubdomainDashboardAccess;
+use App\Http\Middleware\EnsureActiveSubscription;
 use App\Http\Middleware\EnsureRegisterSuccess;
 use App\Http\Middleware\SetTenantDataBaseClient;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +19,7 @@ Route::domain(config('app.domain'))->middleware(BlockSubdomainAccess::class)->gr
     Route::post('/register', [UsersController::class, 'store'])->name('register');
 });
 
-Route::domain(config('app.domain'))->middleware(['auth', BlockSubdomainDashboardAccess::class])->prefix('dashboard')->group(function () {
+Route::domain(config('app.domain'))->middleware(['auth', EnsureActiveSubscription::class, BlockSubdomainDashboardAccess::class])->prefix('dashboard')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('dashboard.home');
     Route::resource('/categories', CategoriesController::class)->except(['show'])->names('dashboard.categories');
     Route::resource('/products', ProductsController::class)->except(['show'])->names('dashboard.products');
@@ -36,7 +37,7 @@ Route::domain('{tenant}.'.config('app.domain'))->middleware(SetTenantDataBaseCli
     Route::post('/cart', [ClientController::class, 'add'])->name('client.cart.add');
     Route::delete('/cart', [ClientController::class, 'delete'])->name('client.cart.delete');
     Route::post('/order/finish', [ClientController::class, 'orderFinish'])->name('client.order.finish');
-    Route::post('/search', [ClientController::class, 'search'])->name('client.search');
+    Route::get('/search', [ClientController::class, 'search'])->name('client.search');
 });
 
 Route::fallback(function () {

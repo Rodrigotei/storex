@@ -14,8 +14,26 @@ class Store extends Model
     {
         return $this->belongsTo(User::class);
     }
+
     public function address(): HasOne
     {
         return $this->hasOne(StoreAddress::class);
+    }
+
+    public function whatsappUrl(?string $message = null): ?string
+    {
+        $phone = preg_replace('/\D+/', '', (string) $this->phone);
+
+        if (in_array(strlen($phone), [10, 11], true)) {
+            $phone = '55'.$phone;
+        }
+
+        if (! in_array(strlen($phone), [12, 13], true) || ! str_starts_with($phone, '55')) {
+            return null;
+        }
+
+        $url = "https://wa.me/{$phone}";
+
+        return $message ? $url.'?text='.urlencode($message) : $url;
     }
 }

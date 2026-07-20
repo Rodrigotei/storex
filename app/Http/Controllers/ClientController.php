@@ -19,9 +19,9 @@ class ClientController extends Controller
             $store = app('store');
             $store = Store::with('address')->where('slug', $store->slug)->first();
             $tenant_id = $store->id;
-            $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->get()->take(5);
-            $lastProducts = Product::with('productImages')->latest()->take(10)->where('status', true)->where('tenant_id', $tenant_id)->get();
-            $promotionalProducts = Product::with('productImages')->whereNot('promotional_price', null)->where('status', true)->where('tenant_id', $tenant_id)->get()->take(10);
+            $categories = Category::where('status', true)->where('tenant_id', $tenant_id)->limit(5)->get();
+            $lastProducts = Product::with(['productImages', 'category'])->latest()->limit(10)->where('status', true)->where('tenant_id', $tenant_id)->get();
+            $promotionalProducts = Product::with(['productImages', 'category'])->whereNotNull('promotional_price')->where('status', true)->where('tenant_id', $tenant_id)->limit(10)->get();
 
             return view('client.index', compact('store', 'categories', 'lastProducts', 'promotionalProducts'));
         } catch (\Throwable $th) {
@@ -48,7 +48,7 @@ class ClientController extends Controller
     {
         try {
             $tenant_id = $this->getTenantId();
-            $products = Product::with('category')->where('category_id', $id)->where('status', true)->where('tenant_id', $tenant_id)->get();
+            $products = Product::with(['category', 'productImages'])->where('category_id', $id)->where('status', true)->where('tenant_id', $tenant_id)->get();
             if ($products->isEmpty()) {
                 return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Nenhum produto encontrado para esta categoria.']);
             }
@@ -236,11 +236,10 @@ class ClientController extends Controller
                     'number' => ['required_if:type,delivery', 'nullable', 'string', 'max:20'],
                     'neighborhood' => ['required_if:type,delivery', 'nullable', 'string', 'max:100'],
                     'complement' => ['nullable', 'string', 'max:255'],
-                    'change_for' => ['nullable', 'string', 'max:50'],
+                    'change_for' => ['nullable', 'numeric', 'min:0', 'prohibited_unless:payment_method,cash'],
                 ],
                 [
                     'name.required' => 'Informe seu nome',
-                    'phone.required' => 'Informe seu WhatsApp',
                     'type.required' => 'Selecione entrega ou retirada',
                     'payment_method.required' => 'Selecione a forma de pagamento',
                     'address.required_if' => 'Informe o endereço para entrega',
@@ -255,18 +254,75 @@ class ClientController extends Controller
             }
 
             $productIds = collect($cart)->pluck('product_id')->unique()->values();
-            $products = Product::where('tenant_id', $tenant_id)->where('status', true)->whereIn('id', $productIds)->get()->keyBy('id');
+            $products = Product::with('variationGroups.variation')
+                ->where('tenant_id', $tenant_id)
+                ->where('status', true)
+                ->whereIn('id', $productIds)
+                ->get()
+                ->keyBy('id');
 
-            $total = 0;
+            $checkoutItems = [];
+            $subtotal = 0;
             foreach ($cart as $item) {
-                if (! isset($products[$item['product_id']])) {
+                $product = $products->get($item['product_id']);
+                if (! $product) {
                     return back()->withErrors(['error' => 'O produto '.$item['name'].' não está mais disponível.']);
                 }
-                $total += $item['final_price'] * $item['qty'];
+
+                $quantity = filter_var($item['qty'] ?? null, FILTER_VALIDATE_INT, [
+                    'options' => ['min_range' => 1, 'max_range' => 99],
+                ]);
+                if ($quantity === false) {
+                    return back()->withErrors(['error' => 'A quantidade de um item do carrinho é inválida.']);
+                }
+
+                $selectedVariationIds = collect($item['variations'] ?? [])->pluck('id')->filter()->unique()->values();
+                $selectedVariations = ProductVariation::with('variationGroup.variation')
+                    ->whereIn('id', $selectedVariationIds)
+                    ->where('product_id', $product->id)
+                    ->where('status', true)
+                    ->whereHas('variationGroup', function ($query) use ($tenant_id, $product) {
+                        $query->where('tenant_id', $tenant_id)->where('product_id', $product->id);
+                    })
+                    ->get();
+
+                if ($selectedVariations->count() !== $selectedVariationIds->count()) {
+                    return back()->withErrors(['error' => 'Uma opção do carrinho não está mais disponível. Revise o produto.']);
+                }
+
+                foreach ($product->variationGroups as $group) {
+                    $selectionCount = $selectedVariations->where('variation_group_id', $group->id)->count();
+                    if ($selectionCount < $group->min_selection || $selectionCount > $group->max_selection) {
+                        return back()->withErrors(['error' => 'As opções de '.$product->name.' precisam ser selecionadas novamente.']);
+                    }
+                }
+
+                $basePrice = (float) ($product->promotional_price ?? $product->price);
+                $variations = $selectedVariations->map(fn ($variation) => [
+                    'id' => $variation->id,
+                    'group' => $variation->variationGroup->variation->name,
+                    'value' => $variation->value,
+                    'additional_price' => (float) $variation->additional_price,
+                ])->values()->all();
+                $finalPrice = $basePrice + $selectedVariations->sum('additional_price');
+                $itemSubtotal = $finalPrice * $quantity;
+
+                $checkoutItems[] = array_merge($item, [
+                    'name' => $product->name,
+                    'price' => $basePrice,
+                    'final_price' => $finalPrice,
+                    'qty' => $quantity,
+                    'variations' => $variations,
+                ]);
+                $subtotal += $itemSubtotal;
             }
 
             $delivery_fee = $request->type === 'delivery' ? (float) (app('store')->delivery_fee ?? 0) : 0;
-            $total += $delivery_fee;
+            $total = $subtotal + $delivery_fee;
+
+            if ($request->payment_method === 'cash' && $request->filled('change_for') && (float) $request->change_for < $total) {
+                return back()->withErrors(['change_for' => 'O valor para troco deve ser igual ou maior que o total do pedido.'])->withInput();
+            }
 
             $paymentMap = [
                 'pix' => 'PIX',
@@ -279,15 +335,15 @@ class ClientController extends Controller
             ];
             $message = "*NOVO PEDIDO*\n";
             $message .= "━━━━━━━━━━━━━━━━━━━━━━\n\n";
-            foreach ($cart as $item) {
+            foreach ($checkoutItems as $item) {
                 $subtotal = $item['final_price'] * $item['qty'];
                 $message .= " *{$item['name']}*\n";
                 $message .= "   {$item['qty']}x R$ ".number_format($item['price'], 2, ',', '.')."\n";
-                if (! empty($item['variations'])) {
-                    $message .= "   {$item['variation']}:\n";
-                    foreach ($item['variations'] as $variationValue) {
-                        $add_price = number_format($variationValue['additional_price'], 2, ',', '.');
-                        $message .= "      ↳{$variationValue['value']} (+ R$ {$add_price})\n";
+                foreach (collect($item['variations'])->groupBy('group') as $groupName => $variationValues) {
+                    $message .= "   {$groupName}:\n";
+                    foreach ($variationValues as $variationValue) {
+                        $additionalPrice = number_format($variationValue['additional_price'], 2, ',', '.');
+                        $message .= "      ↳ {$variationValue['value']} (+ R$ {$additionalPrice})\n";
                     }
                 }
                 if (! empty($item['observation'])) {
@@ -297,7 +353,7 @@ class ClientController extends Controller
             }
             $message .= "━━━━━━━━━━━━━━━━━━━━━━\n";
             $message .= "*RESUMO*\n";
-            $message .= 'Subtotal: R$ '.number_format($total - $delivery_fee, 2, ',', '.')."\n";
+            $message .= 'Subtotal: R$ '.number_format($subtotal, 2, ',', '.')."\n";
             if ($request->type === 'delivery') {
                 $message .= 'Entrega: '.($delivery_fee > 0 ? 'R$ '.number_format($delivery_fee, 2, ',', '.') : 'Grátis')."\n";
             }
@@ -319,11 +375,16 @@ class ClientController extends Controller
                 $message .= "Troco para: R$ {$request->change_for}\n";
             }
             $store = $this->getStore();
-            $url = "https://wa.me/55{$store->phone}?text=".urlencode($message);
+            $url = $store->whatsappUrl($message);
+            if (! $url) {
+                return back()->withErrors(['error' => 'O WhatsApp da loja não está configurado corretamente.']);
+            }
+
+            session()->put($this->cartSessionKey(), $checkoutItems);
 
             return redirect()->away($url);
         } catch (ValidationException $e) {
-            return back()->withErrors(['error' => 'Informe os dados corretamente.'])->withInput();
+            return back()->withErrors($e->validator)->withInput();
         } catch (\Throwable $th) {
             return back()->withErrors(['error' => 'Ocorreu um erro ao finalizar seu pedido.'])->withInput();
         }
@@ -339,7 +400,7 @@ class ClientController extends Controller
                 ],
             );
             $search = $request->search;
-            $products = Product::whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
+            $products = Product::with(['category', 'productImages'])->whereLike('name', '%'.$search.'%')->where('status', true)->where('tenant_id', $tenant_id)->get();
             if ($products->isEmpty()) {
                 return redirect()->route('client.home', ['tenant' => app('store')->slug])->withErrors(['error' => 'Nada foi encontrado.']);
             }
