@@ -18,7 +18,8 @@
             <div class="flex-1 flex justify-center md:hidden">
                 <button onclick="openSearchModal()" class="p-3 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-[#004aad] hover:text-white transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg></button>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <x-theme-toggle />
                 <a href="{{ route('client.cart', ['tenant' => app('store')->slug]) }}" class="relative p-3 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-[#004aad] hover:text-white transition-all group">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     @if($cartCount > 0)

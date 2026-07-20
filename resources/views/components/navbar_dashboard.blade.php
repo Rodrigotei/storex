@@ -17,7 +17,8 @@
                     </a>
                 </div>
             </div>
-            <div class="hidden sm:flex sm:items-center sm:ml-6">
+            <div class="hidden sm:flex sm:items-center sm:ml-6 sm:gap-3">
+                <x-theme-toggle />
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" class="flex items-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-300 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-slate-200 dark:hover:bg-gray-800 focus:outline-none transition-all">
                         <span class="mr-2">{{ Auth::user()->name ?? 'Usuário' }}</span>
@@ -39,6 +40,7 @@
                 </div>
             </div>
             <div class="-mr-2 flex items-center sm:hidden">
+                <x-theme-toggle />
                 <button @click="openMobile = !openMobile" class="inline-flex items-center justify-center p-2 rounded-xl text-slate-500 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-900 focus:outline-none transition">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
