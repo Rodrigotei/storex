@@ -10,21 +10,23 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['name', 'category_id', 'price', 'promotional_price', 'description', 'status', 'tenant_id'])]
 class Product extends Model
 {
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
+
     public function productImages(): HasMany
     {
         return $this->hasMany(ProductImage::class);
-    } 
+    }
+
     public function variationGroups(): HasMany
     {
         return $this->hasMany(VariationGroup::class);
     }
+
     public function productVariations(): HasMany
     {
         return $this->hasMany(ProductVariation::class);
-    } 
+    }
 }

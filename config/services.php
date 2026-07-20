@@ -36,6 +36,6 @@ return [
     ],
     'checkout' => [
         'secret' => env('SECRET_KEY'),
-    ]
+    ],
 
 ];

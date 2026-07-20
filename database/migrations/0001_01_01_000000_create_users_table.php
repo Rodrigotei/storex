@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-            $table->enum('status',['pending', 'active', 'expired'])->default('pending');
+            $table->enum('status', ['pending', 'active', 'expired'])->default('pending');
             $table->timestamp('expires_at')->nullable();
         });
 

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -13,15 +12,26 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Rodrigo Teixeira', 
-            'email' => 'rodrigo@gmail.com', 
-            'password' => bcrypt('123'), 
-            'phone' => '79996820727', 
-            'document' => '08144645561', 
-            'name_store' => 'rt lanchonete', 
-            'slug' => 'rt-lanchonete'
-            ]
+        $user = User::updateOrCreate(
+            ['email' => 'teste@storex.local'],
+            [
+                'name' => 'Usuário de Teste',
+                'document' => '00000000000',
+                'password' => 'StoreX@123',
+                'status' => 'active',
+                'expires_at' => now()->addYear(),
+            ],
+        );
+
+        $user->store()->updateOrCreate(
+            [],
+            [
+                'name' => 'Loja Demonstração',
+                'slug' => 'loja-teste',
+                'phone' => '79999999999',
+                'description' => 'Catálogo criado para testes locais do StoreX.',
+                'delivery_fee' => 5,
+            ],
         );
     }
 }

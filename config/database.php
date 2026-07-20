@@ -81,7 +81,6 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
-
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

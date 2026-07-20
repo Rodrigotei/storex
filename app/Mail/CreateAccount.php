@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -21,8 +20,7 @@ class CreateAccount extends Mailable
         public string $name,
         public string $email,
         public string $storeSlug
-    )
-    {}
+    ) {}
 
     /**
      * Get the message envelope.
