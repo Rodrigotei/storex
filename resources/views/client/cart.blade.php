@@ -107,7 +107,6 @@
                 </button>
                 <form action="{{ route('client.order.finish', ['tenant' => app('store')->slug]) }}" method="POST" :class="{ 'hidden': !open }" class="space-y-5 mt-5" novalidate>
                     @csrf
-                    <input type="hidden" name="delivery_fee" value="{{ $delivery_fee ?? 0 }}">
                     <div>
                         <h3 class="text-sm font-bold text-slate-600 dark:text-gray-300 mb-2">Dados do cliente</h3>
                         <input type="text" name="name" required placeholder="Seu nome" value="{{ old('name') }}" class="w-full mb-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
@@ -144,7 +143,7 @@
                             <option value="cash">Dinheiro</option>
                             <option value="card">Cartão</option>
                         </select>
-                        <input x-show="payment_method === 'cash'"x-transition type="number" name="change_for"  step="0.01" min="0" placeholder="Troco para" class="w-full mt-2 px-4 py-3 rounded-xl border text-sm">
+                        <input x-show="payment_method === 'cash'" x-transition type="number" name="change_for" step="0.01" min="0" placeholder="Troco para" class="w-full mt-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm">
                     </div>
                     <button type="submit" class="w-full bg-[#004aad] hover:bg-[#0158cd] text-white font-bold py-4 rounded-full flex items-center justify-center gap-3 mt-5 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
                         Fazer Pedido
@@ -152,7 +151,7 @@
                     </button>
                 </form>
             </div>
-            <p class="text-[10px] text-center text-slate-400 mt-6 uppercase tracking-widest font-bold">🔒 Pagamento 100% Seguro</p>
+            <p class="text-[10px] text-center text-slate-400 mt-6 uppercase tracking-widest font-bold">Pedido finalizado pelo WhatsApp</p>
         </div>
     </div>
     @else

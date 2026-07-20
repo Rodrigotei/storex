@@ -8,17 +8,18 @@
             </a>
             <!-- Desktop (input visível) -->
             <div class="hidden md:flex flex-1 justify-center px-6">
-                <form action="{{ route('client.search', ['tenant' => app('store')->slug]) }}" method="POST" class="relative w-full max-w-md mt-5">
-                    @csrf
-                    <input type="text" name="search" placeholder="O que você procura hoje?" class="w-full pl-12 pr-4 py-3 bg-slate-100 dark:bg-gray-900 rounded-full focus:ring-2 focus:ring-[#0158cd] focus:bg-white dark:focus:bg-gray-800 outline-none text-sm">
-                    <button type="submit"><svg class="w-5 h-5 absolute left-4 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg></button>
+                <form action="{{ route('client.search', ['tenant' => app('store')->slug]) }}" method="GET" class="relative w-full max-w-md">
+                    <label for="desktop-search" class="sr-only">Buscar produtos</label>
+                    <input id="desktop-search" type="search" name="search" value="{{ request('search') }}" placeholder="O que você procura hoje?" class="w-full rounded-full border border-transparent bg-slate-100 py-3 pl-5 pr-12 text-sm outline-none transition focus:border-blue-200 focus:bg-white focus:ring-2 focus:ring-[#0158cd] dark:bg-gray-900 dark:focus:border-blue-500/30 dark:focus:bg-gray-800">
+                    <button type="submit" aria-label="Buscar" class="absolute right-1.5 top-1.5 inline-flex size-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-white hover:text-[#004aad] dark:hover:bg-gray-800 dark:hover:text-blue-400"><svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg></button>
                 </form>
             </div>
             <!-- Mobile (botão que abre modal) -->
             <div class="flex-1 flex justify-center md:hidden">
-                <button onclick="openSearchModal()" class="p-3 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-[#004aad] hover:text-white transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg></button>
+                <button type="button" onclick="openSearchModal()" aria-label="Abrir busca" class="p-3 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-[#004aad] hover:text-white transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg></button>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <x-theme-toggle />
                 <a href="{{ route('client.cart', ['tenant' => app('store')->slug]) }}" class="relative p-3 bg-slate-100 dark:bg-gray-900 rounded-full hover:bg-[#004aad] hover:text-white transition-all group">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     @if($cartCount > 0)
@@ -32,18 +33,17 @@
     </div>
 </nav>
 
-<div id="searchModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] hidden items-center justify-center md:hidden">
+<div id="searchModal" role="dialog" aria-modal="true" aria-label="Buscar produtos" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] hidden items-center justify-center md:hidden">
     <div class="w-full max-w-xl mx-4">
         <!-- fechar -->
         <div class="flex justify-end mb-3">
-            <button onclick="closeSearchModal()" class="text-white text-2xl font-bold">✕</button>
+            <button type="button" onclick="closeSearchModal()" aria-label="Fechar busca" class="text-white text-2xl font-bold">✕</button>
         </div>
         <!-- input -->
-        <form action="{{ route('client.search', ['tenant' => app('store')->slug]) }}" method="POST" class="relative">
-            @csrf
-
-            <input type="text" name="search" autofocus placeholder="O que você procura?" class="w-full pl-5 pr-12 py-4 rounded-full text-lg bg-white dark:bg-gray-900 text-black dark:text-white focus:ring-2 focus:ring-[#004aad] outline-none">
-            <button type="submit"><svg class="w-6 h-6 absolute right-4 top-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg></button>
+        <form action="{{ route('client.search', ['tenant' => app('store')->slug]) }}" method="GET" class="relative">
+            <label for="mobile-search" class="sr-only">Buscar produtos</label>
+            <input id="mobile-search" type="search" name="search" value="{{ request('search') }}" placeholder="O que você procura?" class="w-full pl-5 pr-12 py-4 rounded-full text-lg bg-white dark:bg-gray-900 text-black dark:text-white focus:ring-2 focus:ring-[#004aad] outline-none">
+            <button type="submit" aria-label="Buscar" class="absolute right-2 top-2 inline-flex size-10 items-center justify-center rounded-full text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800"><svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg></button>
         </form>
     </div>
 </div>
@@ -53,15 +53,23 @@ function openSearchModal() {
     const modal = document.getElementById('searchModal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+    document.getElementById('mobile-search').focus();
 }
 function closeSearchModal() {
     const modal = document.getElementById('searchModal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
 }
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('searchModal');
     if (modal && e.target === modal) {
+        closeSearchModal();
+    }
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
         closeSearchModal();
     }
 });

@@ -229,3 +229,126 @@ it('aplica no servidor o mínimo obrigatório de uma variação', function () {
     $response->assertSessionHasErrors('error');
     $response->assertSessionMissing('cart:'.$this->storeA->id);
 });
+
+it('encerra a sessão do painel quando a assinatura está vencida', function () {
+    $this->userA->update(['expires_at' => now()->subMinute()]);
+
+    $response = $this->actingAs($this->userA)
+        ->get($this->rootUrl.'/dashboard');
+
+    $response->assertRedirect(route('login'));
+    $response->assertSessionHasErrors('account');
+    $this->assertGuest();
+});
+
+it('indisponibiliza o catálogo público quando a assinatura está vencida', function () {
+    $this->userA->update(['expires_at' => now()->subMinute()]);
+
+    $this->get($this->storeAUrl.'/loja')
+        ->assertServiceUnavailable()
+        ->assertSee('Este catálogo está temporariamente indisponível.');
+});
+
+it('mantém painel e catálogo disponíveis para assinatura ativa', function () {
+    $this->actingAs($this->userA)
+        ->get($this->rootUrl.'/dashboard')
+        ->assertOk();
+
+    $this->get($this->storeAUrl.'/loja')
+        ->assertOk();
+});
+
+it('recalcula o preço atual no servidor antes de abrir o WhatsApp', function () {
+    $category = Category::create([
+        'tenant_id' => $this->storeA->id,
+        'name' => 'Categoria Checkout',
+        'status' => true,
+    ]);
+    $product = Product::create([
+        'tenant_id' => $this->storeA->id,
+        'category_id' => $category->id,
+        'name' => 'Produto Checkout',
+        'price' => 10,
+        'status' => true,
+    ]);
+
+    $this->post($this->storeAUrl.'/loja/cart', [
+        'product_id' => $product->id,
+        'quantity' => 2,
+    ])->assertSessionHas('cart:'.$this->storeA->id);
+
+    $product->update(['price' => 15]);
+
+    $response = $this->post($this->storeAUrl.'/loja/order/finish', [
+        'name' => 'Cliente Teste',
+        'type' => 'pickup',
+        'payment_method' => 'pix',
+    ]);
+
+    $response->assertRedirect();
+    expect(urldecode($response->headers->get('Location')))->toContain('Total: R$ 30,00');
+});
+
+it('valida o troco e o telefone da loja antes de finalizar', function () {
+    $category = Category::create([
+        'tenant_id' => $this->storeA->id,
+        'name' => 'Categoria Dinheiro',
+        'status' => true,
+    ]);
+    $product = Product::create([
+        'tenant_id' => $this->storeA->id,
+        'category_id' => $category->id,
+        'name' => 'Produto Dinheiro',
+        'price' => 20,
+        'status' => true,
+    ]);
+
+    $this->post($this->storeAUrl.'/loja/cart', [
+        'product_id' => $product->id,
+        'quantity' => 1,
+    ]);
+
+    $this->from($this->storeAUrl.'/loja/cart')
+        ->post($this->storeAUrl.'/loja/order/finish', [
+            'name' => 'Cliente Teste',
+            'type' => 'pickup',
+            'payment_method' => 'cash',
+            'change_for' => 10,
+        ])->assertSessionHasErrors('change_for');
+
+    $this->storeA->update(['phone' => 'telefone inválido']);
+
+    $this->from($this->storeAUrl.'/loja/cart')
+        ->post($this->storeAUrl.'/loja/order/finish', [
+            'name' => 'Cliente Teste',
+            'type' => 'pickup',
+            'payment_method' => 'pix',
+        ])->assertSessionHasErrors('error');
+});
+
+it('permite buscar produtos por uma URL compartilhável', function () {
+    $category = Category::create([
+        'tenant_id' => $this->storeA->id,
+        'name' => 'Categoria Busca',
+        'status' => true,
+    ]);
+    Product::create([
+        'tenant_id' => $this->storeA->id,
+        'category_id' => $category->id,
+        'name' => 'Produto Encontrável',
+        'price' => 25,
+        'status' => true,
+    ]);
+
+    $this->get($this->storeAUrl.'/loja/search?search=Encontrável')
+        ->assertOk()
+        ->assertSee('Produto Encontrável');
+});
+
+it('normaliza o telefone brasileiro sem duplicar o código do país', function () {
+    expect($this->storeA->whatsappUrl())->toBe('https://wa.me/5511999999999');
+
+    $this->storeA->update(['phone' => '+55 (11) 99999-9999']);
+
+    expect($this->storeA->fresh()->whatsappUrl())->toBe('https://wa.me/5511999999999');
+});

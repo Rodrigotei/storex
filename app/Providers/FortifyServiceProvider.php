@@ -47,35 +47,39 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
-        Fortify::loginView(function( Request $request) {
+        Fortify::loginView(function (Request $request) {
             $host = $request->getHost();
             $domain = config('app.domain');
             if ($host !== $domain) {
-                return redirect(config('app.url') . '/dashboard/login');
+                return redirect(config('app.url').'/dashboard/login');
             }
-                
+
             return view('dashboard.login');
         });
 
         Fortify::authenticateUsing(function ($request) {
             $user = User::where('email', $request->email)->first();
             if ($user && password_verify($request->password, $user->password)) {
-                if ($user->status !== 'active') {
+                if (! $user->hasActiveSubscription()) {
                     session()->put('register_success', true);
                     throw ValidationException::withMessages([
-                        'account' => 'Sua conta ainda está pendente de aprovação.'
+                        'account' => $user->status === 'pending'
+                            ? 'Sua conta ainda está pendente de aprovação.'
+                            : 'Sua assinatura está inativa ou vencida.',
                     ]);
                 }
+
                 return $user;
             }
+
             return null;
         });
 
-        Fortify::requestPasswordResetLinkView(function(){
+        Fortify::requestPasswordResetLinkView(function () {
             return view('dashboard.forgot-password');
         });
 
-        Fortify::resetPasswordView(function(){
+        Fortify::resetPasswordView(function () {
             return view('dashboard.reset-password');
         });
     }

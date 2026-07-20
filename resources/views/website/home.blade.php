@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('img/icon-white.png') }}">
     <title>{{ env('APP_NAME', 'StoreX') }}</title>
+    <x-theme-script />
     @vite('resources/css/app.css')
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
@@ -28,9 +29,11 @@
             <a href="/" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Home</a>
             <a href="/#funcionalidades" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Funcionalidades</a>
             <a href="/#planos" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd] dark:hover:text-white hover:border-[#0158cd] transition-all">Assinatura</a>
+            <x-theme-toggle />
             <a href="{{ route('dashboard.home') }}" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm hover:shadow-md">Login</a>
         </nav>
-        <div class="md:hidden">
+        <div class="flex items-center gap-2 md:hidden">
+            <x-theme-toggle />
             <button id="openMenu" class="text-[30px] text-[#004aad]">☰</button>
             <button id="closeMenu" class="text-[30px] text-[#004aad] hidden">✕</button>
         </div>

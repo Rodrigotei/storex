@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro | {{ env('APP_NAME', 'StoreX') }}</title>
+    <x-theme-script />
     @vite('resources/css/app.css')
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -18,8 +19,12 @@
         </div>
         <nav class="hidden md:flex items-center gap-6">
             <a href="/" class="text-sm font-semibold text-slate-600 dark:text-gray-400 hover:text-[#0158cd]">Home</a>
+            <x-theme-toggle />
             <a href="{{ route('dashboard.home') }}" class="px-10 py-3 rounded-2xl bg-[#004aad] hover:bg-[#0158cd] text-white font-semibold text-sm transition-all shadow-sm">Login</a>
         </nav>
+        <div class="md:hidden">
+            <x-theme-toggle />
+        </div>
     </header>
     <main class="container mx-auto px-4 py-12">
         <div class="max-w-4xl mx-auto">
