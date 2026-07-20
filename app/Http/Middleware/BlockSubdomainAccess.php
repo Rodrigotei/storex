@@ -21,6 +21,7 @@ class BlockSubdomainAccess
         if ($host !== $domain) {
             abort(404);
         }
+
         return $next($request);
     }
 }

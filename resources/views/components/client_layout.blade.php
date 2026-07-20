@@ -7,7 +7,6 @@
     <title>{{ env('APP_NAME', 'StoreX') }}</title>
     <x-theme-script />
     @vite('resources/css/app.css')
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-gray-200 antialiased transition-colors duration-300 min-h-screen">
         <x-navbar_client />

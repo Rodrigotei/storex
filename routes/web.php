@@ -16,7 +16,7 @@ Route::domain(config('app.domain'))->middleware(BlockSubdomainAccess::class)->gr
     Route::view('/', 'website.home')->name('home');
     Route::view('/register', 'website.register');
     Route::view('/payment', 'website.payment')->middleware(EnsureRegisterSuccess::class)->name('payment');
-    Route::post('/register', [UsersController::class, 'store'])->name('register');
+    Route::post('/register', [UsersController::class, 'store'])->middleware('throttle:5,1')->name('register');
 });
 
 Route::domain(config('app.domain'))->middleware(['auth', EnsureActiveSubscription::class, BlockSubdomainDashboardAccess::class])->prefix('dashboard')->group(function () {
@@ -34,10 +34,10 @@ Route::domain('{tenant}.'.config('app.domain'))->middleware(SetTenantDataBaseCli
     Route::get('/category/{id}', [ClientController::class, 'category'])->name('client.category');
     Route::get('/product/{id}', [ClientController::class, 'product'])->whereNumber('id')->name('client.product');
     Route::get('/cart', [ClientController::class, 'cart'])->name('client.cart');
-    Route::post('/cart', [ClientController::class, 'add'])->name('client.cart.add');
-    Route::delete('/cart', [ClientController::class, 'delete'])->name('client.cart.delete');
-    Route::post('/order/finish', [ClientController::class, 'orderFinish'])->name('client.order.finish');
-    Route::get('/search', [ClientController::class, 'search'])->name('client.search');
+    Route::post('/cart', [ClientController::class, 'add'])->middleware('throttle:60,1')->name('client.cart.add');
+    Route::delete('/cart', [ClientController::class, 'delete'])->middleware('throttle:60,1')->name('client.cart.delete');
+    Route::post('/order/finish', [ClientController::class, 'orderFinish'])->middleware('throttle:10,1')->name('client.order.finish');
+    Route::get('/search', [ClientController::class, 'search'])->middleware('throttle:60,1')->name('client.search');
 });
 
 Route::fallback(function () {

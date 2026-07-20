@@ -8,7 +8,14 @@
         </div>
     </x-slot>
     <div class="mt-8 max-w-4xl mx-auto">
-        <form action="{{ route('dashboard.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" novalidate>
+        @if($categories->isEmpty())
+            <div class="rounded-[28px] border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-900 dark:bg-amber-950/30">
+                <h3 class="text-lg font-black text-amber-950 dark:text-amber-100">Antes, crie uma categoria</h3>
+                <p class="mx-auto mt-2 max-w-lg text-sm text-amber-800 dark:text-amber-200">Todo produto precisa estar dentro de uma categoria, como “Calçados”, “Bebidas” ou “Promoções”.</p>
+                <a href="{{ route('dashboard.categories.create') }}" class="mt-5 inline-flex min-h-12 items-center justify-center rounded-2xl bg-amber-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-amber-700">Criar minha primeira categoria</a>
+            </div>
+        @else
+        <form action="{{ route('dashboard.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
             <div class="bg-white dark:bg-gray-900 shadow-sm border border-slate-200 dark:border-gray-800 rounded-[30px] p-8 transition-all">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -47,13 +54,14 @@
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Imagem de Capa</label>
                         <div class="relative group">
-                            <input type="file" name="img[]" multiple accept="image/*" id="img-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <input type="file" name="img[]" multiple accept="image/jpeg,image/png,image/webp" id="img-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" aria-describedby="image-help">
                             <div class="w-full px-5 py-8 bg-slate-100 dark:bg-gray-950 border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-[20px] text-center group-hover:border-[#0158cd] transition-all">
                                 <div id="preview-container" class="hidden mb-4 flex justify-center gap-2">
                                 </div>
                                 <div id="upload-placeholder">
                                     <svg class="w-8 h-8 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    <p class="text-xs text-slate-500 dark:text-gray-400">Clique para selecionar ou arraste uma imagem</p>
+                                    <p class="text-xs text-slate-500 dark:text-gray-400">Clique para selecionar ou arraste as imagens</p>
+                                    <p id="image-help" class="mt-1 text-xs text-slate-400">Até 5 imagens JPG, PNG ou WEBP, com no máximo 2 MB cada.</p>
                                 </div>
                             </div>
                         </div>
@@ -78,7 +86,7 @@
                 </div>
                 <div class="col-span-1 md:col-span-2 mt-4">
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" id="has-variation" class="w-5 h-5 text-[#004aad] rounded">
+                        <input type="checkbox" id="has-variation" name="has_variation" class="w-5 h-5 text-[#004aad] rounded">
                         <span class="text-sm font-semibold text-slate-700 dark:text-gray-300">Este produto possui variações?</span>
                     </label>
                 </div>
@@ -96,7 +104,7 @@
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 ml-1">Seleção Mínima</label>
                                 <select name="min_selection"  class="w-full text-center px-5 py-3 bg-slate-100 dark:bg-gray-950 border border-slate-200 dark:border-gray-700 text-slate-900 dark:text-gray-200 rounded-full focus:ring-2 focus:ring-[#0158cd] outline-none appearance-none">
                                    @for ($i=0; $i < 10; $i++)
-                                       <option value="{{ $i }}">{{ $i }}</option>
+                                       <option value="{{ $i }}" @selected($i === 1)>{{ $i }}</option>
                                    @endfor 
                                 </select>
                             </div>
@@ -122,12 +130,14 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-center justify-end gap-4">
+            <div class="sticky bottom-3 z-20 flex items-center justify-end gap-3 rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-xl backdrop-blur dark:border-gray-800 dark:bg-gray-900/95 sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                 <a href="{{ route('dashboard.products.index') }}" class="px-8 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-white transition-all uppercase tracking-wider">Cancelar</a>
                 <button type="submit" class="px-10 py-3 bg-[#004aad] hover:bg-[#0158cd] dark:bg-white dark:text-[#004aad] dark:hover:bg-gray-200 text-white font-bold rounded-full shadow-lg transform active:scale-[0.98] transition-all uppercase text-sm tracking-wider">Cadastrar Produto</button>
             </div>
         </form>
+        @endif
     </div>
+    @if($categories->isNotEmpty())
     <script>
         const imgInput = document.getElementById('img-input');
         const previewContainer = document.getElementById('preview-container');
@@ -139,6 +149,13 @@
                 URL.revokeObjectURL(img.src); 
                 img.remove();
             });
+            if (files.length > 5) {
+                imgInput.value = '';
+                window.alert('Selecione no máximo 5 imagens por produto.');
+                previewContainer.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                return;
+            }
             if (files.length > 0) {
                 for (const file of files) {
                     let img = document.createElement('img');
@@ -196,5 +213,6 @@
                 e.target.parentElement.remove();
             }
         });
-    </script>    
+    </script>
+    @endif
 </x-dashboard_layout>

@@ -289,6 +289,48 @@ it('recalcula o preço atual no servidor antes de abrir o WhatsApp', function ()
     expect(urldecode($response->headers->get('Location')))->toContain('Total: R$ 30,00');
 });
 
+it('informa no WhatsApp o subtotal completo de um carrinho com vários produtos', function () {
+    $category = Category::create([
+        'tenant_id' => $this->storeA->id,
+        'name' => 'Categoria Subtotal',
+        'status' => true,
+    ]);
+    $firstProduct = Product::create([
+        'tenant_id' => $this->storeA->id,
+        'category_id' => $category->id,
+        'name' => 'Primeiro Produto',
+        'price' => 10,
+        'status' => true,
+    ]);
+    $secondProduct = Product::create([
+        'tenant_id' => $this->storeA->id,
+        'category_id' => $category->id,
+        'name' => 'Segundo Produto',
+        'price' => 25,
+        'status' => true,
+    ]);
+
+    $this->post($this->storeAUrl.'/loja/cart', [
+        'product_id' => $firstProduct->id,
+        'quantity' => 2,
+    ]);
+    $this->post($this->storeAUrl.'/loja/cart', [
+        'product_id' => $secondProduct->id,
+        'quantity' => 1,
+    ]);
+
+    $response = $this->post($this->storeAUrl.'/loja/order/finish', [
+        'name' => 'Cliente Teste',
+        'type' => 'pickup',
+        'payment_method' => 'pix',
+    ]);
+
+    $message = urldecode($response->headers->get('Location'));
+
+    expect($message)->toContain('Subtotal: R$ 45,00')
+        ->and($message)->toContain('Total: R$ 45,00');
+});
+
 it('valida o troco e o telefone da loja antes de finalizar', function () {
     $category = Category::create([
         'tenant_id' => $this->storeA->id,

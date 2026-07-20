@@ -76,8 +76,13 @@ class UsersController extends Controller
                 'slug' => $request->slug,
                 'phone' => $request->phone,
             ]);
-            Mail::to($user->email)->send(new CreateAccount($user->name, $user->email, $store->slug));
             DB::commit();
+
+            try {
+                Mail::to($user->email)->send(new CreateAccount($user->name, $user->email, $store->slug));
+            } catch (\Throwable $mailException) {
+                report($mailException);
+            }
 
             return redirect()->route('payment')->with('register_success', true);
         } catch (ValidationException $e) {
@@ -91,7 +96,9 @@ class UsersController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->withErrors(['error' => $e->getMessage()])->withInput();
+            report($e);
+
+            return back()->withErrors(['error' => 'Não foi possível concluir o cadastro. Tente novamente.'])->withInput();
         }
     }
 
@@ -116,6 +123,8 @@ class UsersController extends Controller
                 [
                     'store.name' => 'required|string|max:255',
                     'store.phone' => 'required|string|max:20',
+                    'store.description' => 'nullable|string|max:1000',
+                    'store.delivery_fee' => 'nullable|numeric|min:0|max:9999.99',
                     'address.street' => 'required|string|max:255',
                     'address.number' => 'required|string|max:20',
                     'address.complement' => 'nullable|string|max:255',
@@ -123,8 +132,8 @@ class UsersController extends Controller
                     'address.city' => 'required|string|max:100',
                     'address.state' => 'required|string|max:50',
                     'address.zip_code' => 'required|string|size:8', // sem traço
-                    'password' => 'nullable|string|min:6|confirmed',
-                    'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                    'password' => 'nullable|string|min:8|confirmed',
+                    'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=4096,max_height=4096',
                 ],
                 [
                     'store.name.required' => 'O nome da loja é obrigatório.',
@@ -177,13 +186,13 @@ class UsersController extends Controller
             $data = [
                 'name' => $storeData['name'],
                 'phone' => $storeData['phone'],
-                'description' => $storeData['description'],
+                'description' => $storeData['description'] ?? null,
                 'delivery_fee' => $storeData['delivery_fee'] ?? 0.00,
             ];
             $oldImg = $store->img;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $filePath = $request->file('img')->storeAs('logo', $fileName);
+                $filePath = $request->file('img')->storeAs("tenants/{$store->id}/logo", $fileName);
                 $data['img'] = $filePath;
             }
             $store->update($data);

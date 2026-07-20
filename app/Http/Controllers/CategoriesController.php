@@ -44,8 +44,8 @@ class CategoriesController extends Controller
             $this->authorize('create', Category::class);
             $request->validate(
                 [
-                    'name' => 'required',
-                    'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                    'name' => 'required|string|max:100',
+                    'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=4096,max_height=4096',
                     'status' => 'required|in:0,1',
                 ],
                 [
@@ -60,7 +60,7 @@ class CategoriesController extends Controller
             $filePath = null;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $filePath = $request->file('img')->storeAs('categories', $fileName);
+                $filePath = $request->file('img')->storeAs('tenants/'.auth()->user()->store->id.'/categories', $fileName);
             }
             DB::beginTransaction();
             Category::create([
@@ -107,8 +107,8 @@ class CategoriesController extends Controller
         try {
             $request->validate(
                 [
-                    'name' => 'required',
-                    'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                    'name' => 'required|string|max:100',
+                    'img' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=4096,max_height=4096',
                     'status' => 'required|in:0,1',
                 ],
                 [
@@ -126,7 +126,7 @@ class CategoriesController extends Controller
             $newImage = null;
             if ($request->hasFile('img')) {
                 $fileName = $request->file('img')->hashName();
-                $newImage = $request->file('img')->storeAs('categories', $fileName);
+                $newImage = $request->file('img')->storeAs('tenants/'.auth()->user()->store->id.'/categories', $fileName);
             }
             DB::beginTransaction();
             $category->name = $request->name;

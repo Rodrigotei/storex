@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['name', 'img', 'status', 'tenant_id'])]
 class Category extends Model
 {
-  public function products(): HasMany
+    public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }

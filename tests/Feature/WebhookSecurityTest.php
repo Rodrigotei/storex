@@ -69,3 +69,30 @@ it('processa cada pagamento uma única vez', function () {
 
     Mail::assertSent(ActiveAccount::class, 1);
 });
+
+it('rejeita pagamento de produto ou valor diferente do configurado', function () {
+    config([
+        'services.checkout.product_id' => 'produto-storex',
+        'services.checkout.product_id_field' => 'data.product.id',
+        'services.checkout.amount' => '61.75',
+        'services.checkout.amount_field' => 'data.amount',
+    ]);
+
+    $payload = [
+        'secret' => 'segredo-de-teste',
+        'event' => 'purchase_approved',
+        'data' => [
+            'id' => 'pagamento-invalido',
+            'customer' => ['email' => $this->user->email],
+            'product' => ['id' => 'outro-produto'],
+            'amount' => 10,
+        ],
+    ];
+
+    $this->postJson('/api/webhook/active-account', $payload)
+        ->assertUnprocessable()
+        ->assertJson(['error' => 'Purchase does not match']);
+
+    expect($this->user->fresh()->status)->toBe('pending')
+        ->and(WebhookEvent::count())->toBe(0);
+});

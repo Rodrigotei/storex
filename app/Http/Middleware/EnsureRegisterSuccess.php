@@ -15,7 +15,7 @@ class EnsureRegisterSuccess
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!session('register_success')) {
+        if (! session('register_success')) {
             return redirect()->route('home');
         }
         session()->forget('register_success');

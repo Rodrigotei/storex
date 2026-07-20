@@ -53,14 +53,15 @@ class ProductsController extends Controller
             $tenantId = auth()->user()->store->id;
             $request->validate(
                 [
-                    'name' => 'required',
+                    'name' => 'required|string|max:150',
                     'category_id' => [
                         'required',
                         Rule::exists('categories', 'id')->where('tenant_id', $tenantId),
                     ],
                     'price' => 'required|numeric|min:0',
-                    'img' => 'nullable|array',
-                    'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                    'description' => 'nullable|string|max:2000',
+                    'img' => 'nullable|array|max:5',
+                    'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=4096,max_height=4096',
                     'status' => 'required|in:0,1',
                     'variation_id' => 'nullable|exists:variations,id',
                     'min_selection' => 'nullable|integer|min:0',
@@ -105,7 +106,7 @@ class ProductsController extends Controller
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products', $fileName);
+                    $filePath = $file->storeAs("tenants/{$tenantId}/products", $fileName);
                     if (! $filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }
@@ -198,14 +199,15 @@ class ProductsController extends Controller
             $tenantId = auth()->user()->store->id;
             $request->validate(
                 [
-                    'name' => 'required',
+                    'name' => 'required|string|max:150',
                     'category_id' => [
                         'required',
                         Rule::exists('categories', 'id')->where('tenant_id', $tenantId),
                     ],
-                    'price' => 'required',
-                    'img' => 'nullable|array',
-                    'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                    'price' => 'required|numeric|min:0',
+                    'description' => 'nullable|string|max:2000',
+                    'img' => 'nullable|array|max:5',
+                    'img.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048|dimensions:max_width=4096,max_height=4096',
                     'status' => 'required|in:0,1',
                     'promotional_price' => 'nullable|numeric|min:0|lt:price',
                     'variation_id' => 'nullable|exists:variations,id',
@@ -254,7 +256,7 @@ class ProductsController extends Controller
                         throw new \Exception('Erro ao fazer upload da imagem.');
                     }
                     $fileName = $file->hashName();
-                    $filePath = $file->storeAs('products', $fileName);
+                    $filePath = $file->storeAs("tenants/{$tenantId}/products", $fileName);
                     if (! $filePath) {
                         throw new \Exception('Falha ao salvar imagem.');
                     }

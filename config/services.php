@@ -36,6 +36,10 @@ return [
     ],
     'checkout' => [
         'secret' => env('SECRET_KEY'),
-    ]
+        'product_id' => env('CHECKOUT_PRODUCT_ID'),
+        'product_id_field' => env('CHECKOUT_PRODUCT_ID_FIELD', 'data.product.id'),
+        'amount' => env('CHECKOUT_EXPECTED_AMOUNT'),
+        'amount_field' => env('CHECKOUT_AMOUNT_FIELD', 'data.amount'),
+    ],
 
 ];

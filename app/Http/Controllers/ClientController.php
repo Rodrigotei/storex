@@ -262,7 +262,7 @@ class ClientController extends Controller
                 ->keyBy('id');
 
             $checkoutItems = [];
-            $subtotal = 0;
+            $orderSubtotal = 0;
             foreach ($cart as $item) {
                 $product = $products->get($item['product_id']);
                 if (! $product) {
@@ -314,11 +314,11 @@ class ClientController extends Controller
                     'qty' => $quantity,
                     'variations' => $variations,
                 ]);
-                $subtotal += $itemSubtotal;
+                $orderSubtotal += $itemSubtotal;
             }
 
             $delivery_fee = $request->type === 'delivery' ? (float) (app('store')->delivery_fee ?? 0) : 0;
-            $total = $subtotal + $delivery_fee;
+            $total = $orderSubtotal + $delivery_fee;
 
             if ($request->payment_method === 'cash' && $request->filled('change_for') && (float) $request->change_for < $total) {
                 return back()->withErrors(['change_for' => 'O valor para troco deve ser igual ou maior que o total do pedido.'])->withInput();
@@ -336,7 +336,7 @@ class ClientController extends Controller
             $message = "*NOVO PEDIDO*\n";
             $message .= "━━━━━━━━━━━━━━━━━━━━━━\n\n";
             foreach ($checkoutItems as $item) {
-                $subtotal = $item['final_price'] * $item['qty'];
+                $itemSubtotal = $item['final_price'] * $item['qty'];
                 $message .= " *{$item['name']}*\n";
                 $message .= "   {$item['qty']}x R$ ".number_format($item['price'], 2, ',', '.')."\n";
                 foreach (collect($item['variations'])->groupBy('group') as $groupName => $variationValues) {
@@ -349,11 +349,11 @@ class ClientController extends Controller
                 if (! empty($item['observation'])) {
                     $message .= "   Obs: {$item['observation']}\n";
                 }
-                $message .= '   Subtotal: R$ '.number_format($subtotal, 2, ',', '.')."\n\n";
+                $message .= '   Subtotal: R$ '.number_format($itemSubtotal, 2, ',', '.')."\n\n";
             }
             $message .= "━━━━━━━━━━━━━━━━━━━━━━\n";
             $message .= "*RESUMO*\n";
-            $message .= 'Subtotal: R$ '.number_format($subtotal, 2, ',', '.')."\n";
+            $message .= 'Subtotal: R$ '.number_format($orderSubtotal, 2, ',', '.')."\n";
             if ($request->type === 'delivery') {
                 $message .= 'Entrega: '.($delivery_fee > 0 ? 'R$ '.number_format($delivery_fee, 2, ',', '.') : 'Grátis')."\n";
             }
