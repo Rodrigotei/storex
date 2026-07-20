@@ -39,6 +39,14 @@ class WebhookController extends Controller
             return response()->json(['status' => 'ignored']);
         }
 
+        if (! $this->matchesConfiguredPurchase($data)) {
+            Log::warning('Webhook rejeitado por não corresponder ao produto ou valor configurado.', [
+                'external_id' => $data['data']['id'],
+            ]);
+
+            return response()->json(['error' => 'Purchase does not match'], 422);
+        }
+
         try {
             $processed = $this->activateSubscription(
                 externalId: $data['data']['id'],
@@ -51,6 +59,38 @@ class WebhookController extends Controller
 
             return response()->json(['error' => 'Internal error'], 500);
         }
+    }
+
+    private function matchesConfiguredPurchase(array $data): bool
+    {
+        $expectedProductId = config('services.checkout.product_id');
+        $productIdField = config('services.checkout.product_id_field');
+
+        if (filled($expectedProductId)) {
+            $receivedProductId = data_get($data, $productIdField);
+
+            if (! is_scalar($receivedProductId) || ! hash_equals((string) $expectedProductId, (string) $receivedProductId)) {
+                return false;
+            }
+        }
+
+        $expectedAmount = config('services.checkout.amount');
+        $amountField = config('services.checkout.amount_field');
+
+        if (filled($expectedAmount)) {
+            $receivedAmount = data_get($data, $amountField);
+
+            if (! is_numeric($receivedAmount) || $this->toCents($receivedAmount) !== $this->toCents($expectedAmount)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function toCents(mixed $amount): int
+    {
+        return (int) round((float) $amount * 100);
     }
 
     private function activateSubscription(string $externalId, string $email): bool
